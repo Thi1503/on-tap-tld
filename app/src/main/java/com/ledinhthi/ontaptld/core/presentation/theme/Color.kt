@@ -1,4 +1,4 @@
-package com.ledinhthi.ontaptld.ui.theme
+package com.ledinhthi.ontaptld.core.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
