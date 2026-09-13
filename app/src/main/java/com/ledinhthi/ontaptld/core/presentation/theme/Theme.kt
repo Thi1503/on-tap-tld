@@ -8,25 +8,39 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
 
+/**
+ * Ported từ `lib/base/themes/base_theme.dart` (`getThemeByAppTheme(bool isDark)`).
+ * Khác biệt so với bản Flutter: `isDarkMode` không còn là cờ static toàn cục —
+ * `themeMode` được truyền từ [com.ledinhthi.ontaptld.core.data.local.prefs.AppPreferences]
+ * (DataStore) qua MainActivity, tương đương `ThemeCubit` bên Flutter.
+ */
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+    primary = AppPalette.PrimaryDark2,
+    onPrimary = AppPalette.White,
+    background = DarkAppExtendedColors.scaffoldBackground,
+    surface = DarkAppExtendedColors.cardBackground,
+    error = DarkAppExtendedColors.errorText,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
+    primary = AppPalette.PrimaryLight2,
+    onPrimary = AppPalette.White,
+    background = LightAppExtendedColors.scaffoldBackground,
+    surface = LightAppExtendedColors.cardBackground,
+    error = LightAppExtendedColors.errorText,
 )
 
 @Composable
 fun OnTapTldTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
-    dynamicColor: Boolean = true,
+    // Mặc định false để giữ đúng bộ nhận diện màu cam của TLD Tracker thay vì
+    // để Material You lấy theo wallpaper người dùng (Android 12+). Bật true
+    // nếu muốn tận dụng dynamic color của hệ thống thay vì brand cố định.
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val darkTheme = when (themeMode) {
@@ -34,6 +48,7 @@ fun OnTapTldTheme(
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
     }
+    val extendedColors = if (darkTheme) DarkAppExtendedColors else LightAppExtendedColors
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -44,9 +59,12 @@ fun OnTapTldTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content,
-    )
+    CompositionLocalProvider(LocalAppColors provides extendedColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = AppShapes,
+            content = content,
+        )
+    }
 }
