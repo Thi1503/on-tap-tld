@@ -4,44 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.ledinhthi.ontaptld.ui.theme.OnTapTLDTheme
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ledinhthi.ontaptld.core.data.local.prefs.AppPreferences
+import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
+import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
+import com.ledinhthi.ontaptld.core.presentation.theme.OnTapTldTheme
+import com.ledinhthi.ontaptld.navigation.AppNavHost
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var navigator: AppNavigator
+
+    @Inject
+    lateinit var prefs: AppPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            OnTapTLDTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            val theme by prefs.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+            OnTapTldTheme(themeMode = theme) {
+                AppNavHost(navigator = navigator)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    OnTapTLDTheme {
-        Greeting("Android")
     }
 }
