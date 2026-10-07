@@ -13,15 +13,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppDialog
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
-import com.ledinhthi.ontaptld.feature.auth.presentation.login.LoginScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
@@ -58,7 +59,8 @@ fun AppNavHost(navigator: AppNavigator) {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable<SplashRoute> { SplashScreen() }
-            composable<LoginRoute> { LoginScreen() }
+            // Màn Login email/mật khẩu cũ đã gỡ khỏi luồng — đăng nhập Google (tuỳ chọn, từ
+            // Cài đặt) sẽ thay vào ở bước 6 của docs/KE_HOACH_PHAT_TRIEN.md.
             composable<HomeRoute> { DeckListScreen() }
             composable<DeckDetailRoute> { DeckDetailScreen() }
             composable<ManualCardRoute> { ManualCardScreen() }
@@ -77,7 +79,7 @@ fun AppNavHost(navigator: AppNavigator) {
                 TextButton(onClick = {
                     dialog = null
                     d.onClose?.invoke()
-                }) { Text("Đóng") }
+                }) { Text(stringResource(R.string.common_close)) }
             },
             text = { Text(d.message) },
         )

@@ -47,7 +47,25 @@ File này viết cho người **chưa rành Kotlin/Jetpack Compose** — mục t
 ```
 
 Không cần cấu hình API key/backend gì để chạy — app **offline-first**, chạy hoàn toàn bằng
-database local (Room) cho tới khi làm tới phần AI/sync (Sprint 2).
+database local (Room). Riêng AI sinh thẻ và đồng bộ thì cần Firebase (xem ngay dưới).
+
+### Firebase (tuỳ chọn khi chỉ muốn chạy thử)
+
+File `app/google-services.json` **không được commit** (nằm trong `.gitignore`), nên repo mới clone
+về sẽ không có nó. Build vẫn chạy bình thường: `app/build.gradle.kts` chỉ apply plugin
+`google-services` khi thấy file, và `OnTapTldApp` tự bỏ qua Firebase nếu không có cấu hình —
+khi đó mọi phần offline (bộ thẻ, thẻ thủ công, ôn tập) vẫn dùng được, chỉ AI/đồng bộ là không.
+
+Muốn bật Firebase trên máy mình:
+
+1. Xin file `google-services.json` từ người giữ dự án (hoặc tải từ Firebase Console → Project
+   settings → Your apps, project `on-tap-tld`), đặt vào thư mục `app/`.
+2. Chạy bản debug một lần, mở Logcat lọc theo tag `DebugAppCheckProvider`, chép debug token được
+   in ra.
+3. Dán token vào Firebase Console → App Check → Apps → menu ⋮ → **Manage debug tokens**. App Check
+   đang bật Enforce cho AI Logic, nên thiếu bước này mọi lần gọi AI từ máy dev đều bị từ chối.
+4. Máy mới cũng cần đăng ký SHA-1/SHA-256 của debug keystore (`./gradlew signingReport`) trong
+   Project settings thì đăng nhập Google mới chạy.
 
 ---
 

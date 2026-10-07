@@ -7,6 +7,13 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services) apply false
+}
+
+// `google-services.json` không commit (xem .gitignore). Chỉ apply plugin khi máy có file,
+// để người clone repo vẫn build được — khi đó app chạy không Firebase (xem OnTapTldApp).
+if (file("google-services.json").exists()) {
+    apply(plugin = libs.plugins.google.services.get().pluginId)
 }
 
 android {
@@ -40,6 +47,10 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+    }
+    // MigrationTest đọc schema JSON đã export để dựng database ở version cũ.
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
 }
 
@@ -83,6 +94,11 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Firebase App Check — provider khác nhau theo build type (xem AppCheckInstaller)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.appcheck.playintegrity)
+    debugImplementation(libs.firebase.appcheck.debug)
 
     // Misc
     implementation(libs.timber)

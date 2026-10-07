@@ -2,6 +2,7 @@ package com.ledinhthi.ontaptld.core.di
 
 import android.content.Context
 import androidx.room.Room
+import com.ledinhthi.ontaptld.core.data.local.db.ALL_MIGRATIONS
 import com.ledinhthi.ontaptld.core.data.local.db.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -18,8 +19,14 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext ctx: Context): AppDatabase =
         Room.databaseBuilder(ctx, AppDatabase::class.java, "ontaptld.db")
-            // .addMigrations(MIGRATION_1_2, …)   // BẮT BUỘC sau bản Closed Testing đầu tiên (docs Mục 7.3)
+            .addMigrations(*ALL_MIGRATIONS)
             .build()
+
+    @Provides
+    fun provideSyncQueueDao(db: AppDatabase) = db.syncQueueDao()
+
+    @Provides
+    fun provideReviewLogDao(db: AppDatabase) = db.reviewLogDao()
 
     @Provides
     fun provideDeckDao(db: AppDatabase) = db.deckDao()
