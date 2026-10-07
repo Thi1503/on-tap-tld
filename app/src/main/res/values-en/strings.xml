@@ -1,6 +1,29 @@
 <resources>
     <!-- Chỉ cần khai lại những key muốn dịch. Key nào không có ở đây (vd app_name)
          Android tự lấy từ res/values/strings.xml (ngôn ngữ mặc định). -->
+
+    <!-- common -->
+    <string name="common_back">Back</string>
+    <string name="common_close">Close</string>
+    <string name="common_retry">Try again</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_edit">Edit</string>
+
+    <!-- error -->
+    <string name="error_generic">Something went wrong.</string>
+    <string name="error_local_storage">Couldn\'t read or write data on this device. Try restarting the app.</string>
+    <string name="error_ocr_no_text">No text found in the photo. Try a clearer shot.</string>
+    <string name="error_ai_quota">You\'ve used all of today\'s AI card generations. Try again tomorrow.</string>
+    <string name="error_ai_network">Creating cards with AI needs an internet connection. Manual cards still work offline.</string>
+    <string name="error_ai_content_blocked">AI couldn\'t create cards from this content. You can add cards manually instead.</string>
+    <string name="error_ai_bad_response">AI returned an invalid result. Please try again.</string>
+    <string name="error_ai_app_check">App verification failed. Update to the latest version.</string>
+    <string name="error_ai_not_configured">AI isn\'t enabled in this build.</string>
+    <string name="error_ai_unavailable">The AI service is temporarily unavailable.</string>
+
+    <!-- login (legacy) -->
     <string name="login_title">Sign in</string>
     <string name="login_subtitle">Sign in to keep learning with %1$s</string>
     <string name="login_email_label">Email</string>

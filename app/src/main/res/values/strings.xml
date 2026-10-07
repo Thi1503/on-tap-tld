@@ -1,7 +1,32 @@
 <resources>
     <string name="app_name" translatable="false">OnTapTLD</string>
 
-    <!-- feature/auth/presentation/login — key đặt theo mẫu "<màn>_<vị trí>" -->
+    <!-- Quy ước đặt key: "<màn hoặc nhóm>_<vị trí>". Chuỗi mặc định là tiếng Việt;
+         bản dịch nằm ở res/values-en/strings.xml (cùng key). -->
+
+    <!-- common — dùng lại ở nhiều màn -->
+    <string name="common_back">Quay lại</string>
+    <string name="common_close">Đóng</string>
+    <string name="common_retry">Thử lại</string>
+    <string name="common_cancel">Huỷ</string>
+    <string name="common_save">Lưu</string>
+    <string name="common_delete">Xoá</string>
+    <string name="common_edit">Sửa</string>
+
+    <!-- error — thông báo lỗi do GlobalExceptionHandler phát ra -->
+    <string name="error_generic">Đã có lỗi xảy ra.</string>
+    <string name="error_local_storage">Không đọc/ghi được dữ liệu trên máy. Thử khởi động lại app.</string>
+    <string name="error_ocr_no_text">Không nhận được chữ từ ảnh, thử chụp rõ hơn.</string>
+    <string name="error_ai_quota">Bạn đã dùng hết lượt tạo thẻ bằng AI hôm nay. Thử lại vào ngày mai nhé.</string>
+    <string name="error_ai_network">Cần mạng để tạo thẻ bằng AI. Tạo thẻ thủ công vẫn dùng offline bình thường.</string>
+    <string name="error_ai_content_blocked">Nội dung này không tạo được thẻ bằng AI. Bạn có thể tự thêm thẻ thủ công.</string>
+    <string name="error_ai_bad_response">AI trả về kết quả không hợp lệ, thử lại giúp mình.</string>
+    <string name="error_ai_app_check">Lỗi xác thực ứng dụng. Cập nhật app lên bản mới nhất.</string>
+    <string name="error_ai_not_configured">Tính năng AI chưa được bật trong bản build này.</string>
+    <string name="error_ai_unavailable">Dịch vụ AI tạm thời không dùng được.</string>
+
+    <!-- feature/auth/presentation/login — màn email/mật khẩu cũ, đã gỡ khỏi điều hướng;
+         sẽ được thay bằng đăng nhập Google ở bước 6 của docs/KE_HOACH_PHAT_TRIEN.md -->
     <string name="login_title">Đăng nhập</string>
     <string name="login_subtitle">Đăng nhập để tiếp tục học cùng %1$s</string>
     <string name="login_email_label">Email</string>

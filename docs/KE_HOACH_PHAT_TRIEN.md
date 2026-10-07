@@ -47,17 +47,26 @@ Xong ngày 7/10/2026 — project `on-tap-tld`, gói Spark (miễn phí).
 
 ### Bước 1 — Nền
 
+Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — chờ Thi review.
+
 **Claude**
-- [ ] Thêm token màu mới theo design vào `Color.kt` (cam đậm, xanh đậm, đỏ đậm cho chữ trên nền nhạt; các tông dark tương ứng)
-- [ ] Component dùng chung: nút chính / phụ, thẻ, badge "Thủ công" / "AI", top bar, trạng thái rỗng / lỗi / đang tải
-- [ ] Thêm bảng `sync_queue` vào schema Room
-- [ ] Đưa chuỗi vào `strings.xml` (vi / en) ngay từ đầu
-- [ ] Splash vào thẳng Home; gỡ màn Login email khỏi luồng điều hướng
-- [ ] Nếu đã có `google-services.json`: gắn plugin Firebase vào Gradle, khởi tạo App Check; đưa file vào `.gitignore`
+- [x] Thêm token màu mới theo design vào `Color.kt` (cam đậm, xanh đậm, đỏ đậm cho chữ trên nền nhạt; các tông dark tương ứng); ánh xạ đủ slot Material3 trong `Theme.kt`; thang chữ mới trong `Type.kt`
+- [x] Font Nunito Sans: `res/font/nunito_sans.ttf` là **variable font** (kho Google Fonts không còn file tĩnh từng độ đậm); giấy phép OFL ở `assets/licenses/`. Ở Android 7.x (API 24–25) mọi độ đậm rơi về Regular
+- [x] Component dùng chung trong `core/presentation/components/`: `PrimaryButton` / `SecondaryButton` / `AppTextButton` / `AppIconButton`, `AppCard`, `AppBadge` / `StatusPill`, `AppTopBar`, `EmptyState` / `ErrorState` / `LoadingState` / `SkeletonBlock`; `ScreenStateHost` nhận thêm slot `loading` / `empty`
+- [x] Bộ icon nét (17 cái) dạng vector drawable `res/drawable/ic_*.xml`, lấy đúng nét từ bản thiết kế
+- [x] Schema Room **v2** qua `MIGRATION_1_2`: thêm `sync_queue` và `review_logs` (xem ghi chú dưới); có `MigrationTest` chạy trên emulator
+- [x] `StringProvider` cho ViewModel / `GlobalExceptionHandler`; chuỗi dùng chung và chuỗi lỗi đã vào `strings.xml` (vi / en). Chuỗi của từng màn sẽ chuyển dần khi dựng lại màn đó
+- [x] Splash vào thẳng Home; gỡ màn Login email khỏi `AppNavHost` (file cũ còn giữ tới bước 6)
+- [x] Gắn plugin `google-services` (chỉ apply khi máy có file), Firebase BoM, App Check: bản debug dùng debug provider, bản release dùng Play Integrity; README có hướng dẫn cho máy mới
+
+> **Thêm ngoài kế hoạch — bảng `review_logs`:** `flashcards` chỉ giữ trạng thái SM-2 mới nhất, không
+> đủ để dựng màn Thống kê (số thẻ ôn mỗi ngày, tỉ lệ nhớ, chuỗi ngày ôn). Bảng lịch sử này được
+> thêm ngay từ bây giờ để bước 3 ghi dữ liệu và bước 7 có số liệu thật. Chỉ lưu local, không đồng bộ.
 
 **Thi**
 - [ ] Review, merge
-- [ ] Cho phép Claude tải font Nunito Sans, hoặc tự thả file `.ttf` vào `res/font/`
+- [ ] Chép debug token của App Check (Logcat, tag `DebugAppCheckProvider`) vào Firebase Console → App Check → Manage debug tokens
+- [x] Cho phép Claude tải font Nunito Sans
 
 ### Bước 2 — Bộ thẻ
 

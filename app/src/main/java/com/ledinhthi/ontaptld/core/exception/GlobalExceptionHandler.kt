@@ -1,50 +1,51 @@
 package com.ledinhthi.ontaptld.core.exception
 
+import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.SnackBarType
+import com.ledinhthi.ontaptld.core.presentation.text.StringProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Nơi DUY NHẤT quyết định "lỗi này thì hiện dialog hay snackbar".
  * Vai trò giống hệt `ExceptionHandler` của base Flutter, đổi nhánh từ HTTP code sang loại lỗi app.
- *
- * i18n: literal tiếng Việt chỉ để chạy Sprint 1. Sprint 2 truyền `StringProvider` qua constructor.
  */
 @Singleton
 class GlobalExceptionHandler @Inject constructor(
     private val navigator: AppNavigator,
+    private val strings: StringProvider,
 ) {
     fun handle(wrapper: AppExceptionWrapper) {
         when (val e = wrapper.exception) {
             is AppException.AiException -> handleAi(e, wrapper.overrideMessage)
             is AppException.OcrException -> navigator.showSnackBar(
-                "Không nhận được chữ từ ảnh, thử chụp rõ hơn.", SnackBarType.FAILURE,
+                strings.get(R.string.error_ocr_no_text), SnackBarType.FAILURE,
             )
             is AppException.LocalException -> navigator.showErrorDialog(
-                "Không đọc/ghi được dữ liệu trên máy. Thử khởi động lại app.",
+                strings.get(R.string.error_local_storage),
             )
             is AppException.CustomException -> navigator.showSnackBar(
-                wrapper.overrideMessage ?: e.userMessage ?: "Đã có lỗi xảy ra.",
+                wrapper.overrideMessage ?: e.userMessage ?: strings.get(R.string.error_generic),
             )
-            is AppException.UncaughtException -> navigator.showSnackBar("Đã có lỗi xảy ra.")
+            is AppException.UncaughtException -> navigator.showSnackBar(strings.get(R.string.error_generic))
         }
     }
 
     private fun handleAi(e: AppException.AiException, override: String?) = when (e.kind) {
         AiErrorKind.QUOTA_EXCEEDED_LOCAL, AiErrorKind.QUOTA_EXCEEDED_SERVER ->
-            navigator.showNotificationDialog("Bạn đã dùng hết lượt tạo thẻ bằng AI hôm nay. Thử lại vào ngày mai nhé.")
+            navigator.showNotificationDialog(strings.get(R.string.error_ai_quota))
         AiErrorKind.NETWORK ->
-            navigator.showErrorDialog("Cần mạng để tạo thẻ bằng AI. Tạo thẻ thủ công vẫn dùng offline bình thường.")
+            navigator.showErrorDialog(strings.get(R.string.error_ai_network))
         AiErrorKind.CONTENT_BLOCKED ->
-            navigator.showNotificationDialog("Nội dung này không tạo được thẻ bằng AI. Bạn có thể tự thêm thẻ thủ công.")
+            navigator.showNotificationDialog(strings.get(R.string.error_ai_content_blocked))
         AiErrorKind.RESPONSE_PARSE_ERROR, AiErrorKind.EMPTY_RESPONSE ->
-            navigator.showSnackBar("AI trả về kết quả không hợp lệ, thử lại giúp mình.")
+            navigator.showSnackBar(strings.get(R.string.error_ai_bad_response))
         AiErrorKind.APP_CHECK_FAILED ->
-            navigator.showErrorDialog("Lỗi xác thực ứng dụng. Cập nhật app lên bản mới nhất.")
+            navigator.showErrorDialog(strings.get(R.string.error_ai_app_check))
         AiErrorKind.NOT_CONFIGURED ->
-            navigator.showErrorDialog("Tính năng AI chưa được bật trong bản build này.")
+            navigator.showErrorDialog(strings.get(R.string.error_ai_not_configured))
         AiErrorKind.MODEL_UNAVAILABLE, AiErrorKind.UNKNOWN ->
-            navigator.showSnackBar(override ?: "Dịch vụ AI tạm thời không dùng được.")
+            navigator.showSnackBar(override ?: strings.get(R.string.error_ai_unavailable))
     }
 }
