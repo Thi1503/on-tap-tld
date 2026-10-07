@@ -21,6 +21,7 @@ import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppDialog
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
+import com.ledinhthi.ontaptld.feature.auth.presentation.login.LoginScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
@@ -57,6 +58,7 @@ fun AppNavHost(navigator: AppNavigator) {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable<SplashRoute> { SplashScreen() }
+            composable<LoginRoute> { LoginScreen() }
             composable<HomeRoute> { DeckListScreen() }
             composable<DeckDetailRoute> { DeckDetailScreen() }
             composable<ManualCardRoute> { ManualCardScreen() }

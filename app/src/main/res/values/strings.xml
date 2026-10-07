@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">OnTapTLD</string>
+    <string name="app_name" translatable="false">OnTapTLD</string>
+
+    <!-- feature/auth/presentation/login — key đặt theo mẫu "<màn>_<vị trí>" -->
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục học cùng %1$s</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Mật khẩu</string>
+    <string name="login_password_show">Hiện</string>
+    <string name="login_password_hide">Ẩn</string>
+    <string name="login_forgot_password">Quên mật khẩu?</string>
+    <string name="login_button">Đăng nhập</string>
+    <string name="login_no_account">Chưa có tài khoản?</string>
+    <string name="login_sign_up">Đăng ký ngay</string>
 </resources>
