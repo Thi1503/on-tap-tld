@@ -38,10 +38,12 @@ Bước 1–3 không cần Firebase. Bước 4 và 6 cần Thi cấu hình Fireb
 
 ### Bước 0 — Cấu hình Firebase (Thi, làm song song với bước 1)
 
-- [ ] Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`
-- [ ] Bật AI Logic (nhà cung cấp Gemini Developer API) và App Check
-- [ ] Bật Auth (Google Sign-In, cần SHA-1 của keystore) và Firestore — có thể làm luôn hoặc để tới bước 6
-- [ ] Đặt `google-services.json` vào thư mục `app/`
+Xong ngày 7/10/2026 — project `on-tap-tld`, gói Spark (miễn phí).
+
+- [x] Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`
+- [x] Bật AI Logic (nhà cung cấp Gemini Developer API) và App Check (Play Integrity, **đã Enforce cho AI Logic** — bản debug phải đăng ký debug token ở App Check → Manage debug tokens thì mới gọi được AI)
+- [x] Bật Auth (Google Sign-In, đã đăng ký SHA của debug keystore) và Firestore (đã đặt Security Rules theo Mục 7.2)
+- [x] Đặt `google-services.json` vào thư mục `app/` (chưa commit; sẽ thêm vào `.gitignore` ở bước 1)
 
 ### Bước 1 — Nền
 
@@ -159,3 +161,17 @@ Bước 1–3 không cần Firebase. Bước 4 và 6 cần Thi cấu hình Fireb
 - Nút "Tiếp tục với Google": design đang dùng chữ "G" tạm, khi code thay bằng nút chuẩn của Google.
 - Con số hạn mức miễn phí của Gemini thay đổi theo thời gian — xem lại trang giá của Firebase AI Logic khi tạo project.
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
+
+### Ký phát hành — CHƯA LÀM (tại ngày chốt)
+
+Bước 0 chỉ đăng ký SHA của **debug keystore** (khoá Android Studio tự tạo để chạy bản debug).
+Chưa có keystore phát hành, chưa cấu hình `signingConfigs` trong `app/build.gradle.kts`.
+Trước khi build bản release phải làm đủ các việc sau, nếu không đăng nhập Google và App Check
+sẽ lỗi trên bản release dù bản debug chạy bình thường:
+
+- [ ] Tạo keystore phát hành; cất file và mật khẩu ở nơi an toàn, không commit vào repo
+- [ ] Cấu hình `signingConfigs` cho build type `release` (mật khẩu đọc từ file ngoài repo hoặc biến môi trường)
+- [ ] Lấy SHA-1 và SHA-256 của keystore phát hành, thêm vào Firebase: Project settings → Your apps → Add fingerprint
+- [ ] Nếu dùng Play App Signing: thêm cả SHA của khoá do Google ký (Play Console → App integrity)
+- [ ] Tải lại `google-services.json` sau khi thêm fingerprint
+- [ ] App Check: bật Play Integrity API và liên kết với Play Console, rồi mới bật Enforce cho bản release
