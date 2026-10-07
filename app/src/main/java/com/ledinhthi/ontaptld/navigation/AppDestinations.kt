@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 data object SplashRoute
 
 @Serializable
+data object LoginRoute // feature/auth — Sprint 2 (auth/sync), UI dựng trước ở Sprint 1
+
+@Serializable
 data object HomeRoute
 
 @Serializable

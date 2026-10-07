@@ -1,0 +1,14 @@
+<resources>
+    <!-- Chỉ cần khai lại những key muốn dịch. Key nào không có ở đây (vd app_name)
+         Android tự lấy từ res/values/strings.xml (ngôn ngữ mặc định). -->
+    <string name="login_title">Sign in</string>
+    <string name="login_subtitle">Sign in to keep learning with %1$s</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_password_show">Show</string>
+    <string name="login_password_hide">Hide</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_button">Sign in</string>
+    <string name="login_no_account">Don\'t have an account?</string>
+    <string name="login_sign_up">Sign up</string>
+</resources>
