@@ -4,6 +4,7 @@ import com.ledinhthi.ontaptld.core.MainDispatcherRule
 import com.ledinhthi.ontaptld.core.exception.GlobalExceptionHandler
 import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
+import com.ledinhthi.ontaptld.core.presentation.text.StringProvider
 import com.ledinhthi.ontaptld.feature.deck.domain.exception.DeckException
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CreateDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDecksUseCase
@@ -29,7 +30,8 @@ class DeckListViewModelTest {
     private val createDeck = mockk<CreateDeckUseCase>()
     private val navigator = mockk<AppNavigator>(relaxed = true)
     private val exceptionHandler = mockk<GlobalExceptionHandler>(relaxed = true)
-    private val toolbox = ViewModelToolbox(navigator, exceptionHandler)
+    private val strings = mockk<StringProvider>(relaxed = true)
+    private val toolbox = ViewModelToolbox(navigator, exceptionHandler, strings)
 
     @Test
     fun `tao deck ten rong - hien snackbar, khong goi ExceptionHandler`() = runTest {

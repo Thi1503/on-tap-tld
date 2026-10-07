@@ -38,24 +38,35 @@ Bước 1–3 không cần Firebase. Bước 4 và 6 cần Thi cấu hình Fireb
 
 ### Bước 0 — Cấu hình Firebase (Thi, làm song song với bước 1)
 
-- [ ] Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`
-- [ ] Bật AI Logic (nhà cung cấp Gemini Developer API) và App Check
-- [ ] Bật Auth (Google Sign-In, cần SHA-1 của keystore) và Firestore — có thể làm luôn hoặc để tới bước 6
-- [ ] Đặt `google-services.json` vào thư mục `app/`
+Xong ngày 7/10/2026 — project `on-tap-tld`, gói Spark (miễn phí).
+
+- [x] Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`
+- [x] Bật AI Logic (nhà cung cấp Gemini Developer API) và App Check (Play Integrity, **đã Enforce cho AI Logic** — bản debug phải đăng ký debug token ở App Check → Manage debug tokens thì mới gọi được AI)
+- [x] Bật Auth (Google Sign-In, đã đăng ký SHA của debug keystore) và Firestore (đã đặt Security Rules theo Mục 7.2)
+- [x] Đặt `google-services.json` vào thư mục `app/` (chưa commit; sẽ thêm vào `.gitignore` ở bước 1)
 
 ### Bước 1 — Nền
 
+Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — chờ Thi review.
+
 **Claude**
-- [ ] Thêm token màu mới theo design vào `Color.kt` (cam đậm, xanh đậm, đỏ đậm cho chữ trên nền nhạt; các tông dark tương ứng)
-- [ ] Component dùng chung: nút chính / phụ, thẻ, badge "Thủ công" / "AI", top bar, trạng thái rỗng / lỗi / đang tải
-- [ ] Thêm bảng `sync_queue` vào schema Room
-- [ ] Đưa chuỗi vào `strings.xml` (vi / en) ngay từ đầu
-- [ ] Splash vào thẳng Home; gỡ màn Login email khỏi luồng điều hướng
-- [ ] Nếu đã có `google-services.json`: gắn plugin Firebase vào Gradle, khởi tạo App Check; đưa file vào `.gitignore`
+- [x] Thêm token màu mới theo design vào `Color.kt` (cam đậm, xanh đậm, đỏ đậm cho chữ trên nền nhạt; các tông dark tương ứng); ánh xạ đủ slot Material3 trong `Theme.kt`; thang chữ mới trong `Type.kt`
+- [x] Font Nunito Sans: `res/font/nunito_sans.ttf` là **variable font** (kho Google Fonts không còn file tĩnh từng độ đậm); giấy phép OFL ở `assets/licenses/`. Ở Android 7.x (API 24–25) mọi độ đậm rơi về Regular
+- [x] Component dùng chung trong `core/presentation/components/`: `PrimaryButton` / `SecondaryButton` / `AppTextButton` / `AppIconButton`, `AppCard`, `AppBadge` / `StatusPill`, `AppTopBar`, `EmptyState` / `ErrorState` / `LoadingState` / `SkeletonBlock`; `ScreenStateHost` nhận thêm slot `loading` / `empty`
+- [x] Bộ icon nét (17 cái) dạng vector drawable `res/drawable/ic_*.xml`, lấy đúng nét từ bản thiết kế
+- [x] Schema Room **v2** qua `MIGRATION_1_2`: thêm `sync_queue` và `review_logs` (xem ghi chú dưới); có `MigrationTest` chạy trên emulator
+- [x] `StringProvider` cho ViewModel / `GlobalExceptionHandler`; chuỗi dùng chung và chuỗi lỗi đã vào `strings.xml` (vi / en). Chuỗi của từng màn sẽ chuyển dần khi dựng lại màn đó
+- [x] Splash vào thẳng Home; gỡ màn Login email khỏi `AppNavHost` (file cũ còn giữ tới bước 6)
+- [x] Gắn plugin `google-services` (chỉ apply khi máy có file), Firebase BoM, App Check: bản debug dùng debug provider, bản release dùng Play Integrity; README có hướng dẫn cho máy mới
+
+> **Thêm ngoài kế hoạch — bảng `review_logs`:** `flashcards` chỉ giữ trạng thái SM-2 mới nhất, không
+> đủ để dựng màn Thống kê (số thẻ ôn mỗi ngày, tỉ lệ nhớ, chuỗi ngày ôn). Bảng lịch sử này được
+> thêm ngay từ bây giờ để bước 3 ghi dữ liệu và bước 7 có số liệu thật. Chỉ lưu local, không đồng bộ.
 
 **Thi**
 - [ ] Review, merge
-- [ ] Cho phép Claude tải font Nunito Sans, hoặc tự thả file `.ttf` vào `res/font/`
+- [ ] Chép debug token của App Check (Logcat, tag `DebugAppCheckProvider`) vào Firebase Console → App Check → Manage debug tokens
+- [x] Cho phép Claude tải font Nunito Sans
 
 ### Bước 2 — Bộ thẻ
 
@@ -159,3 +170,17 @@ Bước 1–3 không cần Firebase. Bước 4 và 6 cần Thi cấu hình Fireb
 - Nút "Tiếp tục với Google": design đang dùng chữ "G" tạm, khi code thay bằng nút chuẩn của Google.
 - Con số hạn mức miễn phí của Gemini thay đổi theo thời gian — xem lại trang giá của Firebase AI Logic khi tạo project.
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
+
+### Ký phát hành — CHƯA LÀM (tại ngày chốt)
+
+Bước 0 chỉ đăng ký SHA của **debug keystore** (khoá Android Studio tự tạo để chạy bản debug).
+Chưa có keystore phát hành, chưa cấu hình `signingConfigs` trong `app/build.gradle.kts`.
+Trước khi build bản release phải làm đủ các việc sau, nếu không đăng nhập Google và App Check
+sẽ lỗi trên bản release dù bản debug chạy bình thường:
+
+- [ ] Tạo keystore phát hành; cất file và mật khẩu ở nơi an toàn, không commit vào repo
+- [ ] Cấu hình `signingConfigs` cho build type `release` (mật khẩu đọc từ file ngoài repo hoặc biến môi trường)
+- [ ] Lấy SHA-1 và SHA-256 của keystore phát hành, thêm vào Firebase: Project settings → Your apps → Add fingerprint
+- [ ] Nếu dùng Play App Signing: thêm cả SHA của khoá do Google ký (Play Console → App integrity)
+- [ ] Tải lại `google-services.json` sau khi thêm fingerprint
+- [ ] App Check: bật Play Integrity API và liên kết với Play Console, rồi mới bật Enforce cho bản release
