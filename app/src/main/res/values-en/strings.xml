@@ -65,6 +65,46 @@
     <string name="deck_error_deck_not_found">Deck not found.</string>
     <string name="deck_error_card_not_found">Card not found.</string>
 
+    <string name="deck_source_manual">Manual</string>
+    <string name="deck_source_ai">AI</string>
+
+    <!-- deck_detail -->
+    <string name="deck_detail_options">Deck options</string>
+    <string name="deck_detail_stat_total">Total cards</string>
+    <string name="deck_detail_stat_new">New cards</string>
+    <plurals name="deck_detail_review_cards">
+        <item quantity="one">Review %d card</item>
+        <item quantity="other">Review %d cards</item>
+    </plurals>
+    <string name="deck_detail_review_none">No more cards due today</string>
+    <string name="deck_detail_filter_all">All %d</string>
+    <string name="deck_detail_filter_manual">Manual %d</string>
+    <string name="deck_detail_filter_ai">AI %d</string>
+    <string name="deck_detail_filter_empty">No cards in this group yet.</string>
+    <string name="deck_detail_has_source_image">Has source photo</string>
+    <string name="deck_detail_due_today">Due today</string>
+    <string name="deck_detail_due_tomorrow">Review tomorrow</string>
+    <plurals name="deck_detail_due_in_days">
+        <item quantity="one">Review in %d day</item>
+        <item quantity="other">Review in %d days</item>
+    </plurals>
+    <string name="deck_detail_capture">Take photo</string>
+    <string name="deck_detail_add_card">Add card</string>
+    <string name="deck_detail_edit_card">Edit card</string>
+    <string name="deck_detail_delete_card">Delete card</string>
+    <string name="deck_detail_empty_title">This deck has no cards yet</string>
+    <string name="deck_detail_empty_message">Add your first few cards to start reviewing. New cards can be reviewed today.</string>
+    <string name="deck_detail_empty_capture">Snap notes for AI to make cards</string>
+    <string name="deck_detail_error_title">Couldn\'t load this deck</string>
+    <string name="deck_detail_not_found_message">This deck may have been deleted.</string>
+    <string name="deck_detail_delete_card_title">Delete this card?</string>
+    <string name="deck_detail_delete_card_message">The card and its review schedule will be removed from this deck.</string>
+    <string name="deck_detail_card_deleted">Card deleted.</string>
+    <string name="deck_detail_delete_deck">Delete deck</string>
+    <string name="deck_detail_delete_deck_title">Delete “%s”?</string>
+    <string name="deck_detail_delete_deck_message">All cards in this deck will be deleted too. This can\'t be undone.</string>
+    <string name="deck_detail_deck_deleted">Deck deleted.</string>
+
     <!-- create_deck -->
     <string name="create_deck_title">New deck</string>
     <string name="create_deck_name_label">Deck name</string>

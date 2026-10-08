@@ -39,4 +39,21 @@ class DueCutoffTest {
 
         assertEquals(endOfThatDay, dueCutoffMillis(midnight, zone))
     }
+
+    @Test
+    fun `daysUntilDue - dem theo ngay lich, khong theo so gio`() {
+        val lateEvening = millis(2026, 10, 7, 23, 50)
+
+        assertEquals(0, daysUntilDue(millis(2026, 10, 7, 23, 59), lateEvening, zone))
+        // Chỉ cách 15 phút nhưng đã sang ngày khác -> "ngày mai".
+        assertEquals(1, daysUntilDue(millis(2026, 10, 8, 0, 5), lateEvening, zone))
+        assertEquals(6, daysUntilDue(millis(2026, 10, 13, 8, 0), lateEvening, zone))
+    }
+
+    @Test
+    fun `daysUntilDue - the qua han tinh la hom nay, khong ra so am`() {
+        val now = millis(2026, 10, 7, 9, 0)
+
+        assertEquals(0, daysUntilDue(millis(2026, 10, 1, 9, 0), now, zone))
+    }
 }

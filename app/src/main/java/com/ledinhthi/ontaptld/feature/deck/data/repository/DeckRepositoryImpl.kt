@@ -24,5 +24,6 @@ class DeckRepositoryImpl @Inject constructor(
 
     override suspend fun upsert(deck: Deck) = wrapLocal { dao.upsert(mapper.toEntity(deck)) }
 
-    override suspend fun delete(deckId: String) = wrapLocal { dao.softDelete(deckId, clock.nowMillis()) }
+    override suspend fun delete(deckId: String) =
+        wrapLocal { dao.softDeleteWithCards(deckId, clock.nowMillis()) }
 }
