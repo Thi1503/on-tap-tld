@@ -129,6 +129,8 @@
     <string name="manual_card_discard_title">Bỏ nội dung chưa lưu?</string>
     <string name="manual_card_discard_message">Nếu thoát bây giờ, những gì bạn vừa nhập sẽ không được lưu.</string>
     <string name="manual_card_discard_confirm">Thoát</string>
+    <!-- Nhãn của khung văn bản ghi chú chỉ đọc (khi mở từ nút "Tự gõ thẻ từ văn bản này") -->
+    <string name="manual_card_note_label">Văn bản ghi chú</string>
 
     <!-- review — feature/review/presentation (phiên ôn tập) -->
     <string name="review_exit">Thoát phiên ôn</string>
@@ -240,6 +242,23 @@
     <string name="support_email" translatable="false">thile15032003@gmail.com</string>
     <!-- %d = số thứ tự dòng trong ghi chú -->
     <string name="ai_suggestions_source_line">Nguồn: dòng %d trong ảnh</string>
+    <!-- Màn "Chưa tạo được thẻ" (gọi AI lỗi) và màn hết lượt — hai chặng của bước 3/3 -->
+    <string name="ai_cards_title">Tạo thẻ bằng AI</string>
+    <string name="ai_error_title">Chưa tạo được thẻ</string>
+    <string name="ai_error_message_network">Không kết nối được tới AI. Kiểm tra mạng rồi thử lại — lần thử này không bị trừ lượt.</string>
+    <string name="ai_error_message_busy">AI đang quá tải. Chờ ít phút rồi thử lại — lần thử này không bị trừ lượt.</string>
+    <string name="ai_error_message_no_cards">AI không tìm thấy ý nào trong văn bản này để tạo thẻ. Thử với phần ghi chú nhiều nội dung hơn — lần thử này không bị trừ lượt.</string>
+    <string name="ai_error_message_blocked">AI không xử lý được nội dung này. Bạn vẫn có thể tự gõ thẻ — lần thử này không bị trừ lượt.</string>
+    <string name="ai_error_message_app_check">Không xác thực được ứng dụng với máy chủ AI. Cập nhật app lên bản mới nhất rồi thử lại — lần thử này không bị trừ lượt.</string>
+    <string name="ai_error_message_not_configured">Tính năng AI chưa được bật trong bản build này. Bạn vẫn có thể tự gõ thẻ.</string>
+    <string name="ai_error_message_generic">Dịch vụ AI đang gặp trục trặc. Thử lại sau ít phút — lần thử này không bị trừ lượt.</string>
+    <string name="ai_error_text_kept">Văn bản đã nhận dạng vẫn được giữ nguyên.</string>
+    <string name="ai_type_manually">Tự gõ thẻ từ văn bản này</string>
+    <string name="ai_quota_title">Đã dùng hết lượt AI hôm nay</string>
+    <!-- %1$d = số lượt đã dùng, %2$d = tổng số lượt mỗi ngày -->
+    <string name="ai_quota_message">Bạn đã dùng %1$d/%2$d lượt. Lượt mới có lúc 0:00. Thẻ gõ tay thì không giới hạn.</string>
+    <string name="ai_quota_usage_label">Lượt dùng hôm nay</string>
+    <string name="ai_quota_usage_value">%1$d / %2$d</string>
     <!-- Dòng cuối trong danh sách chọn bộ thẻ -->
     <string name="deck_selector_new_deck">Bộ thẻ mới</string>
 

@@ -3,17 +3,21 @@ package com.ledinhthi.ontaptld.feature.capture.presentation.aicards
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ledinhthi.ontaptld.R
+import com.ledinhthi.ontaptld.core.exception.AiErrorKind
+import com.ledinhthi.ontaptld.core.exception.AppException
 import com.ledinhthi.ontaptld.core.presentation.mvi.BaseViewModel
 import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
 import com.ledinhthi.ontaptld.core.presentation.navigation.SnackBarType
 import com.ledinhthi.ontaptld.feature.capture.domain.exception.CaptureException
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.GenerateFlashcardsWithAiUseCase
+import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.SaveSuggestedCardsUseCase
 import com.ledinhthi.ontaptld.feature.capture.presentation.displayMessage
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckUseCase
 import com.ledinhthi.ontaptld.navigation.AiCardsRoute
 import com.ledinhthi.ontaptld.navigation.DeckDetailRoute
 import com.ledinhthi.ontaptld.navigation.HomeRoute
+import com.ledinhthi.ontaptld.navigation.ManualCardRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
@@ -29,13 +33,15 @@ import javax.inject.Inject
 
 /**
  * ViewModel của bước 3/3 (route `AiCardsRoute`): vừa mở là gửi văn bản ghi chú cho AI, chờ thẻ
- * đề xuất về, cho người dùng duyệt (chọn / sửa / xoá / thêm) rồi lưu vào bộ thẻ.
+ * đề xuất về, cho người dùng duyệt (chọn / sửa / xoá / thêm) rồi lưu vào bộ thẻ. Gọi AI không
+ * được thì chuyển sang màn lỗi (thử lại được) hoặc màn hết lượt.
  */
 @HiltViewModel
 class AiCardsViewModel @Inject constructor(
     toolbox: ViewModelToolbox,
     private val savedState: SavedStateHandle,
     observeDeck: ObserveDeckUseCase,
+    observeAiQuota: ObserveAiQuotaUseCase,
     private val generateFlashcards: GenerateFlashcardsWithAiUseCase,
     private val saveSuggestedCards: SaveSuggestedCardsUseCase,
     private val json: Json,
@@ -57,16 +63,27 @@ class AiCardsViewModel @Inject constructor(
             .catch { e -> if (!isTestMode) Timber.e(e) }
             .launchIn(viewModelScope)
 
+        // Màn hết lượt cần con số "10/10". Không đọc được thì chỉ thiếu con số, không chặn màn.
+        observeAiQuota()
+            .onEach { quota -> setState { copy(quotaMax = quota.max) } }
+            .catch { e -> if (!isTestMode) Timber.e(e) }
+            .launchIn(viewModelScope)
+
         // Android có thể tắt hẳn app khi nó nằm dưới nền (vd lúc người dùng sang app email để gửi
         // báo cáo) rồi dựng lại khi quay về. ViewModel bị tạo mới, nhưng `SavedStateHandle` thì
         // được hệ thống giữ hộ. Có danh sách thẻ cất sẵn = đang duyệt dở: hiện lại đúng danh
-        // sách đó, KHÔNG gọi AI lần nữa (vừa tốn lượt vừa ra thẻ khác).
+        // sách đó, KHÔNG gọi AI lần nữa (vừa tốn lượt vừa ra thẻ khác). Tương tự, đang đứng ở
+        // màn lỗi / hết lượt thì hiện lại đúng màn đó, không tự gọi AI khi người dùng chưa bấm.
         val restored = restoreItems()
-        if (restored != null) {
-            nextItemId = (restored.maxOfOrNull { it.id } ?: -1) + 1
-            setState { copy(phase = AiCardsPhase.Suggestions, items = restored) }
-        } else {
-            generate()
+        val restoredFailure = restoreFailure()
+        when {
+            restored != null -> {
+                nextItemId = (restored.maxOfOrNull { it.id } ?: -1) + 1
+                setState { copy(phase = AiCardsPhase.Suggestions, items = restored) }
+            }
+
+            restoredFailure != null -> showFailure(restoredFailure)
+            else -> generate()
         }
         // Từ lúc có thẻ để duyệt, mỗi lần danh sách đổi (tích, sửa, xoá, thêm) thì cất bản mới.
         // `distinctUntilChanged` bỏ các lần phát trùng nhau (state đổi chỗ khác, danh sách y nguyên).
@@ -88,13 +105,22 @@ class AiCardsViewModel @Inject constructor(
         }
     }
 
+    /** Lý do thất bại đã cất từ trước khi app bị tắt; null nếu lần trước không dừng ở màn lỗi. */
+    private fun restoreFailure(): AiErrorKind? {
+        val saved = savedState.get<String>(KEY_FAILURE) ?: return null
+        return AiErrorKind.entries.firstOrNull { it.name == saved }
+    }
+
     private fun generate() {
-        // TẠM (tới khi có màn lỗi mạng / hết lượt riêng): lỗi nào cũng để bộ xử lý lỗi chung báo
-        // bằng hộp thoại hoặc snackbar, rồi lùi về bước 2 — văn bản ở đó vẫn còn nguyên.
+        savedState.remove<String>(KEY_FAILURE)
+        setState { copy(phase = AiCardsPhase.Generating, failure = null) }
         generateJob = launchGuarded(
+            // Lỗi gọi AI được báo bằng cả một màn riêng (kèm nút thử lại), nên trả `null` để bộ
+            // xử lý lỗi chung không bật thêm hộp thoại / snackbar. Lỗi không phải của AI (hiếm)
+            // cũng đưa về màn đó với lời báo chung.
             onError = { e ->
-                navigator.back()
-                e // trả lại lỗi = "chưa xử lý xong", để bộ xử lý lỗi chung hiện thông báo
+                showFailure((e as? AppException.AiException)?.kind ?: AiErrorKind.UNKNOWN)
+                null
             },
         ) {
             val items = generateFlashcards(noteText).map { card ->
@@ -110,6 +136,20 @@ class AiCardsViewModel @Inject constructor(
     }
 
     /**
+     * Chuyển sang màn báo lỗi hợp với [kind]: hết lượt trong ngày có màn riêng, mọi lỗi còn lại
+     * dùng chung màn "Chưa tạo được thẻ". Lý do được cất lại để dựng đúng màn này nếu app bị tắt.
+     */
+    private fun showFailure(kind: AiErrorKind) {
+        savedState[KEY_FAILURE] = kind.name
+        setState {
+            copy(
+                phase = if (kind == AiErrorKind.QUOTA_EXCEEDED_LOCAL) AiCardsPhase.QuotaExceeded else AiCardsPhase.Failed,
+                failure = kind,
+            )
+        }
+    }
+
+    /**
      * Nút "Huỷ" và Back trong lúc chờ: bỏ lần gọi đang dở rồi lùi về bước 2. Kết quả của lần gọi
      * bị huỷ không được dùng và không bị trừ lượt.
      */
@@ -118,7 +158,22 @@ class AiCardsViewModel @Inject constructor(
         navigator.back()
     }
 
-    /** Rời màn duyệt, bỏ các thẻ đề xuất. Việc hỏi lại trước khi bỏ do màn hình lo. */
+    /** "Thử lại" ở màn lỗi: gọi AI lần nữa với đúng văn bản cũ. Lần thất bại trước không bị trừ lượt. */
+    fun onRetry() {
+        if (generateJob?.isActive == true) return // bấm đúp: lần gọi trước còn đang chạy
+        generate()
+    }
+
+    /**
+     * "Tự gõ thẻ từ văn bản này" ở màn lỗi / hết lượt: mở màn Thêm thẻ của bộ đã chọn, mang theo
+     * văn bản ghi chú để người dùng vừa nhìn vừa gõ.
+     */
+    fun onTypeManually() = navigator.to(ManualCardRoute(deckId = deckId, noteText = noteText))
+
+    /**
+     * Rời bước 3, về bước 2. Ở màn duyệt, việc hỏi lại trước khi bỏ thẻ do màn hình lo; ở màn
+     * lỗi / hết lượt thì không có gì để mất nên lùi luôn.
+     */
     fun onBack() = navigator.back()
 
     // ---- Duyệt thẻ ---------------------------------------------------------------------------
@@ -199,5 +254,8 @@ class AiCardsViewModel @Inject constructor(
     private companion object {
         /** Tên ngăn trong SavedStateHandle chứa danh sách thẻ đang duyệt (dạng JSON). */
         const val KEY_ITEMS = "suggestionItems"
+
+        /** Ngăn chứa lý do lần gọi AI gần nhất thất bại (tên của `AiErrorKind`). */
+        const val KEY_FAILURE = "aiFailure"
     }
 }

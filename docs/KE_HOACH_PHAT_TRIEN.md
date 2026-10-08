@@ -141,8 +141,9 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào `dev` qua pull request #12
 (nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) xong cùng ngày, đã vào `dev` qua pull
 request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" xong cùng ngày, đã
-vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ code
-xong cùng ngày trên nhánh `feat/ai-suggestions` (chưa commit), đã chạy thử trọn chuỗi trên
+vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ xong
+cùng ngày, đã vào `dev` qua pull request #15 (nhánh `feat/ai-suggestions`). Màn lỗi AI + màn hết
+lượt code xong cùng ngày trên nhánh `feat/ai-error-quota` (chưa commit), đã chạy thử trên
 emulator — chờ Thi xem và merge.
 
 **Claude**
@@ -150,7 +151,7 @@ emulator — chờ Thi xem và merge.
 - [x] OCR bằng ML Kit, màn sửa văn bản
 - [x] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
 - [x] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
-- [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
+- [x] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
 - [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
 
 > **Màn Chụp ghi chú — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
@@ -206,8 +207,8 @@ emulator — chờ Thi xem và merge.
 > - "Huỷ", nút ← và Back trong lúc chờ: bỏ lần gọi đang dở, về bước 2 (văn bản còn nguyên).
 > - Đã kiểm chứng trên emulator ngày 8/10/2026: debug token App Check hoạt động, gọi được AI
 >   thật với ghi chú tiếng Anh và tiếng Việt. Máy OPPO chưa thử.
-> - TẠM: lỗi nào cũng báo bằng hộp thoại / snackbar chung rồi về bước 2 — màn lỗi mạng và màn
->   hết lượt theo design làm ở phần sau.
+> - Lỗi khi gọi AI: xem mục "Màn lỗi AI và màn hết lượt" bên dưới (trước đó tạm báo bằng hộp
+>   thoại / snackbar chung rồi về bước 2).
 >
 > **Màn Duyệt thẻ đề xuất — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
 > - Là chặng `Suggestions` của `AiCardsRoute`. Mọi thẻ AI được tích sẵn. Chạm vào ô tích hoặc
@@ -233,6 +234,34 @@ emulator — chờ Thi xem và merge.
 > - CHƯA làm: `sourceBox` của thẻ (vùng tô sáng trên ảnh) đang để trống — thuộc phần "xem ảnh
 >   nguồn". Xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản chưa
 >   giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+>
+> **Màn lỗi AI và màn hết lượt — cách hoạt động (Thi giao Claude tự chốt 8/10/2026) và những chỗ
+> design không vẽ:**
+> - Là hai chặng mới của `AiCardsRoute`: `Failed` (artboard `AiError`) và `QuotaExceeded`
+>   (artboard `AiQuota`). Gọi AI lỗi thì ở lại bước 3 và hiện màn tương ứng, không còn hộp thoại
+>   / snackbar chung, không tự lùi về bước 2.
+> - MỌI lỗi gọi AI (trừ hết lượt trong ngày) dùng chung màn "Chưa tạo được thẻ", chỉ đổi dòng mô
+>   tả và icon: mất mạng / quá 45 giây (icon đám mây gạch chéo, đúng design); các lỗi còn lại
+>   dùng icon cảnh báo — AI quá tải (Google trả 429, tức hết hạn mức của cả project), AI không
+>   soạn được thẻ nào, nội dung bị chặn, lỗi App Check, bản build chưa bật AI, lỗi khác. Lỗi nào
+>   cũng có đủ hai nút "Thử lại" và "Tự gõ thẻ từ văn bản này".
+> - "Thử lại": ở lại route, về chặng "Đang tạo thẻ" và gọi lại với đúng văn bản cũ; lần thất bại
+>   không bị trừ lượt (lượt chỉ trừ khi AI trả về thẻ).
+> - Màn hết lượt: app chặn trước khi gọi mạng (bộ đếm trên máy đã đủ 10). Chỉ có một nút "Tự gõ
+>   thẻ từ văn bản này" (đã bỏ "Lưu ghi chú, tạo thẻ sau" theo Mục 4). Ở bước 2, hết lượt vẫn
+>   bấm được "Tạo thẻ bằng AI" và vào thẳng màn này.
+> - "Tự gõ thẻ từ văn bản này": mở màn Thêm thẻ của bộ đã chọn (`ManualCardRoute` có thêm
+>   `noteText`), phía trên có khung "Văn bản ghi chú" CHỈ ĐỌC — design không vẽ khung này. Khung
+>   đứng yên khi cuộn các ô nhập, cao tối đa 120dp (dài thì cuộn bên trong), chữ bôi đen để chép
+>   được. Thẻ lưu ở đây là thẻ thủ công bình thường (không kèm ảnh nguồn).
+> - Nút ← / Back ở hai màn này: về bước 2, không hỏi lại (không có gì để mất). Back ở màn Thêm
+>   thẻ: quay lại đúng màn lỗi / hết lượt (chồng màn giữ nguyên, vẫn thử lại AI được).
+> - Đang đứng ở màn lỗi / hết lượt mà app bị hệ thống tắt dưới nền: mở lại thấy đúng màn đó,
+>   không tự gọi AI (lý do lỗi được cất trong `SavedStateHandle`).
+> - Đã kiểm chứng trên emulator: mất mạng (chế độ máy bay) → màn lỗi, sáng và tối; bật lại mạng
+>   → "Thử lại" ra thẻ; bộ đếm đủ 10 → màn hết lượt; "Tự gõ thẻ" mở màn Thêm thẻ kèm văn bản.
+>   Các loại lỗi khác (AI quá tải, nội dung bị chặn…) chỉ mới qua unit test, chưa dựng được
+>   tình huống thật.
 >
 > **Emulator bị xoá trắng (8/10/2026, khoảng 16:18):** emulator Pixel 7a được khởi động lại với
 > dữ liệu trống — app chưa cài, thư viện ảnh trống, mất 5 bộ thẻ mẫu. Hệ quả: debug token App
@@ -342,10 +371,12 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
-request #12), màn Kiểm tra văn bản cũng vậy (pull request #13). Phần gọi Gemini + màn "Đang tạo
-thẻ" (nhánh `feat/ai-generate`) đã code xong, chờ Thi xem và merge. Thứ tự còn lại: màn duyệt
-thẻ AI (kèm lưu thẻ + ảnh nguồn) → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
-phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
+request #12), màn Kiểm tra văn bản (#13), phần gọi Gemini + màn "Đang tạo thẻ" (#14) và màn duyệt
+thẻ AI + lưu thẻ (#15) cũng vậy. Màn lỗi AI + màn hết lượt (nhánh `feat/ai-error-quota`) đã code
+xong, chờ Thi xem và merge. Thứ tự còn lại: xem ảnh nguồn của thẻ AI, tô sáng đúng vùng (kèm
+phần còn thiếu ở mặt đáp án của màn ôn) → hai việc dọn dẹp (xoá bộ thẻ / xoá thẻ phải xoá cả
+`Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị tắt dưới nền). Artboard: xem
+bảng ở Mục 6.3.
 
 Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
 Pixel 7a đã được kiểm chứng bằng lần gọi AI thật ngày 8/10/2026; token của máy OPPO CPH1911 đã

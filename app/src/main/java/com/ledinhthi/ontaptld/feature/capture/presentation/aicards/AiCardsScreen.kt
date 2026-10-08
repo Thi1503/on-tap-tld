@@ -17,10 +17,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
+import com.ledinhthi.ontaptld.core.exception.AiErrorKind
 import com.ledinhthi.ontaptld.core.presentation.components.ConfirmDialog
 import com.ledinhthi.ontaptld.core.presentation.components.LoadingOverlay
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.theme.OnTapTldTheme
+import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.AiErrorContent
+import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.AiQuotaContent
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.CardEditorSheet
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.GeneratingContent
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.SuggestionsContent
@@ -45,6 +48,20 @@ fun AiCardsScreen(viewModel: AiCardsViewModel = hiltViewModel()) {
         }
 
         AiCardsPhase.Suggestions -> SuggestionsPhase(state = state, viewModel = viewModel)
+
+        // Hai màn dưới không chặn Back của hệ thống: không có gì để mất, cứ lùi về bước 2.
+        AiCardsPhase.Failed -> AiErrorContent(
+            kind = state.failure ?: AiErrorKind.UNKNOWN,
+            onBack = viewModel::onBack,
+            onRetry = viewModel::onRetry,
+            onTypeManually = viewModel::onTypeManually,
+        )
+
+        AiCardsPhase.QuotaExceeded -> AiQuotaContent(
+            quotaMax = state.quotaMax,
+            onBack = viewModel::onBack,
+            onTypeManually = viewModel::onTypeManually,
+        )
     }
 }
 
@@ -204,3 +221,27 @@ private fun SuggestionsDarkPreview() = SuggestionsPreviewHost(previewState, Them
 @Preview(name = "Duyệt thẻ đề xuất — đã xoá hết", widthDp = 390, heightDp = 844)
 @Composable
 private fun SuggestionsEmptyPreview() = SuggestionsPreviewHost(previewState.copy(items = emptyList()))
+
+@Preview(name = "Lỗi mạng", widthDp = 390, heightDp = 844)
+@Composable
+private fun AiErrorPreview() = OnTapTldTheme(themeMode = ThemeMode.LIGHT) {
+    AiErrorContent(kind = AiErrorKind.NETWORK, onBack = {}, onRetry = {}, onTypeManually = {})
+}
+
+@Preview(name = "Lỗi mạng — Dark", widthDp = 390, heightDp = 844)
+@Composable
+private fun AiErrorDarkPreview() = OnTapTldTheme(themeMode = ThemeMode.DARK) {
+    AiErrorContent(kind = AiErrorKind.NETWORK, onBack = {}, onRetry = {}, onTypeManually = {})
+}
+
+@Preview(name = "Hết lượt", widthDp = 390, heightDp = 844)
+@Composable
+private fun AiQuotaPreview() = OnTapTldTheme(themeMode = ThemeMode.LIGHT) {
+    AiQuotaContent(quotaMax = 10, onBack = {}, onTypeManually = {})
+}
+
+@Preview(name = "Hết lượt — Dark", widthDp = 390, heightDp = 844)
+@Composable
+private fun AiQuotaDarkPreview() = OnTapTldTheme(themeMode = ThemeMode.DARK) {
+    AiQuotaContent(quotaMax = 10, onBack = {}, onTypeManually = {})
+}

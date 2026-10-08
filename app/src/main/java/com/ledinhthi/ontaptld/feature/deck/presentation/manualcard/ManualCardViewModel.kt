@@ -124,6 +124,7 @@ class ManualCardViewModel @Inject constructor(
         fun initialState(savedState: SavedStateHandle) = ManualCardState(
             isEditing = savedState.get<String>(ManualCardRoute::cardId.name) != null,
             selectedDeckId = checkNotNull(savedState[ManualCardRoute::deckId.name]),
+            noteText = savedState.get<String>(ManualCardRoute::noteText.name).orEmpty(),
         )
     }
 }

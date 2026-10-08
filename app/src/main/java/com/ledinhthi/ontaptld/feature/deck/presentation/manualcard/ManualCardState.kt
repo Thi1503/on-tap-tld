@@ -29,6 +29,11 @@ data class ManualCardState(
     val keepAdding: Boolean = true,
     /** Số thẻ đã lưu kể từ lúc mở màn (khi nhập liền nhiều thẻ) — để báo "Đã lưu N thẻ". */
     val savedCount: Int = 0,
+    /**
+     * Văn bản ghi chú để vừa nhìn vừa gõ thẻ. Chỉ có khi màn được mở bằng nút "Tự gõ thẻ từ văn
+     * bản này" (AI lỗi hoặc hết lượt); các lối vào khác để rỗng và màn không hiện khung này.
+     */
+    val noteText: String = "",
 ) : UiState {
     /** null khi danh sách bộ thẻ chưa tải xong (hoặc bộ thẻ đã bị xoá). */
     val selectedDeck: Deck? get() = decks.firstOrNull { it.id == selectedDeckId }

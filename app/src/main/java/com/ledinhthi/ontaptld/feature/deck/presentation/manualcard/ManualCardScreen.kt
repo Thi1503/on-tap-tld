@@ -2,6 +2,7 @@ package com.ledinhthi.ontaptld.feature.deck.presentation.manualcard
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -28,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.pluralStringResource
@@ -158,6 +161,9 @@ private fun ManualCardContent(
             }
         }
 
+        // Nằm NGOÀI phần cuộn bên dưới: gõ tới ô nào thì văn bản ghi chú vẫn ở ngay trước mắt.
+        if (state.noteText.isNotBlank()) NoteReference(text = state.noteText)
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -213,6 +219,45 @@ private fun ManualCardContent(
                         bottom = AppDimens.paddingMedium,
                     ),
                 enabled = state.canSave,
+            )
+        }
+    }
+}
+
+/**
+ * Khung CHỈ ĐỌC hiện văn bản ghi chú (đã nhận dạng từ ảnh) khi màn được mở bằng nút "Tự gõ thẻ
+ * từ văn bản này". Cao tối đa 120dp, dài hơn thì cuộn bên trong khung; chữ bôi đen được để chép
+ * sang ô Câu hỏi / Câu trả lời.
+ */
+@Composable
+private fun NoteReference(text: String) {
+    val colors = appColors()
+    val shape = MaterialTheme.shapes.medium
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = AppDimens.defaultPadding, end = AppDimens.defaultPadding, top = AppDimens.paddingSmall),
+        verticalArrangement = Arrangement.spacedBy(AppDimens.padding6),
+    ) {
+        Text(
+            text = stringResource(R.string.manual_card_note_label),
+            style = MaterialTheme.typography.titleSmall,
+            color = colors.textPrimary,
+        )
+        // SelectionContainer: chữ bên trong nhấn giữ để bôi đen và chép được (Text thường thì không).
+        SelectionContainer {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 120.dp)
+                    .clip(shape)
+                    .background(colors.cardBackground)
+                    .border(1.dp, colors.cardBorder, shape)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 14.dp, vertical = AppDimens.paddingSmall),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textStrong,
             )
         }
     }
@@ -319,6 +364,17 @@ private fun ManualCardAddDarkPreview() = PreviewHost(previewState, ThemeMode.DAR
 @Composable
 private fun ManualCardSavedPreview() =
     PreviewHost(previewState.copy(question = "", answer = "", savedCount = 2))
+
+@Preview(name = "Thêm thẻ — kèm văn bản ghi chú", widthDp = 390, heightDp = 844)
+@Composable
+private fun ManualCardNotePreview() = PreviewHost(
+    previewState.copy(
+        question = "",
+        answer = "",
+        noteText = "Bài 1 · Nhân đôi ADN\n- Diễn ra ở pha S của kì trung gian\n- Nguyên tắc bổ sung và bán bảo toàn\n" +
+            "- ADN pôlimeraza tổng hợp mạch mới theo chiều 5'→3'\n- Mạch chậm tổng hợp gián đoạn thành các đoạn Okazaki",
+    ),
+)
 
 @Preview(name = "Sửa thẻ AI", widthDp = 390, heightDp = 844)
 @Composable
