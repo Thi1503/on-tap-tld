@@ -47,7 +47,25 @@ File này viết cho người **chưa rành Kotlin/Jetpack Compose** — mục t
 ```
 
 Không cần cấu hình API key/backend gì để chạy — app **offline-first**, chạy hoàn toàn bằng
-database local (Room) cho tới khi làm tới phần AI/sync (Sprint 2).
+database local (Room). Riêng AI sinh thẻ và đồng bộ thì cần Firebase (xem ngay dưới).
+
+### Firebase (tuỳ chọn khi chỉ muốn chạy thử)
+
+File `app/google-services.json` **không được commit** (nằm trong `.gitignore`), nên repo mới clone
+về sẽ không có nó. Build vẫn chạy bình thường: `app/build.gradle.kts` chỉ apply plugin
+`google-services` khi thấy file, và `OnTapTldApp` tự bỏ qua Firebase nếu không có cấu hình —
+khi đó mọi phần offline (bộ thẻ, thẻ thủ công, ôn tập) vẫn dùng được, chỉ AI/đồng bộ là không.
+
+Muốn bật Firebase trên máy mình:
+
+1. Xin file `google-services.json` từ người giữ dự án (hoặc tải từ Firebase Console → Project
+   settings → Your apps, project `on-tap-tld`), đặt vào thư mục `app/`.
+2. Chạy bản debug một lần, mở Logcat lọc theo tag `DebugAppCheckProvider`, chép debug token được
+   in ra.
+3. Dán token vào Firebase Console → App Check → Apps → menu ⋮ → **Manage debug tokens**. App Check
+   đang bật Enforce cho AI Logic, nên thiếu bước này mọi lần gọi AI từ máy dev đều bị từ chối.
+4. Máy mới cũng cần đăng ký SHA-1/SHA-256 của debug keystore (`./gradlew signingReport`) trong
+   Project settings thì đăng nhập Google mới chạy.
 
 ---
 
@@ -265,6 +283,27 @@ lúc bấm "Lưu"), dùng [
 `LoadingOverlay`](app/src/main/java/com/ledinhthi/ontaptld/core/presentation/components/LoadingOverlay.kt)
 bọc quanh cả `Scaffold` — xem cách `ManualCardScreen`/`LoginScreen`
 đang dùng.
+
+### 6.1 Bộ "mảnh ghép" giao diện dùng chung
+
+Khi dựng màn mới, **đừng** gọi thẳng `Button`, `Card`, `TopAppBar`… của Material và đừng tự gõ mã
+màu / cỡ chữ. Dùng các mảnh có sẵn trong `core/presentation/components/` để mọi màn giống nhau và
+khớp bản thiết kế:
+
+| Cần gì | Dùng | File |
+| --- | --- | --- |
+| Nút chính / nút phụ / nút chữ / nút icon | `PrimaryButton`, `SecondaryButton`, `AppTextButton`, `AppIconButton` | `AppButtons.kt` |
+| Khung thẻ nền trắng bo góc | `AppCard { … }` | `AppCard.kt` |
+| Nhãn nhỏ ("AI", "12 cần ôn"…) | `AppBadge`, `StatusPill` | `AppBadge.kt` |
+| Thanh tiêu đề có nút quay lại / đóng | `AppTopBar` | `AppTopBar.kt` |
+| Ô nhập có nhãn phía trên | `LabeledTextField` | `LabeledTextField.kt` |
+| Màn rỗng / lỗi / đang tải / khung giữ chỗ | `EmptyState`, `ErrorState`, `LoadingState`, `SkeletonBlock` | `StateViews.kt` |
+
+Màu lấy qua `appColors().<tên>` (vd `appColors().textSecondary`), cỡ chữ qua
+`MaterialTheme.typography.<tên>`, khoảng cách qua `AppDimens.<tên>`, icon là các file
+`res/drawable/ic_*.xml`. Màn mẫu nên đọc để bắt chước: Home —
+[`DeckListScreen.kt`](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/presentation/decklist/DeckListScreen.kt)
+(đầu file có sơ đồ cách chia Screen → Content → các khối con).
 
 ---
 

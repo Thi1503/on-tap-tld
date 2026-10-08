@@ -29,6 +29,9 @@ abstract class BaseViewModel<S : UiState>(
     val effect: Flow<UiEffect> = _effect.receiveAsFlow()
 
     protected val navigator get() = toolbox.navigator
+
+    /** Lấy chuỗi `R.string.*` cho snackbar/dialog phát từ ViewModel (ViewModel không có Context). */
+    protected val strings get() = toolbox.strings
     protected val currentState: S get() = _uiState.value
 
     @VisibleForTesting

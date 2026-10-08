@@ -149,6 +149,18 @@ object AppPalette {
     val Purple300 = Color(0xFFBA68C8)
     val Indigo700 = Color(0xFF303F9F)
 
+    // ---- Bổ sung theo bản thiết kế UI/UX 10/2026 (không có trong app Flutter gốc) ----
+    // Chữ/icon nhấn đặt trên nền nhạt: các màu gốc (F24E1E, 0B8E3F, E11D48) không đủ tương phản
+    // 4.5:1 khi làm chữ nhỏ, nên cần một bậc đậm hơn (light) / sáng hơn (dark).
+    val PrimaryStrongLight = Color(0xFFC23A12)
+    val PrimaryStrongDark = Color(0xFFFF8A65)
+    val PrimarySoftDark = Color(0xFF33201A)
+    val SuccessStrongLight = Color(0xFF086B30)
+    val SuccessStrongDark = Color(0xFF6EE7B7)
+    val DangerStrongLight = Color(0xFFB8123A)
+    val DangerStrongDark = Color(0xFFFF8FA3)
+    val PurpleStrongDark = Color(0xFFA5A0FF)
+
     // ---- Gradients ----
     val GradientOrange = listOf(Color(0xFFFF7E5F), Color(0xFFFF5F6D))
     val GradientBlue = listOf(Color(0xFF58A0FF), Color(0xFF5967FF))
@@ -168,13 +180,21 @@ object AppPalette {
  * [AppPalette] nếu sau này cần thêm token mới).
  */
 data class AppExtendedColors(
+    /** true ở dark theme — cho những nơi phải tự suy màu (vd màu riêng của từng bộ thẻ). */
+    val isDark: Boolean,
     val textPrimary: Color,
+    /** Chữ phụ nhưng cần đậm hơn [textSecondary] (nhãn trong badge xám, icon trên nền trắng). */
+    val textStrong: Color,
     val textSecondary: Color,
     val textHint: Color,
     val textOnAccent: Color,
     val errorText: Color,
     val primary: Color,
+    /** Chữ/icon màu nhấn trên nền nhạt — dùng thay [primary] khi là chữ nhỏ. */
+    val primaryStrong: Color,
     val primarySoft: Color,
+    /** Nền nút huỷ diệt (xoá tài khoản…), luôn đi với chữ trắng. */
+    val destructive: Color,
     val scaffoldBackground: Color,
     val appBarBackground: Color,
     val cardBackground: Color,
@@ -182,6 +202,16 @@ data class AppExtendedColors(
     val cardShadow: Color,
     val divider: Color,
     val border: Color,
+    /** Viền nút phụ và ô nhập. */
+    val borderStrong: Color,
+    /** Nền trung tính nhạt: badge xám, rãnh progress, khối skeleton. */
+    val neutralSoft: Color,
+    val heroBackground: Color,
+    val heroBorder: Color,
+    val heroText: Color,
+    val heroTextSecondary: Color,
+    val chipSelectedBackground: Color,
+    val chipSelectedText: Color,
     val inputBackground: Color,
     val inputHint: Color,
     val bottomSheetBackground: Color,
@@ -205,20 +235,32 @@ data class AppExtendedColors(
 )
 
 val LightAppExtendedColors = AppExtendedColors(
-    textPrimary = AppPalette.Black,
-    textSecondary = AppPalette.Black87,
-    textHint = AppPalette.Black.copy(alpha = 0.54f),
+    isDark = false,
+    textPrimary = AppPalette.GrayLight1,
+    textStrong = AppPalette.GrayLight2,
+    textSecondary = AppPalette.GrayLight3,
+    textHint = AppPalette.GrayLight4,
     textOnAccent = AppPalette.White,
-    errorText = AppPalette.RedAccent,
+    errorText = AppPalette.DangerStrongLight,
     primary = AppPalette.PrimaryLight2,
+    primaryStrong = AppPalette.PrimaryStrongLight,
     primarySoft = AppPalette.PrimaryLight7,
+    destructive = AppPalette.DangerStrongLight,
     scaffoldBackground = Color(0xFFF6F6F6),
     appBarBackground = AppPalette.White,
     cardBackground = AppPalette.White,
-    cardBorder = AppPalette.White54,
-    cardShadow = AppPalette.Black.copy(alpha = 0.15f),
-    divider = AppPalette.GrayLight6,
+    cardBorder = AppPalette.ColorBorder,
+    cardShadow = AppPalette.Black.copy(alpha = 0.08f),
+    divider = AppPalette.ColorBorder,
     border = AppPalette.ColorBorder,
+    borderStrong = AppPalette.GrayLight6,
+    neutralSoft = AppPalette.GrayLight7,
+    heroBackground = AppPalette.GrayLight1,
+    heroBorder = AppPalette.GrayLight1,
+    heroText = AppPalette.White,
+    heroTextSecondary = AppPalette.GrayDark2,
+    chipSelectedBackground = AppPalette.GrayLight1,
+    chipSelectedText = AppPalette.White,
     inputBackground = AppPalette.White,
     inputHint = AppPalette.GrayLight4,
     bottomSheetBackground = AppPalette.White,
@@ -230,9 +272,9 @@ val LightAppExtendedColors = AppExtendedColors(
     snackbarText = AppPalette.GrayDark6,
     dialogScrim = AppPalette.Black.copy(alpha = 0.4f),
     statusGreenBg = AppPalette.ColorD4F8E2,
-    statusGreenText = AppPalette.Color0B8E3F,
+    statusGreenText = AppPalette.SuccessStrongLight,
     statusRedBg = AppPalette.ColorFFE8ED,
-    statusRedText = AppPalette.ColorE11D48,
+    statusRedText = AppPalette.DangerStrongLight,
     statusPurpleBg = AppPalette.ColorF1F0FF,
     statusPurpleText = AppPalette.Color4F46E5,
     statusBlueBg = AppPalette.ColorD2DFFC,
@@ -242,21 +284,35 @@ val LightAppExtendedColors = AppExtendedColors(
 )
 
 val DarkAppExtendedColors = AppExtendedColors(
+    isDark = true,
     textPrimary = AppPalette.White,
-    textSecondary = AppPalette.White54,
-    textHint = AppPalette.White54,
-    textOnAccent = AppPalette.Black,
-    errorText = AppPalette.ErrorTextColor,
+    textStrong = AppPalette.GrayLight7,
+    textSecondary = AppPalette.GrayDark2,
+    textHint = AppPalette.GrayDark3,
+    // Nút cam giữ chữ trắng ở cả hai theme (đúng bản thiết kế).
+    textOnAccent = AppPalette.White,
+    errorText = AppPalette.DangerStrongDark,
     primary = AppPalette.PrimaryDark2,
-    primarySoft = AppPalette.GrayDark6,
+    primaryStrong = AppPalette.PrimaryStrongDark,
+    primarySoft = AppPalette.PrimarySoftDark,
+    destructive = AppPalette.DangerStrongLight,
     scaffoldBackground = AppPalette.GrayDark7,
     appBarBackground = AppPalette.GrayDark6,
     cardBackground = AppPalette.GrayDark6,
-    cardBorder = AppPalette.DarkAccentColor,
-    cardShadow = AppPalette.White.copy(alpha = 0.15f),
-    divider = AppPalette.GrayDark7,
-    border = AppPalette.GrayDark3,
-    inputBackground = AppPalette.GrayDark7,
+    // Trùng màu nền thẻ: ở dark theme thẻ tách khỏi nền bằng độ sáng, không cần viền.
+    cardBorder = AppPalette.GrayDark6,
+    cardShadow = AppPalette.Black.copy(alpha = 0.3f),
+    divider = AppPalette.GrayDark5,
+    border = AppPalette.GrayDark5,
+    borderStrong = AppPalette.GrayDark4,
+    neutralSoft = AppPalette.GrayDark5,
+    heroBackground = AppPalette.GrayDark6,
+    heroBorder = AppPalette.GrayDark5,
+    heroText = AppPalette.White,
+    heroTextSecondary = AppPalette.GrayDark2,
+    chipSelectedBackground = AppPalette.White,
+    chipSelectedText = AppPalette.GrayDark7,
+    inputBackground = AppPalette.GrayDark6,
     inputHint = AppPalette.GrayDark2,
     bottomSheetBackground = AppPalette.GrayDark6,
     navBackground = Color(0xFF262626),
@@ -267,11 +323,11 @@ val DarkAppExtendedColors = AppExtendedColors(
     snackbarText = AppPalette.GrayDark6,
     dialogScrim = AppPalette.White.copy(alpha = 0.4f),
     statusGreenBg = AppPalette.Color33059669,
-    statusGreenText = AppPalette.Color059669,
+    statusGreenText = AppPalette.SuccessStrongDark,
     statusRedBg = AppPalette.Color33E11D48,
-    statusRedText = AppPalette.ColorE11D48,
+    statusRedText = AppPalette.DangerStrongDark,
     statusPurpleBg = AppPalette.Color334F46E5,
-    statusPurpleText = AppPalette.Color8B5CF6,
+    statusPurpleText = AppPalette.PurpleStrongDark,
     statusBlueBg = AppPalette.Color330891B2,
     statusBlueText = AppPalette.Color0891B2,
     statusOrangeBg = AppPalette.Color33D97706,

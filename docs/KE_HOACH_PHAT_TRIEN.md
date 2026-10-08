@@ -38,34 +38,57 @@ Bước 1–3 không cần Firebase. Bước 4 và 6 cần Thi cấu hình Fireb
 
 ### Bước 0 — Cấu hình Firebase (Thi, làm song song với bước 1)
 
-- [ ] Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`
-- [ ] Bật AI Logic (nhà cung cấp Gemini Developer API) và App Check
-- [ ] Bật Auth (Google Sign-In, cần SHA-1 của keystore) và Firestore — có thể làm luôn hoặc để tới bước 6
-- [ ] Đặt `google-services.json` vào thư mục `app/`
+Xong ngày 7/10/2026 — project `on-tap-tld`, gói Spark (miễn phí).
+
+- [x] Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`
+- [x] Bật AI Logic (nhà cung cấp Gemini Developer API) và App Check (Play Integrity, **đã Enforce cho AI Logic** — bản debug phải đăng ký debug token ở App Check → Manage debug tokens thì mới gọi được AI)
+- [x] Bật Auth (Google Sign-In, đã đăng ký SHA của debug keystore) và Firestore (đã đặt Security Rules theo Mục 7.2)
+- [x] Đặt `google-services.json` vào thư mục `app/` (chưa commit; sẽ thêm vào `.gitignore` ở bước 1)
 
 ### Bước 1 — Nền
 
+Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — chờ Thi review.
+
 **Claude**
-- [ ] Thêm token màu mới theo design vào `Color.kt` (cam đậm, xanh đậm, đỏ đậm cho chữ trên nền nhạt; các tông dark tương ứng)
-- [ ] Component dùng chung: nút chính / phụ, thẻ, badge "Thủ công" / "AI", top bar, trạng thái rỗng / lỗi / đang tải
-- [ ] Thêm bảng `sync_queue` vào schema Room
-- [ ] Đưa chuỗi vào `strings.xml` (vi / en) ngay từ đầu
-- [ ] Splash vào thẳng Home; gỡ màn Login email khỏi luồng điều hướng
-- [ ] Nếu đã có `google-services.json`: gắn plugin Firebase vào Gradle, khởi tạo App Check; đưa file vào `.gitignore`
+- [x] Thêm token màu mới theo design vào `Color.kt` (cam đậm, xanh đậm, đỏ đậm cho chữ trên nền nhạt; các tông dark tương ứng); ánh xạ đủ slot Material3 trong `Theme.kt`; thang chữ mới trong `Type.kt`
+- [x] Font Nunito Sans: `res/font/nunito_sans.ttf` là **variable font** (kho Google Fonts không còn file tĩnh từng độ đậm); giấy phép OFL ở `assets/licenses/`. Ở Android 7.x (API 24–25) mọi độ đậm rơi về Regular
+- [x] Component dùng chung trong `core/presentation/components/`: `PrimaryButton` / `SecondaryButton` / `AppTextButton` / `AppIconButton`, `AppCard`, `AppBadge` / `StatusPill`, `AppTopBar`, `EmptyState` / `ErrorState` / `LoadingState` / `SkeletonBlock`; `ScreenStateHost` nhận thêm slot `loading` / `empty`
+- [x] Bộ icon nét (17 cái) dạng vector drawable `res/drawable/ic_*.xml`, lấy đúng nét từ bản thiết kế
+- [x] Schema Room **v2** qua `MIGRATION_1_2`: thêm `sync_queue` và `review_logs` (xem ghi chú dưới); có `MigrationTest` chạy trên emulator
+- [x] `StringProvider` cho ViewModel / `GlobalExceptionHandler`; chuỗi dùng chung và chuỗi lỗi đã vào `strings.xml` (vi / en). Chuỗi của từng màn sẽ chuyển dần khi dựng lại màn đó
+- [x] Splash vào thẳng Home; gỡ màn Login email khỏi `AppNavHost` (file cũ còn giữ tới bước 6)
+- [x] Gắn plugin `google-services` (chỉ apply khi máy có file), Firebase BoM, App Check: bản debug dùng debug provider, bản release dùng Play Integrity; README có hướng dẫn cho máy mới
+
+> **Thêm ngoài kế hoạch — bảng `review_logs`:** `flashcards` chỉ giữ trạng thái SM-2 mới nhất, không
+> đủ để dựng màn Thống kê (số thẻ ôn mỗi ngày, tỉ lệ nhớ, chuỗi ngày ôn). Bảng lịch sử này được
+> thêm ngay từ bây giờ để bước 3 ghi dữ liệu và bước 7 có số liệu thật. Chỉ lưu local, không đồng bộ.
 
 **Thi**
 - [ ] Review, merge
-- [ ] Cho phép Claude tải font Nunito Sans, hoặc tự thả file `.ttf` vào `res/font/`
+- [ ] Chép debug token của App Check (Logcat, tag `DebugAppCheckProvider`) vào Firebase Console → App Check → Manage debug tokens
+- [x] Cho phép Claude tải font Nunito Sans
 
 ### Bước 2 — Bộ thẻ
 
+Home + bảng tạo bộ thẻ xong ngày 7/10/2026, **đã nằm trong `dev`** (commit `d81249c`, vào thẳng `dev`
+không qua pull request do nhánh `feat/deck-ui` bị gắn nhầm với `origin/dev` — xem Mục 6.2).
+Phần còn lại của bước 2 làm trên nhánh mới `feat/deck-detail` tách từ `dev`. Thi chưa xác nhận
+"làm tiếp" sau khi xem ảnh Home.
+
 **Claude**
-- [ ] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ
+- [x] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ; đủ trạng thái rỗng / đang tải (skeleton) / lỗi
 - [ ] Chi tiết bộ thẻ: thống kê, lọc Tất cả / Thủ công / AI, vuốt để sửa / xoá
 - [ ] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
-- [ ] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
+- [x] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
 - [ ] Splash theo design
-- [ ] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách
+- [ ] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách (Home đã có; còn Chi tiết bộ thẻ)
+
+> **Quy ước "cần ôn hôm nay":** thẻ được tính là đến hạn nếu `dueDate` rơi vào bất kỳ lúc nào trong
+> hôm nay (tới 23:59), không phải chỉ khi đã qua đúng giờ hẹn — xem `core/domain/util/DueCutoff.kt`.
+> Home, Ôn tập và Widget phải dùng chung mốc này để con số khớp nhau.
+>
+> **Dữ liệu mẫu để chụp màn hình / demo:** `androidTest/.../tools/DemoDataSeeder.kt` nạp 4 bộ thẻ
+> giống bản design vào bản debug (chỉ chạy khi gọi tường minh, không ghi đè dữ liệu đang có).
 
 **Thi**
 - [ ] Chạy thử trên máy, so với design, báo chỗ lệch
@@ -159,3 +182,94 @@ Bước 1–3 không cần Firebase. Bước 4 và 6 cần Thi cấu hình Fireb
 - Nút "Tiếp tục với Google": design đang dùng chữ "G" tạm, khi code thay bằng nút chuẩn của Google.
 - Con số hạn mức miễn phí của Gemini thay đổi theo thời gian — xem lại trang giá của Firebase AI Logic khi tạo project.
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
+
+- Home, thẻ "Cần ôn hôm nay": chú giải dùng tên thật của bộ thẻ nên tên dài bị cắt bằng "…" (design dùng tên ngắn). Chờ Thi quyết: giữ một dòng hay cho xuống hai dòng.
+
+### Ký phát hành — CHƯA LÀM (tại ngày chốt)
+
+Bước 0 chỉ đăng ký SHA của **debug keystore** (khoá Android Studio tự tạo để chạy bản debug).
+Chưa có keystore phát hành, chưa cấu hình `signingConfigs` trong `app/build.gradle.kts`.
+Trước khi build bản release phải làm đủ các việc sau, nếu không đăng nhập Google và App Check
+sẽ lỗi trên bản release dù bản debug chạy bình thường:
+
+- [ ] Tạo keystore phát hành; cất file và mật khẩu ở nơi an toàn, không commit vào repo
+- [ ] Cấu hình `signingConfigs` cho build type `release` (mật khẩu đọc từ file ngoài repo hoặc biến môi trường)
+- [ ] Lấy SHA-1 và SHA-256 của keystore phát hành, thêm vào Firebase: Project settings → Your apps → Add fingerprint
+- [ ] Nếu dùng Play App Signing: thêm cả SHA của khoá do Google ký (Play Console → App integrity)
+- [ ] Tải lại `google-services.json` sau khi thêm fingerprint
+- [ ] App Check: bật Play Integrity API và liên kết với Play Console, rồi mới bật Enforce cho bản release
+
+---
+
+## 6. Sổ tay làm việc (đọc khi mở phiên chat mới với Claude)
+
+Mục này ghi những thứ KHÔNG suy ra được từ code: cách hai bên phối hợp, bản design nằm ở đâu,
+cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
+
+### 6.1 Việc tiếp theo
+
+Phần còn lại của **bước 2**, theo thứ tự:
+
+1. **Chi tiết bộ thẻ** (`feature/deck/presentation/deckdetail/`, hiện là UI tạm): top bar có chấm
+   màu + tên bộ thẻ + nút ⋮; dải 3 số (tổng thẻ / cần ôn hôm nay / thẻ mới) + nút "Ôn N thẻ";
+   chip lọc Tất cả / Thủ công / AI; danh sách thẻ có badge nguồn và hạn ôn; vuốt để Sửa / Xoá;
+   thanh đáy "Chụp ảnh" + "Thêm thẻ"; trạng thái rỗng / đang tải / lỗi.
+   Artboard: `DeckDetail`, `DeckEmpty`.
+2. **Thêm / sửa thẻ thủ công** (`.../manualcard/`, hiện là UI tạm): chọn bộ thẻ, ô Câu hỏi / Câu
+   trả lời có bộ đếm 250 ký tự, ô tick "Lưu xong thêm thẻ tiếp", dòng nhắc "thẻ mới ôn được ngay".
+   Cùng màn này dùng cho SỬA thẻ (đã có `EditFlashcardUseCase`). Artboard: `ManualCard`.
+3. **Splash** theo design (logo + tên + khẩu hiệu). Artboard: `Splash`.
+4. Chuyển chuỗi của các màn trên vào `strings.xml` (vi / en), thêm unit test cho ViewModel,
+   chụp emulator so với design, cập nhật checkbox ở Mục 2.
+
+Sau đó là bước 3 (ôn tập). Nút "Ôn ngay" và "Chụp ghi chú" trên Home hiện báo "sắp có".
+
+### 6.2 Cách phối hợp
+
+- **Chỉ bắt đầu code khi Thi nói rõ** ("bắt đầu", "làm đi", "làm tiếp"). Thi hay bàn kế hoạch
+  bằng câu nghe như lệnh; khi mơ hồ thì hỏi lại một câu ngắn.
+- **Thi tự commit, push và tạo pull request** (Android Studio). Luồng nhánh: `feat/...` → pull
+  request vào `dev` → pull request `dev` vào `main`. Claude không commit / push trừ khi được yêu cầu.
+- **Tạo nhánh mới:** `git switch dev` → `git pull` → `git switch -c feat/<tên>`. KHÔNG tách bằng
+  `git switch -c <tên> origin/dev` — cách đó gắn nhánh với `origin/dev`, khiến "Commit and Push"
+  đẩy thẳng vào `dev` (đã xảy ra với `feat/deck-ui` ngày 8/10/2026).
+- **Làm theo từng màn, có điểm dừng:** xong một màn thì biên dịch, chạy unit test, cài lên
+  emulator, chụp ảnh gửi Thi xem rồi mới làm màn kế.
+- **Ghi chú trong code:** tiếng Việt, cho người mới học Kotlin / Compose, mức vừa phải — đầu
+  file / hàm nói nó làm gì; chỉ chú thích tại chỗ khó đoán; mỗi khái niệm giải thích một lần.
+- **Trả lời Thi bằng tiếng Việt**, ngắn gọn, nói rõ việc nào của ai.
+
+### 6.3 Bản thiết kế
+
+Canvas: https://claude.ai/artifact/Xrgp4GyHTjyrgRePczrBPx — 56 màn, hai trang **Light** và
+**Dark theme**. Mỗi màn là một file nguồn `project/<Tên>.dc.html` (HTML + style nội tuyến), trong
+đó có chính xác kích thước, khoảng cách, màu, cỡ chữ — Claude đọc file này bằng công cụ Artifact
+(`read` với `path`) rồi chuyển từng con số sang Compose. Bản dark là `<Tên>Dark.dc.html`.
+
+| Bước | Artboard (tên file bỏ đuôi `.dc.html`) |
+| --- | --- |
+| 2. Bộ thẻ | `Main` (Home), `HomeEmpty`, `HomeLoading`, `HomeError`, `CreateDeck`, `DeckDetail`, `DeckEmpty`, `ManualCard`, `Splash` |
+| 3. Ôn tập | `ReviewQuestion`, `ReviewAnswer`, `ReviewDone` |
+| 4. Chụp ảnh + AI | `Capture`, `OcrReview`, `AiGenerating`, `AiSuggestions`, `AiError`, `AiQuota` |
+| 5. Cài đặt, widget | `Settings`, `Widget` |
+| 6. Tài khoản | `LoginGoogle`, `SettingsAccount`, `DeleteAccount` |
+| 7. Thống kê, onboarding, ngôn ngữ | `Stats`, `Onboarding1`–`Onboarding3`, `Language` |
+
+Khác biệt có chủ ý so với design: dữ liệu thật (tên dài bị cắt, danh sách cuộn), thanh trạng
+thái / bàn phím của hệ thống, và các nút thuộc bước chưa làm thì báo "sắp có".
+
+### 6.4 Kiểm tra giao diện trên emulator
+
+- Biên dịch + test: `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest`; đóng gói:
+  `./gradlew :app:assembleDebug`. Test có emulator: `./gradlew :app:connectedDebugAndroidTest`
+  (lệnh này GỠ app khỏi emulator khi xong — phải cài lại và đăng ký lại debug token App Check).
+- adb nằm ở `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`; emulator hay dùng là Pixel 7a.
+- Cài và chụp: `adb install -r app/build/outputs/apk/debug/app-debug.apk`, mở app, rồi
+  `adb exec-out screencap -p > anh.png`.
+- Dữ liệu mẫu giống design: chạy `DemoDataSeeder` (lệnh ghi ở đầu file
+  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Emulator của Thi đang có sẵn 4 bộ thẻ mẫu.
+- App trên emulator đang được đặt ngôn ngữ riêng là tiếng Việt
+  (`adb shell cmd locale set-app-locales com.ledinhthi.ontaptld --locales vi-VN`).
+- Xem dark theme: `adb shell cmd uimode night yes`, chụp xong trả lại `night no`.
+- **Đừng xoá dữ liệu app** (`pm clear`, gỡ cài đặt): sẽ mất debug token App Check mà Thi đã đăng
+  ký trên Firebase Console, phải lấy token mới trong Logcat và đăng ký lại.

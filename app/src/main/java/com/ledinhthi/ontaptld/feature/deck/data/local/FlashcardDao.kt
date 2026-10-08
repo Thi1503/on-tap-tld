@@ -19,6 +19,24 @@ interface FlashcardDao : BaseDao<FlashcardEntity> {
     @Query("SELECT COUNT(*) FROM flashcards WHERE isDeleted = 0 AND dueDate <= :now")
     fun observeDueCount(now: Long): Flow<Int>
 
+    // Một câu lệnh đếm cho TẤT CẢ bộ thẻ cùng lúc (thay vì mỗi bộ một câu):
+    //   COUNT(*)            -> tổng số thẻ của bộ
+    //   SUM(CASE WHEN ...)  -> cộng 1 cho mỗi thẻ đã đến hạn, 0 cho thẻ chưa đến hạn
+    // Tên cột sau `AS` phải trùng tên field của DeckCardStatsRow để Room tự ghép.
+    @Query(
+        "SELECT deckId, COUNT(*) AS cardCount, " +
+            "SUM(CASE WHEN dueDate <= :dueBefore THEN 1 ELSE 0 END) AS dueCount " +
+            "FROM flashcards WHERE isDeleted = 0 GROUP BY deckId",
+    )
+    fun observeDeckStats(dueBefore: Long): Flow<List<DeckCardStatsRow>>
+
     @Query("UPDATE flashcards SET isDeleted = 1, updatedAt = :now WHERE id = :id")
     suspend fun softDelete(id: String, now: Long)
 }
+
+/** Kết quả chiếu của [FlashcardDao.observeDeckStats] — không phải bảng. */
+data class DeckCardStatsRow(
+    val deckId: String,
+    val cardCount: Int,
+    val dueCount: Int,
+)

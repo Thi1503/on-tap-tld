@@ -18,21 +18,76 @@ import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
  * `themeMode` được truyền từ [com.ledinhthi.ontaptld.core.data.local.prefs.AppPreferences]
  * (DataStore) qua MainActivity, tương đương `ThemeCubit` bên Flutter.
  */
-private val DarkColorScheme = darkColorScheme(
-    primary = AppPalette.PrimaryDark2,
-    onPrimary = AppPalette.White,
-    background = DarkAppExtendedColors.scaffoldBackground,
-    surface = DarkAppExtendedColors.cardBackground,
-    error = DarkAppExtendedColors.errorText,
-)
+// Ánh xạ token ngữ nghĩa sang đủ các slot Material3 mà component gốc (TextField, Switch,
+// Checkbox, BottomSheet, Snackbar…) tự đọc — để chúng ra đúng màu thiết kế mà không phải
+// truyền `colors = …` ở từng nơi dùng.
+//
+// `with(x) { … }`: bên trong khối, viết `primary` được hiểu là `x.primary` — đỡ lặp tên.
+//
+// App có 2 "cửa" lấy màu, cùng một nguồn:
+//   - appColors().xxx            -> token riêng của app (đầy đủ nhất, ưu tiên dùng trong màn hình)
+//   - MaterialTheme.colorScheme  -> để component Material tự đọc; ít khi cần gọi trực tiếp
+private val DarkColorScheme = with(DarkAppExtendedColors) {
+    darkColorScheme(
+        primary = primary,
+        onPrimary = textOnAccent,
+        primaryContainer = primarySoft,
+        onPrimaryContainer = primaryStrong,
+        secondary = primaryStrong,
+        onSecondary = AppPalette.GrayDark7,
+        secondaryContainer = neutralSoft,
+        onSecondaryContainer = textStrong,
+        background = scaffoldBackground,
+        onBackground = textPrimary,
+        surface = cardBackground,
+        onSurface = textPrimary,
+        surfaceVariant = neutralSoft,
+        onSurfaceVariant = textSecondary,
+        surfaceContainerLowest = scaffoldBackground,
+        surfaceContainerLow = cardBackground,
+        surfaceContainer = cardBackground,
+        surfaceContainerHigh = cardBackground,
+        surfaceContainerHighest = neutralSoft,
+        outline = borderStrong,
+        outlineVariant = border,
+        error = errorText,
+        onError = AppPalette.GrayDark7,
+        errorContainer = statusRedBg,
+        onErrorContainer = statusRedText,
+        scrim = AppPalette.Black,
+    )
+}
 
-private val LightColorScheme = lightColorScheme(
-    primary = AppPalette.PrimaryLight2,
-    onPrimary = AppPalette.White,
-    background = LightAppExtendedColors.scaffoldBackground,
-    surface = LightAppExtendedColors.cardBackground,
-    error = LightAppExtendedColors.errorText,
-)
+private val LightColorScheme = with(LightAppExtendedColors) {
+    lightColorScheme(
+        primary = primary,
+        onPrimary = textOnAccent,
+        primaryContainer = primarySoft,
+        onPrimaryContainer = primaryStrong,
+        secondary = primaryStrong,
+        onSecondary = AppPalette.White,
+        secondaryContainer = neutralSoft,
+        onSecondaryContainer = textStrong,
+        background = scaffoldBackground,
+        onBackground = textPrimary,
+        surface = cardBackground,
+        onSurface = textPrimary,
+        surfaceVariant = neutralSoft,
+        onSurfaceVariant = textSecondary,
+        surfaceContainerLowest = cardBackground,
+        surfaceContainerLow = cardBackground,
+        surfaceContainer = cardBackground,
+        surfaceContainerHigh = cardBackground,
+        surfaceContainerHighest = neutralSoft,
+        outline = borderStrong,
+        outlineVariant = border,
+        error = errorText,
+        onError = AppPalette.White,
+        errorContainer = statusRedBg,
+        onErrorContainer = statusRedText,
+        scrim = AppPalette.Black,
+    )
+}
 
 @Composable
 fun OnTapTldTheme(
