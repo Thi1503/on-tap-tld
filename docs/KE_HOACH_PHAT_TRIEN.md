@@ -72,13 +72,14 @@ Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — ch�
 
 Home + bảng tạo bộ thẻ xong ngày 7/10/2026, **đã nằm trong `dev`** (commit `d81249c`, vào thẳng `dev`
 không qua pull request do nhánh `feat/deck-ui` bị gắn nhầm với `origin/dev` — xem Mục 6.2).
-Phần còn lại của bước 2 làm trên nhánh `feat/deck-detail` tách từ `dev` (tạo ngày 8/10/2026).
-Chi tiết bộ thẻ code xong ngày 8/10/2026 (chưa commit) — chờ Thi xem ảnh rồi mới làm màn kế.
+Chi tiết bộ thẻ xong ngày 8/10/2026, đã vào `dev` qua pull request #7 (nhánh `feat/deck-detail`).
+Thêm / sửa thẻ thủ công code xong ngày 8/10/2026 trên nhánh `feat/manual-card` (chưa commit) —
+chờ Thi xem ảnh rồi mới làm Splash.
 
 **Claude**
 - [x] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ; đủ trạng thái rỗng / đang tải (skeleton) / lỗi
 - [x] Chi tiết bộ thẻ: thống kê, lọc Tất cả / Thủ công / AI, vuốt để sửa / xoá
-- [ ] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
+- [x] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
 - [x] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
 - [ ] Splash theo design
 - [x] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách (Home, Chi tiết bộ thẻ)
@@ -87,9 +88,15 @@ Chi tiết bộ thẻ code xong ngày 8/10/2026 (chưa commit) — chờ Thi xem
 > các thẻ bên trong, trong một transaction); xoá thẻ và xoá bộ thẻ đều hỏi lại; **chạm vào thẻ =
 > mở thẳng màn sửa thẻ** (Thi chốt 8/10/2026 — không có màn / bảng "chi tiết thẻ" riêng), chỉ
 > vuốt mới lộ Sửa / Xoá; đổi chip lọc thì danh sách về đầu và không chạy hoạt ảnh; "Thẻ mới" =
-> thẻ chưa ôn lần nào; nhãn "Có ảnh nguồn" chỉ hiện khi thẻ AI có `noteId`. Chạm thẻ và nút
-> "Sửa" đã điều hướng sang `ManualCardRoute(deckId, cardId)` nhưng màn thẻ thủ công chưa đọc
-> `cardId` cho tới khi dựng lại màn đó.
+> thẻ chưa ôn lần nào; nhãn "Có ảnh nguồn" chỉ hiện khi thẻ AI có `noteId`.
+>
+> **Thêm / sửa thẻ — những chỗ design không vẽ:** một màn cho hai chế độ, route có `cardId` là
+> SỬA. Khi sửa: tiêu đề "Sửa thẻ", nút "Lưu thay đổi", ô Bộ thẻ chỉ để xem (chưa cho chuyển thẻ
+> sang bộ khác), ẩn ô tick và dòng nhắc, badge theo nguồn thẻ (AI / Thủ công). Khi thêm với ô
+> tick bật: lưu xong ở lại màn, xoá trắng hai ô, con trỏ về ô Câu hỏi, dòng nhắc đổi thành "Đã
+> lưu N thẻ" (không dùng snackbar vì nó nằm sau bàn phím / đè nút Lưu). Nút Lưu chỉ bật khi cả
+> hai ô có chữ. Thi chốt 8/10/2026: top bar dùng mũi tên ← thay nút ✕ của design; rời màn (nút
+> ← hoặc Back hệ thống) khi còn nội dung chưa lưu thì hỏi "Bỏ nội dung chưa lưu?".
 
 > **Quy ước "cần ôn hôm nay":** thẻ được tính là đến hạn nếu `dueDate` rơi vào bất kỳ lúc nào trong
 > hôm nay (tới 23:59), không phải chỉ khi đã qua đúng giờ hẹn — xem `core/domain/util/DueCutoff.kt`.
@@ -218,14 +225,12 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 
 Phần còn lại của **bước 2**, theo thứ tự:
 
-1. ~~Chi tiết bộ thẻ~~ — xong ngày 8/10/2026 (chuỗi vi / en và unit test đã kèm theo), chờ Thi xem.
-2. **Thêm / sửa thẻ thủ công** (`.../manualcard/`, hiện là UI tạm): chọn bộ thẻ, ô Câu hỏi / Câu
-   trả lời có bộ đếm 250 ký tự, ô tick "Lưu xong thêm thẻ tiếp", dòng nhắc "thẻ mới ôn được ngay".
-   Cùng màn này dùng cho SỬA thẻ khi route có `cardId` (đã có `EditFlashcardUseCase`).
-   Artboard: `ManualCard`.
+1. ~~Chi tiết bộ thẻ~~ — xong, đã vào `dev` (pull request #7).
+2. ~~Thêm / sửa thẻ thủ công~~ — xong ngày 8/10/2026 trên nhánh `feat/manual-card` (chuỗi vi / en
+   và unit test đã kèm theo), chờ Thi xem.
 3. **Splash** theo design (logo + tên + khẩu hiệu). Artboard: `Splash`.
-4. Với mỗi màn trên: chuyển chuỗi vào `strings.xml` (vi / en), thêm unit test cho ViewModel,
-   chụp emulator so với design, cập nhật checkbox ở Mục 2.
+4. Với mỗi màn: chuyển chuỗi vào `strings.xml` (vi / en), thêm unit test cho ViewModel, chụp
+   emulator so với design, cập nhật checkbox ở Mục 2.
 
 Sau đó là bước 3 (ôn tập). Nút "Ôn ngay" và "Chụp ghi chú" trên Home hiện báo "sắp có".
 

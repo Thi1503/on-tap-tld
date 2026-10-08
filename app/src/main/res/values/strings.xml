@@ -106,6 +106,26 @@
     <string name="deck_detail_delete_deck_message">Tất cả thẻ trong bộ này cũng sẽ bị xoá. Thao tác này không hoàn tác được.</string>
     <string name="deck_detail_deck_deleted">Đã xoá bộ thẻ.</string>
 
+    <!-- manual_card — feature/deck/presentation/manualcard (thêm và sửa thẻ dùng chung màn) -->
+    <string name="manual_card_title_add">Thêm thẻ</string>
+    <string name="manual_card_title_edit">Sửa thẻ</string>
+    <string name="manual_card_deck_label">Bộ thẻ</string>
+    <string name="manual_card_question_label">Câu hỏi</string>
+    <string name="manual_card_answer_label">Câu trả lời</string>
+    <string name="manual_card_keep_adding_title">Lưu xong thêm thẻ tiếp</string>
+    <string name="manual_card_keep_adding_subtitle">Giữ nguyên màn này để nhập liền nhiều thẻ</string>
+    <string name="manual_card_new_card_note">Thẻ mới sẵn sàng ôn ngay trong hôm nay.</string>
+    <plurals name="manual_card_saved_count">
+        <item quantity="other">Đã lưu %d thẻ. Nhập thẻ tiếp theo nhé.</item>
+    </plurals>
+    <string name="manual_card_save">Lưu thẻ</string>
+    <string name="manual_card_save_changes">Lưu thay đổi</string>
+    <string name="manual_card_added">Đã thêm thẻ.</string>
+    <string name="manual_card_updated">Đã lưu thay đổi.</string>
+    <string name="manual_card_discard_title">Bỏ nội dung chưa lưu?</string>
+    <string name="manual_card_discard_message">Nếu thoát bây giờ, những gì bạn vừa nhập sẽ không được lưu.</string>
+    <string name="manual_card_discard_confirm">Thoát</string>
+
     <!-- create_deck — bottom sheet tạo bộ thẻ -->
     <string name="create_deck_title">Tạo bộ thẻ mới</string>
     <string name="create_deck_name_label">Tên bộ thẻ</string>
