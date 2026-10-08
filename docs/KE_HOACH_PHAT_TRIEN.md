@@ -131,7 +131,12 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 > - "Về trang chủ" xoá hết chồng màn rồi mở Home (`replaceAll` đã sửa để làm đúng việc này).
 > - Nút bút chì ở mặt câu hỏi mở màn sửa thẻ; quay lại thì nội dung thẻ đang ôn được nạp lại.
 > - CHƯA làm (thuộc bước 4): dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi
->   chú ở mặt đáp án — hiện chỉ có badge nguồn AI / Thủ công. Lật thẻ chưa có hoạt ảnh.
+>   chú ở mặt đáp án — hiện chỉ có badge nguồn AI / Thủ công.
+> - Hoạt ảnh lật thẻ (thêm 8/10/2026, nhánh `feat/flip-animation`, design không vẽ): bấm "Hiện
+>   đáp án" hoặc chạm thẻ thì tấm thẻ quay 180° quanh trục dọc trong 0,4 giây, qua nửa vòng thì
+>   đổi sang mặt đáp án; nút "Hiện đáp án" mờ đi, 4 nút chấm hiện dần lên. Chỉ nhận lần chấm
+>   khi thẻ đã lật xong (lỡ bấm đúp "Hiện đáp án" không thành chấm nhầm). Sang thẻ kế tiếp thì
+>   hiện thẳng mặt câu hỏi, không quay ngược và chưa có hoạt ảnh chuyển thẻ.
 
 **Thi**
 - [ ] Chạy thử một phiên ôn đầy đủ
@@ -143,8 +148,7 @@ Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào
 request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" xong cùng ngày, đã
 vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ xong
 cùng ngày, đã vào `dev` qua pull request #15 (nhánh `feat/ai-suggestions`). Màn lỗi AI + màn hết
-lượt code xong cùng ngày trên nhánh `feat/ai-error-quota` (chưa commit), đã chạy thử trên
-emulator — chờ Thi xem và merge.
+lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-error-quota`).
 
 **Claude**
 - [x] CameraX + crop vùng chữ
@@ -372,11 +376,17 @@ Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
 request #12), màn Kiểm tra văn bản (#13), phần gọi Gemini + màn "Đang tạo thẻ" (#14) và màn duyệt
-thẻ AI + lưu thẻ (#15) cũng vậy. Màn lỗi AI + màn hết lượt (nhánh `feat/ai-error-quota`) đã code
-xong, chờ Thi xem và merge. Thứ tự còn lại: xem ảnh nguồn của thẻ AI, tô sáng đúng vùng (kèm
-phần còn thiếu ở mặt đáp án của màn ôn) → hai việc dọn dẹp (xoá bộ thẻ / xoá thẻ phải xoá cả
-`Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị tắt dưới nền). Artboard: xem
-bảng ở Mục 6.3.
+thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17) cũng vậy. Thứ tự còn lại của bước 4: xem
+ảnh nguồn của thẻ AI, tô sáng đúng vùng (kèm phần còn thiếu ở mặt đáp án của màn ôn) → hai việc
+dọn dẹp (xoá bộ thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã
+sửa khi app bị tắt dưới nền). Artboard: xem bảng ở Mục 6.3.
+
+**Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
+làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
+Firestore và xoá tài khoản để sau khi nộp. Thứ tự: hoạt ảnh lật thẻ (nhánh `feat/flip-animation`,
+code xong, chờ Thi xem và merge) → icon launcher → phần còn lại của bước 4 → bước 5 → đăng nhập
+Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình, nên trước khi quay
+demo cần soát app trên máy nhỏ / tablet / xoay ngang / cỡ chữ lớn.
 
 Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
 Pixel 7a đã được kiểm chứng bằng lần gọi AI thật ngày 8/10/2026; token của máy OPPO CPH1911 đã
