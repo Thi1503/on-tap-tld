@@ -171,6 +171,16 @@
     <string name="review_empty_title">No cards to review</string>
     <string name="review_empty_message">You\'ve reviewed everything due today. Come back tomorrow.</string>
     <string name="review_error_title">Couldn\'t load cards to review</string>
+    <string name="review_source_from_note">From your note of %1$s</string>
+    <string name="review_source_date_pattern">d MMM</string>
+    <string name="review_view_full_image">View photo</string>
+
+    <!-- source_image -->
+    <string name="source_image_title">Note photo</string>
+    <string name="source_image_description">The original note photo for this card</string>
+    <string name="source_image_hint">The orange outline marks this card\'s part of the note. Pinch to zoom.</string>
+    <string name="source_image_hint_no_box">This card\'s position in the photo is unknown. Pinch to zoom.</string>
+    <string name="source_image_error">Couldn\'t open this note\'s photo.</string>
 
     <!-- capture -->
     <string name="capture_title">Capture notes</string>

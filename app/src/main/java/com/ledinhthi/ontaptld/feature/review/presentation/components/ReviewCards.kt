@@ -10,26 +10,34 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ledinhthi.ontaptld.R
@@ -41,6 +49,11 @@ import com.ledinhthi.ontaptld.core.presentation.theme.AppPalette
 import com.ledinhthi.ontaptld.core.presentation.theme.appColors
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Flashcard
 import com.ledinhthi.ontaptld.feature.deck.domain.model.FlashcardSource
+import com.ledinhthi.ontaptld.feature.review.domain.model.CardSource
+import com.ledinhthi.ontaptld.feature.review.domain.model.ExcerptLine
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /** Câu hỏi dài hơn ngưỡng này thì hạ cỡ chữ một bậc để vẫn đọc gọn trong thẻ. */
 private const val LongQuestionLength = 140
@@ -162,9 +175,17 @@ fun ReviewQuestionCard(
     }
 }
 
-/** Mặt ĐÁP ÁN: câu hỏi thu nhỏ ở trên để đối chiếu, đáp án chữ lớn bên dưới. */
+/**
+ * Mặt ĐÁP ÁN: câu hỏi thu nhỏ ở trên để đối chiếu, đáp án chữ lớn bên dưới. Thẻ AI còn ghi chú
+ * gốc ([source] khác null) thì đáy thẻ có thêm phần "trích từ ghi chú" và nút [onViewSourceImage].
+ */
 @Composable
-fun ReviewAnswerCard(card: Flashcard, modifier: Modifier = Modifier) {
+fun ReviewAnswerCard(
+    card: Flashcard,
+    source: CardSource?,
+    onViewSourceImage: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors = appColors()
     val shape = MaterialTheme.shapes.large
     Column(
@@ -203,7 +224,115 @@ fun ReviewAnswerCard(card: Flashcard, modifier: Modifier = Modifier) {
                 color = colors.textPrimary,
             )
         }
-        SourceBadge(card.source)
+        if (source != null) {
+            SourceSection(cardSource = card.source, source = source, onViewSourceImage = onViewSourceImage)
+        } else {
+            SourceBadge(card.source)
+        }
+    }
+}
+
+// Màu của khung trích ghi chú: nền giấy ngà, chữ mực xanh, dòng nguồn tô cam nhạt. Giống nhau ở
+// cả giao diện sáng và tối (đúng bản design — nó mô phỏng một mẩu giấy), nên không lấy từ theme.
+private val ExcerptPaper = Color(0xFFF3EEE2)
+private val ExcerptInk = Color(0xFF1F3A6E)
+private val ExcerptInkFaded = Color(0xFF7A8AA8)
+private val ExcerptHighlight = AppPalette.ColorFFD4BE
+
+/**
+ * Đáy mặt đáp án của thẻ AI: nhãn nguồn + "Trích từ ghi chú chụp 05/10" + nút "Xem cả ảnh", rồi
+ * tới đoạn trích ghi chú với dòng nguồn được tô sáng.
+ */
+@Composable
+private fun SourceSection(cardSource: FlashcardSource, source: CardSource, onViewSourceImage: () -> Unit) {
+    val colors = appColors()
+    Column(verticalArrangement = Arrangement.spacedBy(AppDimens.paddingVerySmall)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(AppDimens.paddingVerySmall),
+        ) {
+            SourceBadge(cardSource)
+            Text(
+                text = stringResource(R.string.review_source_from_note, capturedDateLabel(source.capturedAt)),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = stringResource(R.string.review_view_full_image),
+                modifier = Modifier
+                    .overflowVertically(ViewImageTouchOverflow)
+                    .clip(MaterialTheme.shapes.small)
+                    .clickable(role = Role.Button, onClick = onViewSourceImage)
+                    .padding(horizontal = AppDimens.paddingSmallest)
+                    // Chữ nằm giữa vùng chạm cao 44dp.
+                    .height(44.dp)
+                    .wrapContentHeight(),
+                style = MaterialTheme.typography.labelSmall,
+                color = colors.primaryStrong,
+            )
+        }
+        if (source.excerpt.isNotEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ExcerptPaper, RoundedCornerShape(AppDimens.radius8))
+                    .padding(horizontal = AppDimens.paddingVerySmall, vertical = AppDimens.paddingSmall),
+                verticalArrangement = Arrangement.spacedBy(AppDimens.padding6),
+            ) {
+                source.excerpt.forEach { line -> ExcerptText(line) }
+            }
+        }
+    }
+}
+
+/** Nút "Xem cả ảnh" cao 44dp (cho dễ chạm) được phép lấn ra ngoài hàng chứa nó bấy nhiêu mỗi phía. */
+private val ViewImageTouchOverflow = 10.dp
+
+/**
+ * Báo với bố cục rằng phần tử này THẤP hơn thật [amount] ở cả phía trên lẫn phía dưới, rồi vẽ nó
+ * lấn ra ngoài phần đã báo. Dùng cho nút nhỏ cần vùng chạm cao (44dp) mà không được đẩy hàng
+ * chứa nó cao lên theo — cùng ý với "margin âm" trong bản design.
+ */
+private fun Modifier.overflowVertically(amount: Dp) = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+    val overflow = amount.roundToPx()
+    val reportedHeight = (placeable.height - 2 * overflow).coerceAtLeast(0)
+    layout(placeable.width, reportedHeight) { placeable.place(0, -overflow) }
+}
+
+/** Một dòng của đoạn trích. Dòng nguồn của thẻ: chữ đậm trên nền cam nhạt; dòng lân cận: chữ nhạt. */
+@Composable
+private fun ExcerptText(line: ExcerptLine) {
+    val style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, lineHeight = 20.sp)
+    Text(
+        text = line.text,
+        modifier = if (line.isSource) {
+            Modifier
+                .fillMaxWidth()
+                .background(ExcerptHighlight, RoundedCornerShape(AppDimens.radius4))
+                .padding(horizontal = AppDimens.padding6, vertical = 2.dp)
+        } else {
+            Modifier.padding(horizontal = AppDimens.padding6)
+        },
+        style = if (line.isSource) style.copy(fontWeight = FontWeight.W700) else style,
+        color = if (line.isSource) ExcerptInk else ExcerptInkFaded,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+/** Ngày chụp ghi chú, viết ngắn ("05/10"). Mẫu ngày nằm trong strings.xml vì mỗi ngôn ngữ một kiểu. */
+@Composable
+private fun capturedDateLabel(capturedAt: Long): String {
+    val locale = LocalConfiguration.current.locales[0]
+    val pattern = stringResource(R.string.review_source_date_pattern)
+    return remember(capturedAt, locale, pattern) {
+        Instant.ofEpochMilli(capturedAt)
+            .atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern(pattern, locale))
     }
 }
 

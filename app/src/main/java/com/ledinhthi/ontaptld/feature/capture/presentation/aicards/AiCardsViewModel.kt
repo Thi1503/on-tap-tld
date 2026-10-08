@@ -224,7 +224,7 @@ class AiCardsViewModel @Inject constructor(
                     imagePath = imagePath,
                     noteText = noteText,
                     cards = selected.map {
-                        SaveSuggestedCardsUseCase.CardDraft(it.question, it.answer, it.fromAi)
+                        SaveSuggestedCardsUseCase.CardDraft(it.question, it.answer, it.fromAi, it.sourceLine)
                     },
                 ),
             )

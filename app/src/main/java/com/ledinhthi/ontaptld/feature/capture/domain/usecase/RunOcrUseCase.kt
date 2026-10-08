@@ -15,7 +15,9 @@ class RunOcrUseCase @Inject constructor(
     private val repository: OcrRepository,
 ) : UseCase<String, String>() {
     override suspend fun invoke(input: String): String {
-        val text = repository.recognizeText(input).trim()
+        // Ở bước này chỉ cần phần chữ; vị trí từng dòng trên ảnh được dùng lúc lưu thẻ (xem
+        // SaveSuggestedCardsUseCase).
+        val text = repository.recognizeLines(input).joinToString(separator = "\n") { it.text }.trim()
         if (text.isEmpty()) throw AppException.OcrException(OcrErrorKind.NO_TEXT_FOUND)
         return text
     }

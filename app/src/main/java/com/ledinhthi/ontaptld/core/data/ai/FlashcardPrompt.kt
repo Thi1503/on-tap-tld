@@ -1,5 +1,8 @@
 package com.ledinhthi.ontaptld.core.data.ai
 
+// `as` đặt tên khác cho hàm được nhập, để khỏi trùng với hàm `noteLines` của chính object này.
+import com.ledinhthi.ontaptld.core.domain.util.noteLines as splitNoteLines
+
 /**
  * Lời dặn gửi cho AI khi nhờ soạn thẻ. Tách riêng khỏi phần gọi mạng để đọc, sửa và kiểm thử
  * câu chữ mà không cần Firebase.
@@ -28,12 +31,11 @@ object FlashcardPrompt {
     """.trimIndent()
 
     /**
-     * Các dòng có nội dung của ghi chú, đã bỏ dòng trống và khoảng trắng thừa. Vị trí trong
-     * danh sách này (tính từ 1) chính là "số dòng" mà AI báo lại ở `sourceLine` và màn duyệt
-     * thẻ hiện cho người dùng ("Nguồn: dòng 2 trong ảnh").
+     * Các dòng có nội dung của ghi chú. Vị trí trong danh sách này (tính từ 1) chính là "số
+     * dòng" mà AI báo lại ở `sourceLine`. Cách tách dòng nằm ở hàm dùng chung `noteLines` của
+     * tầng domain, vì màn ôn tập cũng cần đúng cách đánh số này để trích lại dòng nguồn.
      */
-    fun noteLines(noteText: String): List<String> =
-        noteText.lines().map { it.trim() }.filter { it.isNotEmpty() }
+    fun noteLines(noteText: String): List<String> = splitNoteLines(noteText)
 
     /** Phần yêu cầu của từng lần gọi: số thẻ tối đa + ghi chú đã đánh số dòng. */
     fun userPrompt(noteText: String, maxCards: Int): String {

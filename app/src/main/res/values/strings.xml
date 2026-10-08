@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">OnTapTLD</string>
+    <string name="app_name" translatable="false">On Tap TLD</string>
 
     <!-- Quy ước đặt key: "<màn hoặc nhóm>_<vị trí>". Chuỗi mặc định là tiếng Việt;
          bản dịch nằm ở res/values-en/strings.xml (cùng key). -->
@@ -171,6 +171,18 @@
     <string name="review_empty_title">Không có thẻ nào cần ôn</string>
     <string name="review_empty_message">Bạn đã ôn hết thẻ đến hạn hôm nay. Quay lại vào ngày mai nhé.</string>
     <string name="review_error_title">Không tải được thẻ cần ôn</string>
+    <!-- Mặt đáp án của thẻ AI: %1$s = ngày chụp ghi chú, viết theo review_source_date_pattern -->
+    <string name="review_source_from_note">Trích từ ghi chú chụp %1$s</string>
+    <!-- Mẫu ngày ngắn (kiểu java.time): dd = ngày, MM = tháng -->
+    <string name="review_source_date_pattern">dd/MM</string>
+    <string name="review_view_full_image">Xem cả ảnh</string>
+
+    <!-- source_image — màn xem cả ảnh ghi chú của một thẻ AI -->
+    <string name="source_image_title">Ảnh ghi chú</string>
+    <string name="source_image_description">Ảnh ghi chú gốc của thẻ</string>
+    <string name="source_image_hint">Viền cam là phần ghi chú của thẻ này. Chụm hai ngón để phóng to.</string>
+    <string name="source_image_hint_no_box">Không xác định được vị trí của thẻ này trên ảnh. Chụm hai ngón để phóng to.</string>
+    <string name="source_image_error">Không mở được ảnh ghi chú này.</string>
 
     <!-- capture — feature/capture: luồng chụp ghi chú → kiểm tra văn bản → duyệt thẻ AI -->
     <string name="capture_title">Chụp ghi chú</string>

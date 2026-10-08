@@ -35,4 +35,14 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2)
+/**
+ * v3: thêm cột `sourceLine` cho thẻ — thẻ AI được rút ra từ dòng thứ mấy của ghi chú. Cột cho
+ * phép NULL nên mọi thẻ đã có giữ nguyên, chỉ là chưa có số dòng.
+ */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `flashcards` ADD COLUMN `sourceLine` INTEGER")
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)

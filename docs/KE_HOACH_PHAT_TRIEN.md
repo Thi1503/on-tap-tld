@@ -130,8 +130,8 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 >   ngày, không thì "Trong 2 tuần tới") / từ 2 tuần trở lên. Nhóm trống thì ẩn.
 > - "Về trang chủ" xoá hết chồng màn rồi mở Home (`replaceAll` đã sửa để làm đúng việc này).
 > - Nút bút chì ở mặt câu hỏi mở màn sửa thẻ; quay lại thì nội dung thẻ đang ôn được nạp lại.
-> - CHƯA làm (thuộc bước 4): dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi
->   chú ở mặt đáp án — hiện chỉ có badge nguồn AI / Thủ công.
+> - Dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi chú ở mặt đáp án của thẻ
+>   AI: đã làm ở bước 4 — xem mục "Xem ảnh nguồn của thẻ AI" bên dưới.
 > - Hoạt ảnh lật thẻ (thêm 8/10/2026, nhánh `feat/flip-animation`, design không vẽ): bấm "Hiện
 >   đáp án" hoặc chạm thẻ thì tấm thẻ quay 180° quanh trục dọc trong 0,4 giây, qua nửa vòng thì
 >   đổi sang mặt đáp án; nút "Hiện đáp án" mờ đi, 4 nút chấm hiện dần lên. Chỉ nhận lần chấm
@@ -148,7 +148,9 @@ Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào
 request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" xong cùng ngày, đã
 vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ xong
 cùng ngày, đã vào `dev` qua pull request #15 (nhánh `feat/ai-suggestions`). Màn lỗi AI + màn hết
-lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-error-quota`).
+lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-error-quota`). Xem ảnh
+nguồn của thẻ AI code xong cùng ngày trên nhánh `feat/source-image` (chưa commit), đã chạy thử
+trọn chuỗi trên emulator — chờ Thi xem và merge. Bước 4 còn lại hai việc dọn dẹp (xem Mục 6.1).
 
 **Claude**
 - [x] CameraX + crop vùng chữ
@@ -156,7 +158,8 @@ lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-
 - [x] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
 - [x] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [x] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
-- [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
+- [x] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
+- [ ] Dọn dẹp: xoá bộ thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị tắt dưới nền
 
 > **Màn Chụp ghi chú — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
 > - Một route (`CaptureRoute`), hai chặng: **ngắm** (camera chạy, khung cắt hiện sẵn, kéo được) →
@@ -180,7 +183,8 @@ lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-
 >   thư viện gốc nặng khoảng 11 MB cho mỗi kiến trúc CPU — APK debug (gộp cả 4 kiến trúc) tăng từ
 >   18 lên 61 MB; bản phát hành dạng App Bundle chỉ tải phần của đúng một kiến trúc.
 > - Các khối chữ được xếp lại theo vị trí trên ảnh (trên xuống, trái sang phải) trước khi ghép
->   thành văn bản. Chưa giữ toạ độ từng dòng — sẽ thêm khi làm phần tô sáng ảnh nguồn.
+>   thành văn bản. Bộ nhận dạng trả về từng dòng kèm vị trí trên ảnh (`OcrLine`); màn này chỉ
+>   dùng phần chữ, vị trí được dùng lúc lưu thẻ để tô sáng ảnh nguồn.
 > - Ô văn bản cao cố định 272dp, dài thì cuộn bên trong ô; đang nhận dạng thì ô tạm khoá.
 > - Không nhận ra chữ / bộ nhận dạng lỗi: ở lại màn, dòng nhắc cam đổi nội dung, cho tự gõ; nút
 >   "Tạo thẻ bằng AI" mờ cho tới khi có chữ và có bộ thẻ.
@@ -235,9 +239,35 @@ lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-
 >   trên emulator); lúc quay lại app hiện đúng danh sách cũ thay vì gọi AI lần nữa.
 > - Bấm Huỷ lúc đang gọi AI: thư viện Firebase bọc tín hiệu huỷ coroutine vào `UnknownException`
 >   — `FirebaseGeminiClient` gọi `ensureActive()` để nhận ra đây là "bị huỷ", không phải lỗi.
-> - CHƯA làm: `sourceBox` của thẻ (vùng tô sáng trên ảnh) đang để trống — thuộc phần "xem ảnh
->   nguồn". Xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản chưa
->   giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+> - CHƯA làm: xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản
+>   chưa giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+>
+> **Xem ảnh nguồn của thẻ AI — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Mỗi thẻ AI lưu thêm hai thứ: `sourceLine` = dòng ghi chú mà AI rút thẻ ra (đếm từ 1, chỉ
+>   tính dòng có chữ — hàm dùng chung `noteLines`), và `sourceBox` = vị trí của dòng đó trên ảnh,
+>   tính theo tỉ lệ của ảnh (0..1). **Schema Room lên v3** (`MIGRATION_2_3`: thêm cột
+>   `flashcards.sourceLine`), có test trong `MigrationTest`.
+> - Vị trí trên ảnh được tìm lúc LƯU thẻ: chạy lại bộ nhận dạng chữ trên ảnh đã cắt (chừng một
+>   giây, không cần mạng) rồi so NỘI DUNG dòng ghi chú với các dòng nhận dạng được
+>   (`SourceLineLocator`: giống hệt thì lấy luôn, không thì lấy dòng giống nhất nếu giống từ
+>   60% trở lên). So theo nội dung vì ở bước 2 người dùng có thể đã sửa, thêm, xoá dòng. Dòng
+>   người dùng tự gõ thêm, hoặc ảnh không đọc lại được: thẻ vẫn lưu, chỉ không có vùng tô sáng.
+> - Mặt đáp án lúc ôn (theo artboard `ReviewAnswer`): thẻ AI còn ghi chú thì đáy thẻ có nhãn
+>   AI + "Trích từ ghi chú chụp dd/MM" + nút "Xem cả ảnh", bên dưới là đoạn trích ba dòng (dòng
+>   trước, dòng nguồn tô cam, dòng sau; mỗi dòng tối đa hai hàng chữ). Không biết dòng nguồn thì
+>   không có đoạn trích; thẻ thủ công hoặc ghi chú đã mất thì chỉ có nhãn nguồn như cũ.
+> - "Xem cả ảnh" (design không vẽ màn này; Thi chọn kiểu toàn màn hình có phóng to): mở
+>   `SourceImageRoute(cardId)` — màn luôn tối, nút ✕ đóng về đúng mặt đáp án đang xem. Ảnh vừa
+>   khít màn, vùng của thẻ viền cam, phần còn lại tối đi; chụm hai ngón phóng to tới 5 lần, kéo
+>   để di chuyển (không kéo hở mép). Chưa có chạm đúp để phóng to. Không có vùng nguồn thì vẫn
+>   xem được ảnh, dòng chú thích dưới đáy nói rõ; file ảnh không còn thì báo ngay trong màn.
+> - Chỉ mở được màn này từ mặt đáp án lúc ôn (đúng design). Màn Chi tiết bộ thẻ vẫn chỉ ghi
+>   nhãn "Có ảnh nguồn", chưa có lối xem ảnh.
+> - Thẻ AI lưu TRƯỚC bản này không có `sourceLine` / `sourceBox`: vẫn có "Trích từ ghi chú
+>   chụp…" và xem được cả ảnh, chỉ thiếu đoạn trích và viền tô sáng.
+> - Đã kiểm chứng trên emulator ngày 8/10/2026 bằng một ảnh ghi chú có chữ in (xem Mục 6.4):
+>   đoạn trích đúng dòng, viền cam ôm đúng dòng trên ảnh, sáng và tối. CHƯA thử được thao tác
+>   chụm hai ngón (adb không gửi được cử chỉ hai ngón) — Thi thử bằng tay.
 >
 > **Màn lỗi AI và màn hết lượt — cách hoạt động (Thi giao Claude tự chốt 8/10/2026) và những chỗ
 > design không vẽ:**
@@ -346,7 +376,7 @@ lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
 
 - Home, thẻ "Cần ôn hôm nay": chú giải dùng tên thật của bộ thẻ nên tên dài bị cắt bằng "…" (design dùng tên ngắn). Chờ Thi quyết: giữ một dòng hay cho xuống hai dòng.
-- Icon ứng dụng: ĐÃ LÀM ngày 8/10/2026 (nhánh `feat/launcher-icon`) — nền cam `#F24E1E`, chữ "TLD" trắng. Ba chữ cái được vẽ lại thành hình trong `drawable/ic_launcher_foreground.xml` (vector drawable không chứa được chữ; dáng gần với Nunito Sans ExtraBold nhưng không phải lấy từ font). Android 8+ dùng icon adaptive; Android 7.x dùng bộ PNG trong `mipmap-*dpi` (sinh từ cùng hình đó). Màn chào của hệ thống trên Android 12+ (`values-v31/themes.xml`) hiện đúng ô logo 96dp của màn Splash thay cho icon bị cắt tròn; logo ở màn Splash của app nằm cao hơn khoảng 40dp vì còn tên app bên dưới, nên lúc nối hai màn logo nhích lên một chút. Tên dưới icon vẫn là `app_name` = "OnTapTLD" (viết liền) — chờ Thi quyết có đổi thành "On Tap TLD" không.
+- Icon ứng dụng: ĐÃ LÀM ngày 8/10/2026 (nhánh `feat/launcher-icon`) — nền cam `#F24E1E`, chữ "TLD" trắng. Ba chữ cái được vẽ lại thành hình trong `drawable/ic_launcher_foreground.xml` (vector drawable không chứa được chữ; dáng gần với Nunito Sans ExtraBold nhưng không phải lấy từ font). Android 8+ dùng icon adaptive; Android 7.x dùng bộ PNG trong `mipmap-*dpi` (sinh từ cùng hình đó). Màn chào của hệ thống trên Android 12+ (`values-v31/themes.xml`) hiện đúng ô logo 96dp của màn Splash thay cho icon bị cắt tròn; logo ở màn Splash của app nằm cao hơn khoảng 40dp vì còn tên app bên dưới, nên lúc nối hai màn logo nhích lên một chút. Tên dưới icon (`app_name`) đã đổi từ "OnTapTLD" thành "On Tap TLD" (Thi chốt 8/10/2026, làm kèm nhánh `feat/source-image`).
 - Chi tiết bộ thẻ: menu ⋮ có thêm "Đổi tên / đổi màu bộ thẻ" không. Sửa thẻ: có cho chuyển thẻ sang bộ khác không (hiện ô Bộ thẻ bị khoá). Dải thanh trạng thái / dải dưới thanh đáy có cho trùng màu top bar / thanh đáy không.
 
 ### Ký phát hành — CHƯA LÀM (tại ngày chốt)
@@ -376,16 +406,16 @@ Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
 request #12), màn Kiểm tra văn bản (#13), phần gọi Gemini + màn "Đang tạo thẻ" (#14) và màn duyệt
-thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17) cũng vậy. Thứ tự còn lại của bước 4: xem
-ảnh nguồn của thẻ AI, tô sáng đúng vùng (kèm phần còn thiếu ở mặt đáp án của màn ôn) → hai việc
-dọn dẹp (xoá bộ thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã
-sửa khi app bị tắt dưới nền). Artboard: xem bảng ở Mục 6.3.
+thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17) cũng vậy. Xem ảnh nguồn của thẻ AI (nhánh
+`feat/source-image`) đã code xong, chờ Thi xem và merge. Bước 4 chỉ còn hai việc dọn dẹp: xoá bộ
+thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị
+tắt dưới nền. Artboard: xem bảng ở Mục 6.3.
 
 **Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
 làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
 Firestore và xoá tài khoản để sau khi nộp. Thứ tự: hoạt ảnh lật thẻ (đã vào `dev`, pull request
-#18) → icon launcher (nhánh `feat/launcher-icon`, làm xong, chờ Thi xem và merge) → phần còn lại
-của bước 4 → bước 5 → đăng nhập Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình, nên trước khi quay
+#18) → icon launcher (đã vào `dev`, pull request #20) → phần còn lại của bước 4 → bước 5 → đăng
+nhập Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình, nên trước khi quay
 demo cần soát app trên máy nhỏ / tablet / xoay ngang / cỡ chữ lớn.
 
 Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
@@ -438,7 +468,15 @@ thái / bàn phím của hệ thống, và các nút thuộc bước chưa làm 
 - Cài và chụp: `adb install -r app/build/outputs/apk/debug/app-debug.apk`, mở app, rồi
   `adb exec-out screencap -p > anh.png`.
 - Dữ liệu mẫu giống design: chạy `DemoDataSeeder` (lệnh ghi ở đầu file
-  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Emulator của Thi đang có sẵn 4 bộ thẻ mẫu.
+  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Từ lần emulator bị xoá trắng ngày
+  8/10/2026, 4 bộ thẻ mẫu CHƯA được nạp lại.
+- Chạy riêng một lớp test có emulator mà KHÔNG gỡ app (vd `MigrationTest` sau khi đổi schema):
+  `./gradlew :app:assembleDebugAndroidTest`, `adb install -r -t <…androidTest.apk>`, rồi
+  `adb shell am instrument -w -e class com.ledinhthi.ontaptld.core.data.local.db.MigrationTest
+  com.ledinhthi.ontaptld.test/androidx.test.runner.AndroidJUnitRunner`.
+- Camera của emulator không có chữ. Để thử OCR / ảnh nguồn, thư viện ảnh của emulator có sẵn
+  `Pictures/ontap_demo_note.jpg` (một trang ghi chú chữ in, Claude tạo ngày 8/10/2026): vào màn
+  chụp, bấm "Thư viện" rồi chọn ảnh này.
 - App trên emulator đang được đặt ngôn ngữ riêng là tiếng Việt
   (`adb shell cmd locale set-app-locales com.ledinhthi.ontaptld --locales vi-VN`).
 - Xem dark theme: `adb shell cmd uimode night yes`, chụp xong trả lại `night no`.

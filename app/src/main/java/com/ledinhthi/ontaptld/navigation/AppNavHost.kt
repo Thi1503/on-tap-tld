@@ -35,6 +35,7 @@ import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScr
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
 import com.ledinhthi.ontaptld.feature.review.presentation.ReviewScreen
+import com.ledinhthi.ontaptld.feature.review.presentation.sourceimage.SourceImageScreen
 import com.ledinhthi.ontaptld.feature.settings.SettingsScreen
 import com.ledinhthi.ontaptld.feature.splash.SplashScreen
 
@@ -64,12 +65,15 @@ fun AppNavHost(navigator: AppNavigator) {
     ObserveEffects(navigator.dialogs) { dialog = it }
 
     // Scaffold tô màu cho hai dải nằm sau thanh trạng thái và thanh điều hướng của hệ thống.
-    // Màn chụp ảnh tối toàn bộ kể cả khi app đang ở giao diện sáng, nên khi nó đang hiện thì
-    // hai dải này cũng phải tối theo (đổi màu từ từ cho khớp hiệu ứng chuyển màn).
+    // Màn chụp ảnh và màn xem ảnh nguồn tối toàn bộ kể cả khi app đang ở giao diện sáng, nên
+    // khi chúng đang hiện thì hai dải này cũng phải tối theo (đổi màu từ từ cho khớp hiệu ứng
+    // chuyển màn).
     val currentEntry by navController.currentBackStackEntryAsState()
-    val isCameraScreen = currentEntry?.destination?.hasRoute<CaptureRoute>() == true
+    val destination = currentEntry?.destination
+    val isAlwaysDarkScreen =
+        destination?.hasRoute<CaptureRoute>() == true || destination?.hasRoute<SourceImageRoute>() == true
     val systemBarBackdrop by animateColorAsState(
-        targetValue = if (isCameraScreen) {
+        targetValue = if (isAlwaysDarkScreen) {
             DarkAppExtendedColors.scaffoldBackground
         } else {
             MaterialTheme.colorScheme.background
@@ -99,6 +103,7 @@ fun AppNavHost(navigator: AppNavigator) {
             composable<ManualCardRoute> { ManualCardScreen() }
             composable<SettingsRoute> { SettingsScreen() }
             composable<ReviewRoute> { ReviewScreen() }
+            composable<SourceImageRoute> { SourceImageScreen() }
             composable<CaptureRoute> { CaptureScreen() }
             composable<OcrReviewRoute> { OcrReviewScreen() }
             composable<AiCardsRoute> { AiCardsScreen() }
