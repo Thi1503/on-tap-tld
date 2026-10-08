@@ -140,14 +140,16 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 
 Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào `dev` qua pull request #12
 (nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) xong cùng ngày, đã vào `dev` qua pull
-request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" code xong cùng ngày
-trên nhánh `feat/ai-generate` (chưa commit) — chờ Thi xem và merge.
+request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" xong cùng ngày, đã
+vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ code
+xong cùng ngày trên nhánh `feat/ai-suggestions` (chưa commit), đã chạy thử trọn chuỗi trên
+emulator — chờ Thi xem và merge.
 
 **Claude**
 - [x] CameraX + crop vùng chữ
 - [x] OCR bằng ML Kit, màn sửa văn bản
 - [x] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
-- [ ] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
+- [x] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
 - [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
 
@@ -204,9 +206,41 @@ trên nhánh `feat/ai-generate` (chưa commit) — chờ Thi xem và merge.
 > - "Huỷ", nút ← và Back trong lúc chờ: bỏ lần gọi đang dở, về bước 2 (văn bản còn nguyên).
 > - Đã kiểm chứng trên emulator ngày 8/10/2026: debug token App Check hoạt động, gọi được AI
 >   thật với ghi chú tiếng Anh và tiếng Việt. Máy OPPO chưa thử.
-> - TẠM: (1) có thẻ thì hiện danh sách chỉ-xem — màn duyệt thẻ thật thay vào ở phần kế; (2) lỗi
->   nào cũng báo bằng hộp thoại / snackbar chung rồi về bước 2 — màn lỗi mạng và màn hết lượt
->   theo design làm ở phần sau nữa.
+> - TẠM: lỗi nào cũng báo bằng hộp thoại / snackbar chung rồi về bước 2 — màn lỗi mạng và màn
+>   hết lượt theo design làm ở phần sau.
+>
+> **Màn Duyệt thẻ đề xuất — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Là chặng `Suggestions` của `AiCardsRoute`. Mọi thẻ AI được tích sẵn. Chạm vào ô tích hoặc
+>   phần chữ của thẻ = tích / bỏ tích; thẻ bỏ tích có viền nét đứt và không được lưu.
+> - Nút bút chì và "Thêm thẻ" mở một bảng trượt (hai ô Câu hỏi / Câu trả lời, tối đa 250 ký tự
+>   như thẻ thủ công). Thẻ ở đây chưa nằm trong database nên không dùng lại màn Sửa thẻ.
+> - Nút thùng rác: hỏi lại "Xoá thẻ này?" (Thi chọn). Xoá hết thì màn hiện trạng thái rỗng,
+>   vẫn thêm thẻ tự gõ được.
+> - Nút lá cờ "Báo cáo nội dung AI" (Thi chọn): mở app email của máy với thư soạn sẵn gửi tới
+>   địa chỉ trong `strings.xml` (`support_email`), kèm nội dung các thẻ AI; người dùng tự bấm
+>   Gửi. Máy không có app email thì báo bằng snackbar.
+> - Nút ← / Back ở chặng này luôn hỏi "Bỏ các thẻ vừa tạo?" vì rời màn là mất thẻ và lượt AI.
+> - Lưu (`SaveSuggestedCardsUseCase`): chép ảnh đã cắt sang `filesDir/notes/<noteId>.jpg`, ghi
+>   một `Note` (ảnh + văn bản), rồi ghi các thẻ đang tích. Thẻ AI: `source = AI`, có `noteId`.
+>   Thẻ tự gõ thêm trong màn này: `source = MANUAL`, không có `noteId`. Hỏng giữa chừng thì dọn
+>   ghi chú và ảnh đã ghi. Lưu xong: báo "Đã lưu N thẻ", gỡ cả luồng chụp khỏi chồng màn rồi mở
+>   Chi tiết bộ thẻ (Back ở đó về Home).
+> - Danh sách thẻ đang duyệt được cất vào `SavedStateHandle` (dạng JSON) mỗi lần đổi. Lý do:
+>   khi người dùng sang app email để gửi báo cáo, Android có thể tắt app dưới nền (đã xảy ra
+>   trên emulator); lúc quay lại app hiện đúng danh sách cũ thay vì gọi AI lần nữa.
+> - Bấm Huỷ lúc đang gọi AI: thư viện Firebase bọc tín hiệu huỷ coroutine vào `UnknownException`
+>   — `FirebaseGeminiClient` gọi `ensureActive()` để nhận ra đây là "bị huỷ", không phải lỗi.
+> - CHƯA làm: `sourceBox` của thẻ (vùng tô sáng trên ảnh) đang để trống — thuộc phần "xem ảnh
+>   nguồn". Xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản chưa
+>   giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+>
+> **Emulator bị xoá trắng (8/10/2026, khoảng 16:18):** emulator Pixel 7a được khởi động lại với
+> dữ liệu trống — app chưa cài, thư viện ảnh trống, mất 5 bộ thẻ mẫu. Hệ quả: debug token App
+> Check của emulator là token MỚI, phải đăng ký lại trên Firebase Console (token cũ "Emulator
+> Pixel 7a" không còn dùng được); ngôn ngữ riêng của app phải đặt lại `vi-VN`; muốn có lại 4 bộ
+> thẻ mẫu thì chạy `DemoDataSeeder`. Lỗi App Check khi token chưa đăng ký đã được kiểm chứng:
+> app báo "Lỗi xác thực ứng dụng…" và không trừ lượt. Thi đã đăng ký token mới cùng ngày và
+> lệnh gọi AI trên emulator chạy lại bình thường; 4 bộ thẻ mẫu CHƯA được nạp lại.
 
 **Thi**
 - [ ] Thử trên máy thật với vở viết tay và chữ in có dấu

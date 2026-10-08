@@ -83,6 +83,30 @@ class CaptureImageRepositoryImpl @Inject constructor(
         target.absolutePath
     }
 
+    override suspend fun keepNoteImage(tempPath: String, noteId: String): String = withContext(io) {
+        // `filesDir` khác `cacheDir` ở chỗ hệ thống không bao giờ tự dọn — hợp với ảnh nguồn của
+        // thẻ, thứ người dùng còn mở lại xem về sau.
+        val notesDirectory = File(context.filesDir, "notes").apply { mkdirs() }
+        val target = File(notesDirectory, "$noteId.jpg")
+        // CHÉP chứ không chuyển: nếu bước lưu thẻ phía sau hỏng, ảnh tạm vẫn còn để bấm lưu lại.
+        // Ảnh tạm sẽ tự được dọn ở lần chụp kế tiếp.
+        try {
+            File(tempPath).copyTo(target, overwrite = true)
+        } catch (e: NoSuchFileException) {
+            // File tạm đã bị hệ thống dọn mất (máy đầy) trong lúc người dùng còn đang duyệt thẻ.
+            // Phải bắt lỗi này TRƯỚC IOException vì nó là một loại IOException cụ thể hơn.
+            throw CaptureException(CaptureException.Kind.IMAGE_UNREADABLE, e)
+        } catch (e: IOException) {
+            target.delete()
+            throw CaptureException(CaptureException.Kind.SAVE_FAILED, e)
+        }
+        target.absolutePath
+    }
+
+    override suspend fun deleteNoteImage(path: String): Unit = withContext(io) {
+        File(path).delete()
+    }
+
     private fun newFile(prefix: String): File {
         directory.mkdirs()
         return File(directory, "$prefix-${ids.newId()}.jpg")

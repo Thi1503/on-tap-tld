@@ -22,6 +22,8 @@ import com.google.firebase.ai.type.generationConfig
 import com.ledinhthi.ontaptld.core.exception.AiErrorKind
 import com.ledinhthi.ontaptld.core.exception.AppException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.IOException
@@ -64,6 +66,11 @@ class FirebaseGeminiClient @Inject constructor(
         val response = try {
             model.generateContent(FlashcardPrompt.userPrompt(noteText, maxCards))
         } catch (e: FirebaseAIException) {
+            // Khi người dùng bấm Huỷ, thư viện không để tín hiệu huỷ coroutine đi thẳng ra mà
+            // bọc nó vào một `UnknownException`. `ensureActive()` kiểm tra coroutine này còn
+            // sống không; đã bị huỷ thì nó ném lại đúng tín hiệu huỷ, để bên ngoài hiểu đây là
+            // "bị huỷ" chứ không phải "gọi AI lỗi".
+            currentCoroutineContext().ensureActive()
             throw e.toAiException()
         }
         // `takeIf { … }` giữ lại giá trị nếu điều kiện đúng, ngược lại trả null.

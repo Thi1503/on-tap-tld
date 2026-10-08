@@ -16,7 +16,16 @@ class CreateFlashcardsFromNoteUseCase @Inject constructor(
     private val ids: IdGenerator,
 ) : UseCase<CreateFlashcardsFromNoteUseCase.Params, List<Flashcard>>() {
 
-    data class Draft(val question: String, val answer: String, val box: SourceBox?)
+    /**
+     * [source] = MANUAL cho thẻ người dùng tự gõ thêm ngay trong màn duyệt thẻ AI: thẻ đó không
+     * được rút ra từ ảnh nên không gắn với ghi chú và không có vùng nguồn.
+     */
+    data class Draft(
+        val question: String,
+        val answer: String,
+        val box: SourceBox?,
+        val source: FlashcardSource = FlashcardSource.AI,
+    )
     data class Params(val deckId: String, val noteId: String, val drafts: List<Draft>)
 
     override suspend fun invoke(input: Params): List<Flashcard> {
@@ -25,11 +34,11 @@ class CreateFlashcardsFromNoteUseCase @Inject constructor(
             Flashcard(
                 id = ids.newId(),
                 deckId = input.deckId,
-                noteId = input.noteId,
-                source = FlashcardSource.AI,
+                noteId = input.noteId.takeIf { d.source == FlashcardSource.AI },
+                source = d.source,
                 question = d.question.trim(),
                 answer = d.answer.trim(),
-                sourceBox = d.box,
+                sourceBox = d.box.takeIf { d.source == FlashcardSource.AI },
                 dueDate = now,
                 createdAt = now,
                 updatedAt = now,
