@@ -18,6 +18,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.exception.DeckException
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Deck
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CreateDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDecksUseCase
+import com.ledinhthi.ontaptld.navigation.AiCardsRoute
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -203,6 +204,32 @@ class OcrReviewViewModelTest {
         verify { navigator.showSnackBar(any(), any()) }
         verify(exactly = 0) { exceptionHandler.handle(any()) }
         assertEquals("d1", vm.uiState.value.selectedDeck?.id)
+    }
+
+    @Test
+    fun `tao the bang AI - sang buoc 3 voi van ban da sua va bo the dang chon`() = runTest {
+        coEvery { runOcr.invoke(any()) } returns "Dòng một"
+        val vm = viewModel(deckId = "d2")
+        advanceUntilIdle()
+        vm.onTextChange("  Dòng một đã sửa \n")
+
+        vm.onGenerateClick()
+
+        verify {
+            navigator.to(AiCardsRoute(imagePath = "/cache/crop.jpg", noteText = "Dòng một đã sửa", deckId = "d2"))
+        }
+    }
+
+    @Test
+    fun `tao the bang AI khi o van ban trong - khong lam gi`() = runTest {
+        coEvery { runOcr.invoke(any()) } returns "x"
+        val vm = viewModel()
+        advanceUntilIdle()
+        vm.onTextChange("   ")
+
+        vm.onGenerateClick()
+
+        verify(exactly = 0) { navigator.to(any()) }
     }
 
     @Test

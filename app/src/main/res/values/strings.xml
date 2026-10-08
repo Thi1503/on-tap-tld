@@ -208,6 +208,12 @@
     <string name="ocr_review_discard_title">Bỏ phần văn bản đã sửa?</string>
     <string name="ocr_review_discard_message">Nếu rời màn này, những chỗ bạn vừa sửa sẽ không được giữ lại.</string>
     <string name="ocr_review_discard_confirm">Thoát</string>
+    <string name="ai_generating_title">Đang tạo thẻ</string>
+    <string name="ai_generating_headline">AI đang đọc ghi chú của bạn</string>
+    <string name="ai_generating_message">Giữ kết nối mạng trong lúc chờ. Bạn sẽ được duyệt từng thẻ trước khi lưu.</string>
+    <string name="ai_suggestions_title">Duyệt thẻ đề xuất</string>
+    <!-- %d = số thứ tự dòng trong ghi chú -->
+    <string name="ai_suggestions_source_line">Nguồn: dòng %d trong ảnh</string>
     <!-- Dòng cuối trong danh sách chọn bộ thẻ -->
     <string name="deck_selector_new_deck">Bộ thẻ mới</string>
 
@@ -232,6 +238,7 @@
     <string name="error_ai_network">Cần mạng để tạo thẻ bằng AI. Tạo thẻ thủ công vẫn dùng offline bình thường.</string>
     <string name="error_ai_content_blocked">Nội dung này không tạo được thẻ bằng AI. Bạn có thể tự thêm thẻ thủ công.</string>
     <string name="error_ai_bad_response">AI trả về kết quả không hợp lệ, thử lại giúp mình.</string>
+    <string name="error_ai_no_cards">AI không tìm thấy ý nào trong văn bản này để tạo thẻ. Hãy thử với phần ghi chú có nhiều nội dung hơn — lần này không bị trừ lượt.</string>
     <string name="error_ai_app_check">Lỗi xác thực ứng dụng. Cập nhật app lên bản mới nhất.</string>
     <string name="error_ai_not_configured">Tính năng AI chưa được bật trong bản build này.</string>
     <string name="error_ai_unavailable">Dịch vụ AI tạm thời không dùng được.</string>

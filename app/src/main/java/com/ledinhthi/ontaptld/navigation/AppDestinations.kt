@@ -29,6 +29,13 @@ data class CaptureRoute(val deckId: String? = null)
 @Serializable
 data class OcrReviewRoute(val imagePath: String, val deckId: String? = null)
 
+/**
+ * Bước 3/3: gửi [noteText] (văn bản người dùng đã kiểm tra) cho AI, rồi duyệt thẻ đề xuất và lưu
+ * vào bộ [deckId]. [imagePath] là ảnh nguồn sẽ được giữ lại cùng các thẻ.
+ */
+@Serializable
+data class AiCardsRoute(val imagePath: String, val noteText: String, val deckId: String)
+
 /** [deckId] = null: ôn mọi thẻ đến hạn; có giá trị: chỉ ôn thẻ của bộ đó. */
 @Serializable
 data class ReviewRoute(val deckId: String? = null)

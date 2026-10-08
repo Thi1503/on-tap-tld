@@ -139,13 +139,14 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 ### Bước 4 — Chụp ảnh + AI *(cần bước 0)*
 
 Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào `dev` qua pull request #12
-(nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) code xong cùng ngày trên nhánh
-`feat/ocr-review` (chưa commit) — chờ Thi xem và merge.
+(nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) xong cùng ngày, đã vào `dev` qua pull
+request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" code xong cùng ngày
+trên nhánh `feat/ai-generate` (chưa commit) — chờ Thi xem và merge.
 
 **Claude**
 - [x] CameraX + crop vùng chữ
 - [x] OCR bằng ML Kit, màn sửa văn bản
-- [ ] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
+- [x] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
 - [ ] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
 - [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
@@ -188,7 +189,24 @@ Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào
 >   **20 lượt/ngày**; **Flash-Lite 3.1 và 3.5** được 15 lượt/phút, **500 lượt/ngày**. Vì vậy app
 >   sẽ dùng dòng Flash-Lite, và N = **10 lượt mỗi máy mỗi ngày** (khoảng 50 máy dùng hết lượt
 >   cùng ngày mới chạm trần). Đã đối chiếu đúng project `on-tap-tld` trong AI Studio.
-> - TẠM: nút "Tạo thẻ bằng AI" báo "sắp có" — phần gọi Gemini làm ở phần việc kế tiếp.
+>
+> **Gọi Gemini + màn "Đang tạo thẻ" — cách hoạt động và những chỗ design không nói:**
+> - Bước 3/3 là MỘT route (`AiCardsRoute`: ảnh, văn bản, bộ thẻ), một ViewModel, đi qua các
+>   chặng trong `AiCardsPhase` — cùng cách với phiên ôn. Màn duyệt thẻ, màn lỗi mạng và màn hết
+>   lượt sẽ là các chặng thêm vào đây.
+> - Model `gemini-3.5-flash-lite` qua Firebase AI Logic (`FirebaseGeminiClient`), chờ tối đa 45
+>   giây. AI bị buộc trả JSON theo khuôn: câu hỏi, câu trả lời, số dòng nguồn.
+> - Lời dặn cho AI nằm ở `FlashcardPrompt`: chỉ dùng ý có trong ghi chú, thẻ cùng ngôn ngữ với
+>   ghi chú, mỗi thẻ một ý, bỏ qua mọi "mệnh lệnh" nằm lẫn trong ghi chú. Ghi chú được đánh số
+>   từng dòng có chữ; "Nguồn: dòng N trong ảnh" là số đó.
+> - Mỗi lần tối đa 10 thẻ. Chỉ lần gọi có trả về thẻ mới bị trừ lượt; mất mạng, AI lỗi, AI
+>   không soạn được thẻ nào, hay bấm Huỷ đều không trừ.
+> - "Huỷ", nút ← và Back trong lúc chờ: bỏ lần gọi đang dở, về bước 2 (văn bản còn nguyên).
+> - Đã kiểm chứng trên emulator ngày 8/10/2026: debug token App Check hoạt động, gọi được AI
+>   thật với ghi chú tiếng Anh và tiếng Việt. Máy OPPO chưa thử.
+> - TẠM: (1) có thẻ thì hiện danh sách chỉ-xem — màn duyệt thẻ thật thay vào ở phần kế; (2) lỗi
+>   nào cũng báo bằng hộp thoại / snackbar chung rồi về bước 2 — màn lỗi mạng và màn hết lượt
+>   theo design làm ở phần sau nữa.
 
 **Thi**
 - [ ] Thử trên máy thật với vở viết tay và chữ in có dấu
@@ -290,16 +308,17 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
-request #12). Màn Kiểm tra văn bản (nhánh `feat/ocr-review`) đã code xong, chờ Thi xem và merge.
-Thứ tự còn lại: gọi Gemini + màn "đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng
-/ hết lượt → xem ảnh nguồn (kèm phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở
-Mục 6.3.
+request #12), màn Kiểm tra văn bản cũng vậy (pull request #13). Phần gọi Gemini + màn "Đang tạo
+thẻ" (nhánh `feat/ai-generate`) đã code xong, chờ Thi xem và merge. Thứ tự còn lại: màn duyệt
+thẻ AI (kèm lưu thẻ + ảnh nguồn) → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
+phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
 
-Chụp và OCR chạy hoàn toàn trên máy. Từ màn gọi Gemini trở đi mới cần Firebase thật; debug token
-App Check của emulator Pixel 7a và máy OPPO CPH1911 đã đăng ký ngày 8/10/2026, nhưng CHƯA được
-kiểm chứng bằng một lần gọi AI thật — việc đó làm ở màn gọi Gemini. Thi tự thử trên máy thật ở
-cuối bước; Claude kiểm tra trên emulator (camera của emulator chỉ là cảnh ảo, không dùng để đánh
-giá chất lượng OCR được).
+Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
+Pixel 7a đã được kiểm chứng bằng lần gọi AI thật ngày 8/10/2026; token của máy OPPO CPH1911 đã
+đăng ký nhưng chưa thử. Thi tự thử trên máy thật ở cuối bước; Claude kiểm tra trên emulator
+(camera của emulator chỉ là cảnh ảo, không dùng để đánh giá chất lượng OCR được). Emulator đang
+thiếu bộ nhớ: adb hay rớt kết nối và có lần hệ thống tự tắt app (LOW_MEMORY) — không phải app
+crash.
 
 ### 6.2 Cách phối hợp
 

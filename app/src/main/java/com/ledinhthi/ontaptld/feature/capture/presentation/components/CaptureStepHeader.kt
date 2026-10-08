@@ -37,6 +37,8 @@ fun CaptureStepHeader(
     modifier: Modifier = Modifier,
     navigation: TopBarNavigation = TopBarNavigation.Back,
     containerColor: Color = appColors().appBarBackground,
+    /** Số vạch được tô. Mặc định bằng [step]; nhỏ hơn khi bước đang đứng còn dang dở. */
+    filledSteps: Int = step,
 ) {
     val colors = appColors()
     Column(modifier.fillMaxWidth().background(containerColor)) {
@@ -70,7 +72,7 @@ fun CaptureStepHeader(
                         .weight(1f)
                         .height(AppDimens.paddingSmallest)
                         .background(
-                            color = if (index < step) colors.primary else colors.neutralSoft,
+                            color = if (index < filledSteps) colors.primary else colors.neutralSoft,
                             shape = RoundedCornerShape(AppDimens.radius2),
                         ),
                 )

@@ -39,8 +39,10 @@ class GlobalExceptionHandler @Inject constructor(
             navigator.showErrorDialog(strings.get(R.string.error_ai_network))
         AiErrorKind.CONTENT_BLOCKED ->
             navigator.showNotificationDialog(strings.get(R.string.error_ai_content_blocked))
-        AiErrorKind.RESPONSE_PARSE_ERROR, AiErrorKind.EMPTY_RESPONSE ->
+        AiErrorKind.RESPONSE_PARSE_ERROR ->
             navigator.showSnackBar(strings.get(R.string.error_ai_bad_response))
+        AiErrorKind.EMPTY_RESPONSE ->
+            navigator.showNotificationDialog(strings.get(R.string.error_ai_no_cards))
         AiErrorKind.APP_CHECK_FAILED ->
             navigator.showErrorDialog(strings.get(R.string.error_ai_app_check))
         AiErrorKind.NOT_CONFIGURED ->

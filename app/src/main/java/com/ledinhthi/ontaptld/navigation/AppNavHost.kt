@@ -28,6 +28,7 @@ import com.ledinhthi.ontaptld.core.presentation.navigation.AppDialog
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
 import com.ledinhthi.ontaptld.core.presentation.theme.DarkAppExtendedColors
+import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.AiCardsScreen
 import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CaptureScreen
 import com.ledinhthi.ontaptld.feature.capture.presentation.ocrreview.OcrReviewScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScreen
@@ -100,6 +101,7 @@ fun AppNavHost(navigator: AppNavigator) {
             composable<ReviewRoute> { ReviewScreen() }
             composable<CaptureRoute> { CaptureScreen() }
             composable<OcrReviewRoute> { OcrReviewScreen() }
+            composable<AiCardsRoute> { AiCardsScreen() }
         }
     }
 

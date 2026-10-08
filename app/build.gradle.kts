@@ -99,6 +99,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.appcheck.playintegrity)
     debugImplementation(libs.firebase.appcheck.debug)
+    // Firebase AI Logic — gọi Gemini mà không phải nhúng API key vào app
+    implementation(libs.firebase.ai)
 
     // Camera: CameraX (khung ngắm + chụp) và ExifInterface (ảnh bị xoay thì dựng lại cho thẳng)
     implementation(libs.androidx.camera.camera2)
