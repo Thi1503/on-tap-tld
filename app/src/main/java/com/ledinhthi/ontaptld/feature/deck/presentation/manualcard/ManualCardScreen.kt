@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
@@ -33,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -55,6 +56,7 @@ import com.ledinhthi.ontaptld.core.presentation.components.LabeledTextField
 import com.ledinhthi.ontaptld.core.presentation.components.LoadingOverlay
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.components.PrimaryButton
+import com.ledinhthi.ontaptld.core.presentation.components.imePaddingAbove
 import com.ledinhthi.ontaptld.core.presentation.theme.AppDimens
 import com.ledinhthi.ontaptld.core.presentation.theme.OnTapTldTheme
 import com.ledinhthi.ontaptld.core.presentation.theme.appColors
@@ -131,13 +133,13 @@ private fun ManualCardContent(
     onSave: () -> Unit,
 ) {
     val colors = appColors()
+    val density = LocalDensity.current
+    // Chiều cao thật của thanh nút Lưu, đo sau khi nó được vẽ (xem `onSizeChanged` bên dưới).
+    var bottomBarHeight by remember { mutableStateOf(0.dp) }
     Column(
         Modifier
             .fillMaxSize()
-            .background(colors.scaffoldBackground)
-            // Bàn phím hiện lên thì cả màn co lại phía trên nó: nút Lưu luôn nằm ngay trên bàn
-            // phím và phần giữa tự cuộn được, không bị che.
-            .imePadding(),
+            .background(colors.scaffoldBackground),
     ) {
         AppTopBar(
             title = stringResource(
@@ -167,6 +169,8 @@ private fun ManualCardContent(
         Column(
             modifier = Modifier
                 .weight(1f)
+                // Bàn phím hiện lên: chỉ phần cuộn này co lại, thanh nút Lưu ở đáy đứng yên.
+                .imePaddingAbove(bottomBarHeight)
                 .verticalScroll(rememberScrollState())
                 .padding(AppDimens.defaultPadding),
             verticalArrangement = Arrangement.spacedBy(AppDimens.defaultPadding),
@@ -203,7 +207,13 @@ private fun ManualCardContent(
             }
         }
 
-        Column(Modifier.fillMaxWidth().background(colors.cardBackground)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(colors.cardBackground)
+                // `onSizeChanged` báo kích thước tính bằng pixel; `toDp()` đổi sang dp theo mật độ màn.
+                .onSizeChanged { bottomBarHeight = with(density) { it.height.toDp() } },
+        ) {
             HorizontalDivider(color = colors.cardBorder)
             PrimaryButton(
                 text = stringResource(

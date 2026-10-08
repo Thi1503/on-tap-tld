@@ -2,6 +2,7 @@ package com.ledinhthi.ontaptld.feature.deck.data.local
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.ledinhthi.ontaptld.core.data.local.db.BaseDao
 import kotlinx.coroutines.flow.Flow
 
@@ -32,6 +33,32 @@ interface FlashcardDao : BaseDao<FlashcardEntity> {
 
     @Query("UPDATE flashcards SET isDeleted = 1, updatedAt = :now WHERE id = :id")
     suspend fun softDelete(id: String, now: Long)
+
+    @Query("SELECT COUNT(*) FROM flashcards WHERE noteId = :noteId AND isDeleted = 0")
+    suspend fun countByNote(noteId: String): Int
+
+    @Query("SELECT imagePath FROM notes WHERE id = :noteId AND isDeleted = 0")
+    suspend fun noteImagePath(noteId: String): String?
+
+    @Query("UPDATE notes SET isDeleted = 1, updatedAt = :now WHERE id = :noteId")
+    suspend fun softDeleteNote(noteId: String, now: Long)
+
+    /**
+     * Xoá một thẻ. Một ghi chú (ảnh chụp) sinh ra NHIỀU thẻ AI, nên ghi chú chỉ bị xoá theo khi
+     * đây là thẻ cuối cùng còn dùng nó — các thẻ còn lại vẫn phải xem được ảnh nguồn.
+     *
+     * Trả về đường dẫn ảnh của ghi chú vừa bị xoá theo (để nơi gọi xoá file), hoặc null nếu
+     * không có ghi chú nào bị xoá.
+     */
+    @Transaction
+    suspend fun softDeleteAndReleaseNote(id: String, now: Long): String? {
+        val noteId = getById(id)?.noteId
+        softDelete(id, now)
+        if (noteId == null || countByNote(noteId) > 0) return null
+        val imagePath = noteImagePath(noteId)
+        softDeleteNote(noteId, now)
+        return imagePath
+    }
 }
 
 /** Kết quả chiếu của [FlashcardDao.observeDeckStats] — không phải bảng. */

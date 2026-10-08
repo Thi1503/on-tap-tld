@@ -3,6 +3,7 @@ package com.ledinhthi.ontaptld.feature.deck.data.repository
 import com.ledinhthi.ontaptld.core.data.local.db.wrapLocal
 import com.ledinhthi.ontaptld.core.domain.util.Clock
 import com.ledinhthi.ontaptld.feature.deck.data.local.FlashcardDao
+import com.ledinhthi.ontaptld.feature.deck.data.local.NoteImageStore
 import com.ledinhthi.ontaptld.feature.deck.data.mapper.FlashcardEntityMapper
 import com.ledinhthi.ontaptld.feature.deck.domain.model.DeckCardStats
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Flashcard
@@ -15,6 +16,7 @@ class FlashcardRepositoryImpl @Inject constructor(
     private val dao: FlashcardDao,
     private val mapper: FlashcardEntityMapper,
     private val clock: Clock,
+    private val images: NoteImageStore,
 ) : FlashcardRepository {
 
     override fun observeByDeck(deckId: String): Flow<List<Flashcard>> =
@@ -38,5 +40,9 @@ class FlashcardRepositoryImpl @Inject constructor(
     override suspend fun upsertAll(cards: List<Flashcard>) =
         wrapLocal { dao.upsertAll(mapper.toEntityList(cards)) }
 
-    override suspend fun delete(id: String) = wrapLocal { dao.softDelete(id, clock.nowMillis()) }
+    override suspend fun delete(id: String) {
+        // Thẻ cuối cùng của một ghi chú bị xoá thì ghi chú và ảnh của nó cũng đi theo.
+        val orphanImagePath = wrapLocal { dao.softDeleteAndReleaseNote(id, clock.nowMillis()) }
+        if (orphanImagePath != null) images.delete(listOf(orphanImagePath))
+    }
 }
