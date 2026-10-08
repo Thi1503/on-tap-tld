@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Chụp ghi chú. Quyền này phải xin lúc chạy (xem CaptureScreen), khai ở đây thôi chưa đủ. -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Thông báo nhắc ôn. Từ Android 13 quyền này cũng phải xin lúc chạy (xem SettingsScreen). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- required="false": máy không có camera vẫn cài được app — vẫn gõ thẻ tay và chọn ảnh từ
          thư viện được. Thiếu dòng này, CH Play tự coi camera là bắt buộc và ẩn app với máy đó. -->

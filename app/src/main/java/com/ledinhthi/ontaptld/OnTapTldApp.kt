@@ -3,6 +3,7 @@ package com.ledinhthi.ontaptld
 import android.app.Application
 import com.google.firebase.FirebaseApp
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CleanUpOrphanNotesUseCase
+import com.ledinhthi.ontaptld.feature.reminder.domain.KeepReminderScheduledUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +20,9 @@ class OnTapTldApp : Application() {
     @Inject
     lateinit var cleanUpOrphanNotes: CleanUpOrphanNotesUseCase
 
+    @Inject
+    lateinit var keepReminderScheduled: KeepReminderScheduledUseCase
+
     /**
      * Phạm vi coroutine sống suốt đời app, cho việc nền không thuộc về màn nào. `SupervisorJob`:
      * một việc hỏng không kéo các việc khác trong phạm vi hỏng theo.
@@ -30,6 +34,8 @@ class OnTapTldApp : Application() {
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
         cleanUpOrphanNotesInBackground()
+        // Nghe cài đặt nhắc ôn suốt đời app: bật / tắt / đổi giờ ở màn Cài đặt là lịch đổi theo.
+        appScope.launch { keepReminderScheduled() }
 
         // Trả về null khi build không có `google-services.json` (file không commit — xem
         // app/build.gradle.kts). Khi đó app vẫn chạy đủ phần offline, chỉ AI/sync không dùng được.

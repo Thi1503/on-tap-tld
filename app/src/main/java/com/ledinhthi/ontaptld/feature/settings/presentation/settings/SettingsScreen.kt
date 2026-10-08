@@ -1,6 +1,14 @@
 package com.ledinhthi.ontaptld.feature.settings.presentation.settings
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.text.format.DateFormat
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -56,6 +64,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ledinhthi.ontaptld.BuildConfig
@@ -73,6 +82,7 @@ import com.ledinhthi.ontaptld.core.presentation.theme.AppDimens
 import com.ledinhthi.ontaptld.core.presentation.theme.OnTapTldTheme
 import com.ledinhthi.ontaptld.core.presentation.theme.appColors
 import com.ledinhthi.ontaptld.feature.capture.domain.model.AiQuota
+import com.ledinhthi.ontaptld.feature.reminder.data.AndroidReminderNotifier
 import java.util.Calendar
 import java.util.Locale
 
@@ -93,13 +103,34 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     var askDeleteAll by rememberSaveable { mutableStateOf(false) }
 
+    // Bật nhắc ôn = phải gửi được thông báo. Từ Android 13 app phải XIN quyền này lúc chạy.
+    val context = LocalContext.current
+    var askOpenNotificationSettings by rememberSaveable { mutableStateOf(false) }
+    // "Launcher" mở hộp thoại xin quyền của hệ thống; khối lệnh phía sau chạy khi người dùng trả
+    // lời. Đã từ chối hẳn từ trước thì hệ thống không hỏi nữa mà trả về "không" ngay.
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) viewModel.onReminderToggle(true) else askOpenNotificationSettings = true
+    }
+    val onReminderToggle: (Boolean) -> Unit = { enabled ->
+        when {
+            !enabled -> viewModel.onReminderToggle(false)
+            AndroidReminderNotifier.needsRuntimePermission(context) ->
+                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            // Có quyền nhưng người dùng đã tắt thông báo của app trong Cài đặt của máy.
+            !NotificationManagerCompat.from(context).areNotificationsEnabled() -> askOpenNotificationSettings = true
+            else -> viewModel.onReminderToggle(true)
+        }
+    }
+
     LoadingOverlay(isLoading = state.status.isLoadingOverlay) {
         SettingsContent(
             state = state,
             onBack = viewModel::onBack,
             onThemeSelected = viewModel::onThemeSelected,
             onLanguageClick = viewModel::onLanguageClick,
-            onReminderToggle = viewModel::onReminderToggle,
+            onReminderToggle = onReminderToggle,
             onReminderTimeClick = { showTimePicker = true },
             onPrivacyPolicyClick = viewModel::onPrivacyPolicyClick,
             onDeleteAllClick = { askDeleteAll = true },
@@ -117,6 +148,19 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         )
     }
 
+    if (askOpenNotificationSettings) {
+        ConfirmDialog(
+            title = stringResource(R.string.settings_notification_off_title),
+            message = stringResource(R.string.settings_notification_off_message),
+            confirmText = stringResource(R.string.capture_permission_settings),
+            onConfirm = {
+                askOpenNotificationSettings = false
+                context.openNotificationSettings()
+            },
+            onDismiss = { askOpenNotificationSettings = false },
+        )
+    }
+
     if (askDeleteAll) {
         ConfirmDialog(
             title = stringResource(R.string.settings_delete_all_title),
@@ -130,6 +174,17 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onDismiss = { askDeleteAll = false },
         )
     }
+}
+
+/** Mở trang cài đặt thông báo của riêng app này trong Cài đặt của máy. */
+private fun Context.openNotificationSettings() {
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+    } else {
+        // Android 7.x chưa có trang riêng cho thông báo: mở trang thông tin chung của app.
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
+    }
+    startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }
 
 @Composable

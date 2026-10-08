@@ -24,6 +24,7 @@ class DataStorePreferences @Inject constructor(
         val LAST_SYNC = longPreferencesKey("last_sync_at")
         val REMINDER_ENABLED = booleanPreferencesKey("reminder_enabled")
         val REMINDER_MINUTE = intPreferencesKey("reminder_minute_of_day")
+        val LANGUAGE_TAG = stringPreferencesKey("language_tag")
     }
 
     override val themeMode: Flow<ThemeMode> = dataStore.data.map { p ->
@@ -62,6 +63,12 @@ class DataStorePreferences @Inject constructor(
     override suspend fun setReminderTime(hour: Int, minute: Int) {
         // coerceIn: giữ giá trị trong khoảng hợp lệ dù nơi gọi truyền nhầm.
         dataStore.edit { it[Keys.REMINDER_MINUTE] = hour.coerceIn(0, 23) * 60 + minute.coerceIn(0, 59) }
+    }
+
+    override val languageTag: Flow<String?> = dataStore.data.map { it[Keys.LANGUAGE_TAG] }
+
+    override suspend fun setLanguageTag(tag: String) {
+        dataStore.edit { it[Keys.LANGUAGE_TAG] = tag }
     }
 
     override val lastSyncAtMillis: Flow<Long> = dataStore.data.map { it[Keys.LAST_SYNC] ?: 0L }

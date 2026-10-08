@@ -45,11 +45,14 @@ class AppCompatLanguageManager @Inject constructor() : AppLanguageManager {
  *
  * Cần tới nó vì trước Android 13, lựa chọn ngôn ngữ của app chỉ được áp vào Activity; `Context`
  * của Application (thứ mà các lớp không thuộc màn hình nào cầm) vẫn theo ngôn ngữ của máy.
+ *
+ * [fallbackTag]: mã ngôn ngữ dùng khi AppCompat chưa biết lựa chọn — xảy ra khi app được đánh
+ * thức để chạy việc nền mà chưa mở màn hình nào.
  */
-fun Context.withAppLanguage(): Context {
-    val locales = AppCompatDelegate.getApplicationLocales()
-    if (locales.isEmpty) return this // người dùng chưa chọn -> theo máy như bình thường
+fun Context.withAppLanguage(fallbackTag: String? = null): Context {
+    val tags = AppCompatDelegate.getApplicationLocales().toLanguageTags().ifEmpty { fallbackTag.orEmpty() }
+    if (tags.isEmpty()) return this // người dùng chưa chọn -> theo máy như bình thường
     val configuration = Configuration(resources.configuration)
-    configuration.setLocales(LocaleList.forLanguageTags(locales.toLanguageTags()))
+    configuration.setLocales(LocaleList.forLanguageTags(tags))
     return createConfigurationContext(configuration)
 }

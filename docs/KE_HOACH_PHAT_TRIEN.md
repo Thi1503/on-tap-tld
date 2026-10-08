@@ -339,12 +339,13 @@ Hai việc dọn dẹp cuối của bước 4 xong tối 8/10/2026, đã vào `d
 
 ### Bước 5 — Cài đặt, nhắc ôn, widget
 
-Màn Cài đặt + màn Ngôn ngữ code xong tối 8/10/2026 trên nhánh `feat/settings` (chưa commit), đã
-chạy thử trên emulator — chờ Thi xem và merge. Tiếp theo: thông báo nhắc ôn, rồi widget.
+Màn Cài đặt + màn Ngôn ngữ xong tối 8/10/2026, đã vào `dev` qua pull request #23 (nhánh
+`feat/settings`). Thông báo nhắc ôn hằng ngày code xong cùng tối trên nhánh `feat/reminder`
+(chưa commit), đã chạy thử trên emulator — chờ Thi xem và merge. Widget để sau khi nộp.
 
 **Claude**
 - [x] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu, chọn ngôn ngữ
-- [ ] Thông báo nhắc ôn hằng ngày (WorkManager)
+- [x] Thông báo nhắc ôn hằng ngày (WorkManager)
 - [ ] Widget (Glance): tổng quan 4×2, số thẻ 2×2, ôn nhanh 4×2
 
 > **Màn Cài đặt và màn Ngôn ngữ — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
@@ -385,8 +386,38 @@ chạy thử trên emulator — chờ Thi xem và merge. Tiếp theo: thông bá
 >   XOÁ lựa chọn ngôn ngữ đặt bằng `adb shell cmd locale set-app-locales` trước đó (app về theo
 >   máy). Chỉ xảy ra một lần; người dùng thật chưa từng có lựa chọn nào nên không bị ảnh hưởng.
 
+> **Thông báo nhắc ôn hằng ngày — cách hoạt động và những chỗ design không vẽ (nhánh `feat/reminder`):**
+> - Tới giờ nhắc, nếu hôm nay CÒN thẻ đến hạn thì hiện thông báo "Đến giờ ôn tập — Bạn có N thẻ
+>   cần ôn hôm nay."; không còn thẻ nào thì im lặng. N đếm theo cùng mốc "cần ôn hôm nay" với
+>   Home (`dueCutoffMillis`). Mỗi ngày tối đa một thông báo, thông báo mới thay thông báo cũ.
+> - Bấm thông báo = mở app như bấm icon ngoài màn hình chính (vào Home, hoặc trở lại màn đang
+>   dở); thông báo tự biến mất. Chưa mở thẳng vào phiên ôn.
+> - Hẹn giờ bằng WorkManager: mỗi lần hẹn MỘT việc cho giờ nhắc gần nhất sắp tới
+>   (`ReviewReminderWorker`); việc đó chạy xong thì tự hẹn lần của ngày hôm sau. Lịch sống qua
+>   lần khởi động lại máy. Giờ chạy KHÔNG chính xác tới từng giây: máy đang tiết kiệm pin có thể
+>   lùi vài phút (đổi lại không cần xin quyền "báo thức chính xác").
+> - `OnTapTldApp` nghe cài đặt nhắc ôn suốt đời app (`KeepReminderScheduledUseCase`): bật / đổi
+>   giờ thì hẹn lại, tắt thì huỷ lịch. Màn Cài đặt chỉ việc lưu cài đặt.
+> - Quyền thông báo: bật công tắc "Nhắc ôn hằng ngày" trên Android 13+ thì hệ thống hỏi quyền.
+>   Đồng ý → công tắc bật. Từ chối, hoặc thông báo của app đang bị tắt trong Cài đặt của máy →
+>   công tắc vẫn tắt và hiện hộp thoại "Chưa bật được nhắc ôn" có nút "Mở Cài đặt". Nếu về sau
+>   người dùng tự tắt quyền trong Cài đặt của máy thì tới giờ app không gửi gì; công tắc trong
+>   app CHƯA tự tắt theo.
+> - Kênh thông báo "Nhắc ôn tập" (mức thường: có âm báo, không bật lên che màn hình). Icon nhỏ
+>   dùng `ic_cards`, màu cam.
+> - Ngôn ngữ của thông báo theo ngôn ngữ đã chọn trong app, kể cả lúc app đang đóng: lựa chọn ở
+>   màn Ngôn ngữ được ghi thêm một bản sao vào `AppPreferences.languageTag` cho việc nền đọc
+>   (cần cho Android cũ hơn 13).
+> - Đã kiểm chứng trên emulator: bật công tắc → hộp xin quyền của hệ thống → lịch được hẹn cho
+>   20:00 hôm sau; ép lịch chạy ngay → thông báo đúng nội dung, đúng 9 thẻ, và lịch kế tiếp tự
+>   được hẹn; bấm thông báo → về đúng màn đang mở; tắt công tắc → lịch bị huỷ. CHƯA thử: đợi
+>   tới đúng giờ thật, khởi động lại máy, nhánh từ chối quyền (mới qua đọc code), máy OPPO.
+> - Cách ép lịch chạy ngay để thử: `adb shell dumpsys jobscheduler | grep ontaptld` lấy số job
+>   (dạng `…:u0a213/2`), rồi
+>   `adb shell cmd jobscheduler run -f -n androidx.work.systemjobscheduler com.ledinhthi.ontaptld <số>`.
+
 **Thi**
-- [ ] Thử thông báo và widget trên launcher thật
+- [ ] Thử thông báo trên máy thật (để tới đúng giờ nhắc, cả khi app đang đóng)
 
 ### Bước 6 — Tài khoản và đồng bộ *(cần bước 0, phần Auth + Firestore)*
 
@@ -479,16 +510,19 @@ thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17), xem ảnh
 Hai việc dọn dẹp cuối (#22) cũng vậy — bước 4 xong.
 
 Đang làm **bước 5 — Cài đặt, nhắc ôn, widget**. Màn Cài đặt + màn Ngôn ngữ (nhánh
-`feat/settings`) đã code xong, chờ Thi xem và merge. Kế tiếp: thông báo nhắc ôn hằng ngày
-(WorkManager, xin quyền thông báo khi bật công tắc), rồi widget (Glance). Artboard: xem bảng ở
-Mục 6.3.
+`feat/settings`) đã vào `dev` (#23). Thông báo nhắc ôn hằng ngày (nhánh `feat/reminder`) đã code
+xong, chờ Thi xem và merge. Artboard: xem bảng ở Mục 6.3.
+
+**Thi chốt tối 8/10/2026 — để SAU khi nộp:** widget (Glance), và việc soát giao diện trên máy
+nhỏ / tablet / xoay ngang / cỡ chữ lớn. Việc còn lại trước khi nộp, theo thứ tự: đăng nhập
+Google + màn Cài đặt khi đã đăng nhập → nạp 4 bộ thẻ mẫu và viết README.
 
 **Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
 làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
 Firestore và xoá tài khoản để sau khi nộp. Thứ tự: hoạt ảnh lật thẻ (đã vào `dev`, pull request
 #18) → icon launcher (đã vào `dev`, pull request #20) → phần còn lại của bước 4 → bước 5 → đăng
-nhập Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình, nên trước khi quay
-demo cần soát app trên máy nhỏ / tablet / xoay ngang / cỡ chữ lớn.
+nhập Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình; việc soát app
+trên máy nhỏ / tablet / xoay ngang / cỡ chữ lớn Thi đã chốt để sau khi nộp (xem đoạn trên).
 
 Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
 Pixel 7a đã được kiểm chứng bằng lần gọi AI thật ngày 8/10/2026; token của máy OPPO CPH1911 đã

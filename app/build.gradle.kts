@@ -112,6 +112,9 @@ dependencies {
     // Nhận dạng chữ trong ảnh (OCR), chạy ngay trên máy
     implementation(libs.mlkit.text.recognition)
 
+    // Nhắc ôn hằng ngày
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Misc
     implementation(libs.timber)
     coreLibraryDesugaring(libs.desugar.jdk.libs)

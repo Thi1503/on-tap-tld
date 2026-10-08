@@ -353,4 +353,13 @@
     <string name="language_vietnamese_note">Mặc định</string>
     <string name="language_english_note">Tiếng Anh</string>
     <string name="language_note">Chỉ đổi ngôn ngữ giao diện. Nội dung thẻ của bạn được giữ nguyên.</string>
+    <!-- reminder — thông báo nhắc ôn hằng ngày (feature/reminder) -->
+    <string name="reminder_channel_name">Nhắc ôn tập</string>
+    <string name="reminder_channel_description">Nhắc mỗi ngày khi có thẻ đến hạn ôn</string>
+    <string name="reminder_notification_title">Đến giờ ôn tập</string>
+    <plurals name="reminder_notification_text">
+        <item quantity="other">Bạn có %d thẻ cần ôn hôm nay.</item>
+    </plurals>
+    <string name="settings_notification_off_title">Chưa bật được nhắc ôn</string>
+    <string name="settings_notification_off_message">On Tap TLD chưa được phép gửi thông báo. Hãy bật thông báo trong Cài đặt của máy, rồi quay lại bật nhắc ôn.</string>
 </resources>

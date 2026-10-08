@@ -178,14 +178,17 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `man Ngon ngu - chon ngon ngu thi ap dung ngay, nut quay lai lui mot buoc`() {
+    fun `man Ngon ngu - chon ngon ngu thi ap dung ngay va luu ban sao, nut quay lai lui mot buoc`() = runTest {
         val languageManager = mockk<AppLanguageManager>(relaxed = true)
-        val vm = LanguageViewModel(navigator, languageManager)
+        val vm = LanguageViewModel(navigator, languageManager, prefs)
 
         vm.onLanguageSelected(AppLanguage.English)
         vm.onBack()
+        advanceUntilIdle()
 
         verify { languageManager.setLanguage(AppLanguage.English) }
+        // Bản sao cho thông báo nhắc ôn đọc khi app đang đóng.
+        coVerify { prefs.setLanguageTag("en") }
         verify { navigator.back() }
     }
 
