@@ -9,6 +9,7 @@ import com.ledinhthi.ontaptld.core.image.BitmapLoader
 import com.ledinhthi.ontaptld.feature.capture.domain.exception.CaptureException
 import com.ledinhthi.ontaptld.feature.capture.domain.model.CropRect
 import com.ledinhthi.ontaptld.feature.capture.domain.repository.CaptureImageRepository
+import com.ledinhthi.ontaptld.feature.deck.data.local.NoteImageStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -86,7 +87,7 @@ class CaptureImageRepositoryImpl @Inject constructor(
     override suspend fun keepNoteImage(tempPath: String, noteId: String): String = withContext(io) {
         // `filesDir` khác `cacheDir` ở chỗ hệ thống không bao giờ tự dọn — hợp với ảnh nguồn của
         // thẻ, thứ người dùng còn mở lại xem về sau.
-        val notesDirectory = File(context.filesDir, "notes").apply { mkdirs() }
+        val notesDirectory = File(context.filesDir, NoteImageStore.DIRECTORY).apply { mkdirs() }
         val target = File(notesDirectory, "$noteId.jpg")
         // CHÉP chứ không chuyển: nếu bước lưu thẻ phía sau hỏng, ảnh tạm vẫn còn để bấm lưu lại.
         // Ảnh tạm sẽ tự được dọn ở lần chụp kế tiếp.
@@ -106,6 +107,8 @@ class CaptureImageRepositoryImpl @Inject constructor(
     override suspend fun deleteNoteImage(path: String): Unit = withContext(io) {
         File(path).delete()
     }
+
+    override suspend fun clearTempImages(): Unit = withContext(io) { clearDirectory() }
 
     private fun newFile(prefix: String): File {
         directory.mkdirs()

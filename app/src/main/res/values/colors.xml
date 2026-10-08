@@ -8,5 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <!-- Trùng `scaffoldBackground` trong Color.kt; bản dark ở values-night/colors.xml. -->
+    <!-- Màu cam chính, trùng `primary` trong Color.kt — cho những nơi không dùng Compose
+         được (vd icon của thông báo). -->
+    <color name="brand_primary">#FFF24E1E</color>
     <color name="window_background">#FFF6F6F6</color>
 </resources>

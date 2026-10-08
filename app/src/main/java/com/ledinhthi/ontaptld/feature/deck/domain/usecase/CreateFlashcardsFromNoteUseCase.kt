@@ -18,12 +18,13 @@ class CreateFlashcardsFromNoteUseCase @Inject constructor(
 
     /**
      * [source] = MANUAL cho thẻ người dùng tự gõ thêm ngay trong màn duyệt thẻ AI: thẻ đó không
-     * được rút ra từ ảnh nên không gắn với ghi chú và không có vùng nguồn.
+     * được rút ra từ ảnh nên không gắn với ghi chú, không có vùng nguồn và số dòng nguồn.
      */
     data class Draft(
         val question: String,
         val answer: String,
         val box: SourceBox?,
+        val sourceLine: Int? = null,
         val source: FlashcardSource = FlashcardSource.AI,
     )
     data class Params(val deckId: String, val noteId: String, val drafts: List<Draft>)
@@ -39,6 +40,7 @@ class CreateFlashcardsFromNoteUseCase @Inject constructor(
                 question = d.question.trim(),
                 answer = d.answer.trim(),
                 sourceBox = d.box.takeIf { d.source == FlashcardSource.AI },
+                sourceLine = d.sourceLine.takeIf { d.source == FlashcardSource.AI },
                 dueDate = now,
                 createdAt = now,
                 updatedAt = now,

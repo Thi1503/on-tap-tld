@@ -6,14 +6,10 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color as AndroidColor
 import android.net.Uri
 import android.provider.Settings
-import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -27,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -55,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
 import com.ledinhthi.ontaptld.core.image.BitmapLoader
+import com.ledinhthi.ontaptld.core.presentation.components.DarkSystemBars
 import com.ledinhthi.ontaptld.core.presentation.components.LoadingOverlay
 import com.ledinhthi.ontaptld.core.presentation.components.LoadingState
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
@@ -345,20 +341,6 @@ private fun fitInside(image: Size, box: Size): Rect {
         offset = Offset((box.width - fitted.width) / 2f, (box.height - fitted.height) / 2f),
         size = fitted,
     )
-}
-
-/**
- * Khi màn này đang hiện, đổi icon trên thanh trạng thái / thanh điều hướng sang màu sáng cho
- * hợp nền tối; rời màn thì trả về kiểu mặc định (theo giao diện sáng / tối của máy).
- */
-@Composable
-private fun DarkSystemBars() {
-    val activity = LocalContext.current.findActivity() as? ComponentActivity ?: return
-    DisposableEffect(activity) {
-        val dark = SystemBarStyle.dark(AndroidColor.TRANSPARENT)
-        activity.enableEdgeToEdge(statusBarStyle = dark, navigationBarStyle = dark)
-        onDispose { activity.enableEdgeToEdge() }
-    }
 }
 
 // ---------------------------------------------------------------------------------------

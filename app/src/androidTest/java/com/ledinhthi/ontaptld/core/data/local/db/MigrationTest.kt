@@ -59,6 +59,36 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrate2To3_giuTheCu_vaThemCotSoDongNguon() {
+        helper.createDatabase(TEST_DB, 2).apply {
+            execSQL(
+                "INSERT INTO flashcards (id, deckId, noteId, source, question, answer, sourceBoxLeft, " +
+                    "sourceBoxTop, sourceBoxRight, sourceBoxBottom, easeFactor, interval, repetitions, " +
+                    "dueDate, createdAt, updatedAt, synced, isDeleted) " +
+                    "VALUES ('c1', 'd1', 'n1', 'AI', 'Q', 'A', 0.1, 0.2, 0.9, 0.3, 2.5, 6, 2, 100, 1, 1, 0, 0)",
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(TEST_DB, 3, true, MIGRATION_2_3)
+
+        // Thẻ cũ còn nguyên nội dung và vùng nguồn; cột mới chưa có giá trị.
+        db.query("SELECT question, sourceBoxRight, interval, sourceLine FROM flashcards WHERE id = 'c1'").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals("Q", c.getString(0))
+            assertEquals(0.9f, c.getFloat(1), 0.0001f)
+            assertEquals(6, c.getInt(2))
+            assertTrue(c.isNull(3))
+        }
+        // Thẻ mới ghi được số dòng.
+        db.execSQL("UPDATE flashcards SET sourceLine = 4 WHERE id = 'c1'")
+        db.query("SELECT sourceLine FROM flashcards WHERE id = 'c1'").use { c ->
+            assertTrue(c.moveToFirst())
+            assertEquals(4, c.getInt(0))
+        }
+    }
+
     private companion object {
         const val TEST_DB = "migration-test.db"
     }

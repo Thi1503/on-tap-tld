@@ -10,8 +10,10 @@ import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.text.StringProvider
 import com.ledinhthi.ontaptld.feature.capture.domain.exception.CaptureException
+import com.ledinhthi.ontaptld.feature.capture.domain.model.AiQuota
 import com.ledinhthi.ontaptld.feature.capture.domain.model.SuggestedCard
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.GenerateFlashcardsWithAiUseCase
+import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.SaveSuggestedCardsUseCase
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.AiCardsEffect
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.AiCardsPhase
@@ -20,6 +22,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.model.Deck
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckUseCase
 import com.ledinhthi.ontaptld.navigation.DeckDetailRoute
 import com.ledinhthi.ontaptld.navigation.HomeRoute
+import com.ledinhthi.ontaptld.navigation.ManualCardRoute
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -45,6 +48,7 @@ class AiCardsViewModelTest {
     val mainRule = MainDispatcherRule()
 
     private val observeDeck = mockk<ObserveDeckUseCase>()
+    private val observeAiQuota = mockk<ObserveAiQuotaUseCase>()
     private val generateFlashcards = mockk<GenerateFlashcardsWithAiUseCase>()
     private val saveSuggestedCards = mockk<SaveSuggestedCardsUseCase>()
     private val navigator = mockk<AppNavigator>(relaxed = true)
@@ -65,10 +69,12 @@ class AiCardsViewModelTest {
     private fun viewModel(savedState: SavedStateHandle = newSavedState()): AiCardsViewModel {
         every { observeDeck.invoke("d1") } returns
             flowOf(Deck("d1", "Sinh học 12", "#0D9488", createdAt = 1, updatedAt = 1))
+        every { observeAiQuota.invoke() } returns flowOf(AiQuota(remaining = 0, max = 10))
         return AiCardsViewModel(
             toolbox = toolbox,
             savedState = savedState,
             observeDeck = observeDeck,
+            observeAiQuota = observeAiQuota,
             generateFlashcards = generateFlashcards,
             saveSuggestedCards = saveSuggestedCards,
             json = Json,
@@ -116,16 +122,85 @@ class AiCardsViewModelTest {
         verify(exactly = 0) { exceptionHandler.handle(any()) }
     }
 
+    // ---- Gọi AI không được ----
+
     @Test
-    fun `goi AI loi - lui ve buoc 2 va de bo xu ly loi chung bao`() = runTest {
+    fun `mat mang - o lai buoc 3 voi man loi, khong bat hop thoai chung`() = runTest {
         coEvery { generateFlashcards.invoke(any()) } throws AppException.AiException(AiErrorKind.NETWORK)
 
         val vm = viewModel()
         advanceUntilIdle()
 
-        verify { navigator.back() }
-        verify { exceptionHandler.handle(match { (it.exception as? AppException.AiException)?.kind == AiErrorKind.NETWORK }) }
-        assertEquals(AiCardsPhase.Generating, vm.uiState.value.phase)
+        assertEquals(AiCardsPhase.Failed, vm.uiState.value.phase)
+        assertEquals(AiErrorKind.NETWORK, vm.uiState.value.failure)
+        verify(exactly = 0) { navigator.back() }
+        verify(exactly = 0) { exceptionHandler.handle(any()) }
+    }
+
+    @Test
+    fun `het luot hom nay - sang man het luot, biet tong so luot moi ngay`() = runTest {
+        coEvery { generateFlashcards.invoke(any()) } throws AppException.AiException(AiErrorKind.QUOTA_EXCEEDED_LOCAL)
+
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertEquals(AiCardsPhase.QuotaExceeded, vm.uiState.value.phase)
+        assertEquals(10, vm.uiState.value.quotaMax)
+        verify(exactly = 0) { exceptionHandler.handle(any()) }
+    }
+
+    @Test
+    fun `loi khong phai cua AI - van vao man loi voi loi bao chung`() = runTest {
+        coEvery { generateFlashcards.invoke(any()) } throws IllegalStateException("hỏng")
+
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        assertEquals(AiCardsPhase.Failed, vm.uiState.value.phase)
+        assertEquals(AiErrorKind.UNKNOWN, vm.uiState.value.failure)
+    }
+
+    @Test
+    fun `thu lai sau loi - goi AI lan nua, co the thi sang chang duyet`() = runTest {
+        // Lần gọi đầu mất mạng, lần hai thành công.
+        coEvery { generateFlashcards.invoke(any()) } throws AppException.AiException(AiErrorKind.NETWORK) andThen cards
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(AiCardsPhase.Failed, vm.uiState.value.phase)
+
+        vm.onRetry()
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) { generateFlashcards.invoke("Bài 1 · Nhân đôi ADN") }
+        assertEquals(AiCardsPhase.Suggestions, vm.uiState.value.phase)
+        assertEquals(null, vm.uiState.value.failure)
+        assertEquals(2, vm.uiState.value.items.size)
+    }
+
+    @Test
+    fun `tu go the tu man loi - mo man them the cua bo da chon, mang theo van ban ghi chu`() = runTest {
+        coEvery { generateFlashcards.invoke(any()) } throws AppException.AiException(AiErrorKind.NETWORK)
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onTypeManually()
+
+        verify { navigator.to(ManualCardRoute(deckId = "d1", noteText = "Bài 1 · Nhân đôi ADN")) }
+    }
+
+    @Test
+    fun `app bi he thong tat luc dang o man loi - mo lai thay dung man do, khong tu goi AI`() = runTest {
+        val savedState = newSavedState()
+        coEvery { generateFlashcards.invoke(any()) } throws AppException.AiException(AiErrorKind.NETWORK)
+        viewModel(savedState)
+        advanceUntilIdle()
+
+        val recreated = viewModel(savedState)
+        advanceUntilIdle()
+
+        assertEquals(AiCardsPhase.Failed, recreated.uiState.value.phase)
+        assertEquals(AiErrorKind.NETWORK, recreated.uiState.value.failure)
+        coVerify(exactly = 1) { generateFlashcards.invoke(any()) } // chỉ lần của ViewModel đầu
     }
 
     // ---- Duyệt thẻ ----
@@ -235,7 +310,8 @@ class AiCardsViewModelTest {
                     imagePath = "/cache/crop.jpg",
                     noteText = "Bài 1 · Nhân đôi ADN",
                     cards = listOf(
-                        SaveSuggestedCardsUseCase.CardDraft("Đoạn Okazaki là gì?", "Đoạn ADN ngắn trên mạch chậm.", fromAi = true),
+                        // Thẻ AI mang theo số dòng nguồn, để lưu kèm vùng của nó trên ảnh.
+                        SaveSuggestedCardsUseCase.CardDraft("Đoạn Okazaki là gì?", "Đoạn ADN ngắn trên mạch chậm.", fromAi = true, sourceLine = 4),
                         SaveSuggestedCardsUseCase.CardDraft("Câu tự thêm?", "Đáp tự thêm", fromAi = false),
                     ),
                 ),

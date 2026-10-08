@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        Bản của theme dành cho Android 12 (API 31) trở lên — thư mục "values-v31" được chọn tự
+        động trên các máy đó. Từ Android 12, hệ thống tự hiện một màn chào trong lúc app khởi
+        động; hai dòng windowSplashScreen… cho nó dùng đúng màu nền và ô logo của màn Splash
+        trong app, thay vì icon ứng dụng bị cắt tròn.
+    -->
+    <style name="Theme.OnTapTLD" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowSplashScreenBackground">@color/window_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+    </style>
+</resources>

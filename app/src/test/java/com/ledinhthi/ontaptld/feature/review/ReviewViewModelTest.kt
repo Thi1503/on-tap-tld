@@ -11,6 +11,8 @@ import com.ledinhthi.ontaptld.feature.deck.domain.model.Flashcard
 import com.ledinhthi.ontaptld.feature.deck.domain.model.FlashcardSource
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.GetFlashcardUseCase
 import com.ledinhthi.ontaptld.feature.review.domain.ReviewGrade
+import com.ledinhthi.ontaptld.feature.review.domain.model.CardSource
+import com.ledinhthi.ontaptld.feature.review.domain.model.ExcerptLine
 import com.ledinhthi.ontaptld.feature.review.domain.model.ReviewCard
 import com.ledinhthi.ontaptld.feature.review.domain.usecase.GetDueReviewCardsUseCase
 import com.ledinhthi.ontaptld.feature.review.domain.usecase.ReviewFlashcardUseCase
@@ -18,6 +20,7 @@ import com.ledinhthi.ontaptld.feature.review.presentation.ReviewPhase
 import com.ledinhthi.ontaptld.feature.review.presentation.ReviewViewModel
 import com.ledinhthi.ontaptld.navigation.HomeRoute
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
+import com.ledinhthi.ontaptld.navigation.SourceImageRoute
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -252,6 +255,25 @@ class ReviewViewModelTest {
 
         assertEquals("Q đã sửa", vm.uiState.value.current?.card?.question)
         assertEquals(ReviewPhase.QUESTION, vm.uiState.value.phase)
+    }
+
+    @Test
+    fun `xem ca anh - mo anh nguon cua the dang on, quay lai van dung the va nguon cu`() = runTest {
+        val source = CardSource(capturedAt = 5_000, excerpt = listOf(ExcerptLine("– Pha S.", isSource = true)))
+        coEvery { getDueCards.invoke(null) } returns listOf(cards[0].copy(source = source), cards[1])
+        coEvery { getFlashcard.invoke("a") } returns flashcard("a", "d1")
+        val vm = viewModel()
+        advanceUntilIdle()
+        vm.onShowAnswer()
+
+        vm.onViewSourceImage()
+        verify { navigator.to(SourceImageRoute("a")) }
+        vm.onResume() // đóng màn xem ảnh, màn ôn hiện lại
+        advanceUntilIdle()
+
+        assertEquals(ReviewPhase.ANSWER, vm.uiState.value.phase)
+        assertEquals("a", vm.uiState.value.current?.card?.id)
+        assertEquals(source, vm.uiState.value.current?.source)
     }
 
     @Test

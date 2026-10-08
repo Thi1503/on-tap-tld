@@ -11,6 +11,7 @@ import com.ledinhthi.ontaptld.feature.review.domain.usecase.ReviewFlashcardUseCa
 import com.ledinhthi.ontaptld.navigation.HomeRoute
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
 import com.ledinhthi.ontaptld.navigation.ReviewRoute
+import com.ledinhthi.ontaptld.navigation.SourceImageRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -97,6 +98,12 @@ class ReviewViewModel @Inject constructor(
     fun onEditCard() {
         val reviewing = currentState.current ?: return
         navigator.to(ManualCardRoute(reviewing.card.deckId, reviewing.card.id))
+    }
+
+    /** "Xem cả ảnh" ở mặt đáp án của thẻ AI: mở ảnh ghi chú mà thẻ đang ôn được rút ra. */
+    fun onViewSourceImage() {
+        val reviewing = currentState.current ?: return
+        navigator.to(SourceImageRoute(reviewing.card.id))
     }
 
     /**

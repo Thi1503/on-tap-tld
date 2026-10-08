@@ -130,8 +130,13 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 >   ngày, không thì "Trong 2 tuần tới") / từ 2 tuần trở lên. Nhóm trống thì ẩn.
 > - "Về trang chủ" xoá hết chồng màn rồi mở Home (`replaceAll` đã sửa để làm đúng việc này).
 > - Nút bút chì ở mặt câu hỏi mở màn sửa thẻ; quay lại thì nội dung thẻ đang ôn được nạp lại.
-> - CHƯA làm (thuộc bước 4): dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi
->   chú ở mặt đáp án — hiện chỉ có badge nguồn AI / Thủ công. Lật thẻ chưa có hoạt ảnh.
+> - Dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi chú ở mặt đáp án của thẻ
+>   AI: đã làm ở bước 4 — xem mục "Xem ảnh nguồn của thẻ AI" bên dưới.
+> - Hoạt ảnh lật thẻ (thêm 8/10/2026, nhánh `feat/flip-animation`, design không vẽ): bấm "Hiện
+>   đáp án" hoặc chạm thẻ thì tấm thẻ quay 180° quanh trục dọc trong 0,4 giây, qua nửa vòng thì
+>   đổi sang mặt đáp án; nút "Hiện đáp án" mờ đi, 4 nút chấm hiện dần lên. Chỉ nhận lần chấm
+>   khi thẻ đã lật xong (lỡ bấm đúp "Hiện đáp án" không thành chấm nhầm). Sang thẻ kế tiếp thì
+>   hiện thẳng mặt câu hỏi, không quay ngược và chưa có hoạt ảnh chuyển thẻ.
 
 **Thi**
 - [ ] Chạy thử một phiên ôn đầy đủ
@@ -141,17 +146,21 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào `dev` qua pull request #12
 (nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) xong cùng ngày, đã vào `dev` qua pull
 request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" xong cùng ngày, đã
-vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ code
-xong cùng ngày trên nhánh `feat/ai-suggestions` (chưa commit), đã chạy thử trọn chuỗi trên
-emulator — chờ Thi xem và merge.
+vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ xong
+cùng ngày, đã vào `dev` qua pull request #15 (nhánh `feat/ai-suggestions`). Màn lỗi AI + màn hết
+lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-error-quota`). Xem ảnh
+nguồn của thẻ AI xong cùng ngày, đã vào `dev` qua pull request #21 (nhánh `feat/source-image`).
+Hai việc dọn dẹp cuối của bước 4 xong tối 8/10/2026, đã vào `dev` qua pull request #22 (nhánh
+`feat/note-cleanup`). Phần việc của Claude ở bước 4 đến đây là hết.
 
 **Claude**
 - [x] CameraX + crop vùng chữ
 - [x] OCR bằng ML Kit, màn sửa văn bản
 - [x] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
 - [x] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
-- [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
-- [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
+- [x] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
+- [x] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
+- [x] Dọn dẹp: xoá bộ thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị tắt dưới nền
 
 > **Màn Chụp ghi chú — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
 > - Một route (`CaptureRoute`), hai chặng: **ngắm** (camera chạy, khung cắt hiện sẵn, kéo được) →
@@ -175,7 +184,8 @@ emulator — chờ Thi xem và merge.
 >   thư viện gốc nặng khoảng 11 MB cho mỗi kiến trúc CPU — APK debug (gộp cả 4 kiến trúc) tăng từ
 >   18 lên 61 MB; bản phát hành dạng App Bundle chỉ tải phần của đúng một kiến trúc.
 > - Các khối chữ được xếp lại theo vị trí trên ảnh (trên xuống, trái sang phải) trước khi ghép
->   thành văn bản. Chưa giữ toạ độ từng dòng — sẽ thêm khi làm phần tô sáng ảnh nguồn.
+>   thành văn bản. Bộ nhận dạng trả về từng dòng kèm vị trí trên ảnh (`OcrLine`); màn này chỉ
+>   dùng phần chữ, vị trí được dùng lúc lưu thẻ để tô sáng ảnh nguồn.
 > - Ô văn bản cao cố định 272dp, dài thì cuộn bên trong ô; đang nhận dạng thì ô tạm khoá.
 > - Không nhận ra chữ / bộ nhận dạng lỗi: ở lại màn, dòng nhắc cam đổi nội dung, cho tự gõ; nút
 >   "Tạo thẻ bằng AI" mờ cho tới khi có chữ và có bộ thẻ.
@@ -206,8 +216,8 @@ emulator — chờ Thi xem và merge.
 > - "Huỷ", nút ← và Back trong lúc chờ: bỏ lần gọi đang dở, về bước 2 (văn bản còn nguyên).
 > - Đã kiểm chứng trên emulator ngày 8/10/2026: debug token App Check hoạt động, gọi được AI
 >   thật với ghi chú tiếng Anh và tiếng Việt. Máy OPPO chưa thử.
-> - TẠM: lỗi nào cũng báo bằng hộp thoại / snackbar chung rồi về bước 2 — màn lỗi mạng và màn
->   hết lượt theo design làm ở phần sau.
+> - Lỗi khi gọi AI: xem mục "Màn lỗi AI và màn hết lượt" bên dưới (trước đó tạm báo bằng hộp
+>   thoại / snackbar chung rồi về bước 2).
 >
 > **Màn Duyệt thẻ đề xuất — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
 > - Là chặng `Suggestions` của `AiCardsRoute`. Mọi thẻ AI được tích sẵn. Chạm vào ô tích hoặc
@@ -230,9 +240,90 @@ emulator — chờ Thi xem và merge.
 >   trên emulator); lúc quay lại app hiện đúng danh sách cũ thay vì gọi AI lần nữa.
 > - Bấm Huỷ lúc đang gọi AI: thư viện Firebase bọc tín hiệu huỷ coroutine vào `UnknownException`
 >   — `FirebaseGeminiClient` gọi `ensureActive()` để nhận ra đây là "bị huỷ", không phải lỗi.
-> - CHƯA làm: `sourceBox` của thẻ (vùng tô sáng trên ảnh) đang để trống — thuộc phần "xem ảnh
->   nguồn". Xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản chưa
->   giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+> - Dọn `Note` + ảnh khi xoá, và giữ văn bản đã sửa ở màn Kiểm tra văn bản: đã làm — xem mục
+>   "Dọn ghi chú và ảnh" bên dưới.
+>
+> **Dọn ghi chú và ảnh, thông báo ngắn, bàn phím (nhánh `feat/note-cleanup`, 8/10/2026):**
+> - Xoá bộ thẻ: trong cùng một transaction, đánh dấu xoá bộ thẻ, các thẻ và mọi `Note` của bộ;
+>   xong mới xoá các file ảnh `filesDir/notes/<noteId>.jpg`.
+> - Xoá một thẻ AI: một ghi chú sinh ra nhiều thẻ, nên `Note` và ảnh chỉ bị xoá khi đó là thẻ
+>   cuối cùng còn dùng ghi chú đó; các thẻ còn lại vẫn xem được ảnh nguồn.
+> - Dòng `Note` vẫn xoá mềm (`isDeleted = 1`) như bộ thẻ và thẻ, để dành cho đồng bộ; chỉ file
+>   ảnh là xoá thật. Không đổi schema Room.
+> - Quét dọn lúc mở app (Thi chốt): `OnTapTldApp` chạy nền `CleanUpOrphanNotesUseCase` — đánh dấu
+>   xoá ghi chú không còn thẻ sống nào dùng, rồi xoá file trong `filesDir/notes/` không còn ghi
+>   chú nào trỏ tới. Ghi chú / file mới hơn một phút được chừa lại (có thể một lượt lưu thẻ AI
+>   đang chạy dở). Nhờ vậy ảnh của thẻ đã xoá từ bản app cũ cũng được dọn.
+> - Màn Kiểm tra văn bản: văn bản đang sửa, văn bản gốc sau nhận dạng, trạng thái nhận dạng và bộ
+>   thẻ đang chọn được cất vào `SavedStateHandle`. App bị tắt dưới nền rồi mở lại thì không nhận
+>   dạng lại, và rời màn vẫn được hỏi "Bỏ phần văn bản đã sửa?". Bị tắt lúc ĐANG nhận dạng dở
+>   thì nhận dạng lại từ đầu.
+> - Thông báo ngắn (snackbar) của cả app (Thi chốt): hiện ở ĐỈNH màn, ngay dưới thanh trạng thái,
+>   tự tắt sau 3 giây (người bật trợ năng được hệ thống kéo dài thêm). Trước đó nó nằm sát đáy,
+>   đè lên hàng nút. Trong 3 giây đó nó đè lên top bar (nút ← và tiêu đề).
+> - Bàn phím ở màn Thêm / sửa thẻ và màn Kiểm tra văn bản (Thi chốt): bàn phím hiện lên thì
+>   thanh nút ở đáy (Lưu thẻ / Tạo thẻ bằng AI) ĐỨNG YÊN và bị bàn phím che, chỉ phần nội dung
+>   co lại và cuộn được; đóng bàn phím mới bấm được nút. Trước đó thanh nút bị đẩy lên nằm ngay
+>   trên bàn phím. Hai bảng trượt (Tạo bộ thẻ, sửa thẻ đề xuất) không đổi.
+> - Đã kiểm chứng trên emulator: lần mở app đầu tiên xoá đúng 2 ảnh mồ côi cũ, giữ 2 ảnh đang
+>   dùng; lưu thẻ AI vào bộ tạm rồi xoá bộ đó → ảnh mất theo; tắt hẳn process lúc đang ở màn Kiểm
+>   tra văn bản rồi mở lại → văn bản đã sửa còn nguyên. Trường hợp "xoá thẻ cuối cùng của ghi
+>   chú" mới qua test (`NoteCleanupDaoTest` trên emulator), chưa bấm tay.
+>
+> **Xem ảnh nguồn của thẻ AI — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Mỗi thẻ AI lưu thêm hai thứ: `sourceLine` = dòng ghi chú mà AI rút thẻ ra (đếm từ 1, chỉ
+>   tính dòng có chữ — hàm dùng chung `noteLines`), và `sourceBox` = vị trí của dòng đó trên ảnh,
+>   tính theo tỉ lệ của ảnh (0..1). **Schema Room lên v3** (`MIGRATION_2_3`: thêm cột
+>   `flashcards.sourceLine`), có test trong `MigrationTest`.
+> - Vị trí trên ảnh được tìm lúc LƯU thẻ: chạy lại bộ nhận dạng chữ trên ảnh đã cắt (chừng một
+>   giây, không cần mạng) rồi so NỘI DUNG dòng ghi chú với các dòng nhận dạng được
+>   (`SourceLineLocator`: giống hệt thì lấy luôn, không thì lấy dòng giống nhất nếu giống từ
+>   60% trở lên). So theo nội dung vì ở bước 2 người dùng có thể đã sửa, thêm, xoá dòng. Dòng
+>   người dùng tự gõ thêm, hoặc ảnh không đọc lại được: thẻ vẫn lưu, chỉ không có vùng tô sáng.
+> - Mặt đáp án lúc ôn (theo artboard `ReviewAnswer`): thẻ AI còn ghi chú thì đáy thẻ có nhãn
+>   AI + "Trích từ ghi chú chụp dd/MM" + nút "Xem cả ảnh", bên dưới là đoạn trích ba dòng (dòng
+>   trước, dòng nguồn tô cam, dòng sau; mỗi dòng tối đa hai hàng chữ). Không biết dòng nguồn thì
+>   không có đoạn trích; thẻ thủ công hoặc ghi chú đã mất thì chỉ có nhãn nguồn như cũ.
+> - "Xem cả ảnh" (design không vẽ màn này; Thi chọn kiểu toàn màn hình có phóng to): mở
+>   `SourceImageRoute(cardId)` — màn luôn tối, nút ✕ đóng về đúng mặt đáp án đang xem. Ảnh vừa
+>   khít màn, vùng của thẻ viền cam, phần còn lại tối đi; chụm hai ngón phóng to tới 5 lần, kéo
+>   để di chuyển (không kéo hở mép). Chưa có chạm đúp để phóng to. Không có vùng nguồn thì vẫn
+>   xem được ảnh, dòng chú thích dưới đáy nói rõ; file ảnh không còn thì báo ngay trong màn.
+> - Chỉ mở được màn này từ mặt đáp án lúc ôn (đúng design). Màn Chi tiết bộ thẻ vẫn chỉ ghi
+>   nhãn "Có ảnh nguồn", chưa có lối xem ảnh.
+> - Thẻ AI lưu TRƯỚC bản này không có `sourceLine` / `sourceBox`: vẫn có "Trích từ ghi chú
+>   chụp…" và xem được cả ảnh, chỉ thiếu đoạn trích và viền tô sáng.
+> - Đã kiểm chứng trên emulator ngày 8/10/2026 bằng một ảnh ghi chú có chữ in (xem Mục 6.4):
+>   đoạn trích đúng dòng, viền cam ôm đúng dòng trên ảnh, sáng và tối. CHƯA thử được thao tác
+>   chụm hai ngón (adb không gửi được cử chỉ hai ngón) — Thi thử bằng tay.
+>
+> **Màn lỗi AI và màn hết lượt — cách hoạt động (Thi giao Claude tự chốt 8/10/2026) và những chỗ
+> design không vẽ:**
+> - Là hai chặng mới của `AiCardsRoute`: `Failed` (artboard `AiError`) và `QuotaExceeded`
+>   (artboard `AiQuota`). Gọi AI lỗi thì ở lại bước 3 và hiện màn tương ứng, không còn hộp thoại
+>   / snackbar chung, không tự lùi về bước 2.
+> - MỌI lỗi gọi AI (trừ hết lượt trong ngày) dùng chung màn "Chưa tạo được thẻ", chỉ đổi dòng mô
+>   tả và icon: mất mạng / quá 45 giây (icon đám mây gạch chéo, đúng design); các lỗi còn lại
+>   dùng icon cảnh báo — AI quá tải (Google trả 429, tức hết hạn mức của cả project), AI không
+>   soạn được thẻ nào, nội dung bị chặn, lỗi App Check, bản build chưa bật AI, lỗi khác. Lỗi nào
+>   cũng có đủ hai nút "Thử lại" và "Tự gõ thẻ từ văn bản này".
+> - "Thử lại": ở lại route, về chặng "Đang tạo thẻ" và gọi lại với đúng văn bản cũ; lần thất bại
+>   không bị trừ lượt (lượt chỉ trừ khi AI trả về thẻ).
+> - Màn hết lượt: app chặn trước khi gọi mạng (bộ đếm trên máy đã đủ 10). Chỉ có một nút "Tự gõ
+>   thẻ từ văn bản này" (đã bỏ "Lưu ghi chú, tạo thẻ sau" theo Mục 4). Ở bước 2, hết lượt vẫn
+>   bấm được "Tạo thẻ bằng AI" và vào thẳng màn này.
+> - "Tự gõ thẻ từ văn bản này": mở màn Thêm thẻ của bộ đã chọn (`ManualCardRoute` có thêm
+>   `noteText`), phía trên có khung "Văn bản ghi chú" CHỈ ĐỌC — design không vẽ khung này. Khung
+>   đứng yên khi cuộn các ô nhập, cao tối đa 120dp (dài thì cuộn bên trong), chữ bôi đen để chép
+>   được. Thẻ lưu ở đây là thẻ thủ công bình thường (không kèm ảnh nguồn).
+> - Nút ← / Back ở hai màn này: về bước 2, không hỏi lại (không có gì để mất). Back ở màn Thêm
+>   thẻ: quay lại đúng màn lỗi / hết lượt (chồng màn giữ nguyên, vẫn thử lại AI được).
+> - Đang đứng ở màn lỗi / hết lượt mà app bị hệ thống tắt dưới nền: mở lại thấy đúng màn đó,
+>   không tự gọi AI (lý do lỗi được cất trong `SavedStateHandle`).
+> - Đã kiểm chứng trên emulator: mất mạng (chế độ máy bay) → màn lỗi, sáng và tối; bật lại mạng
+>   → "Thử lại" ra thẻ; bộ đếm đủ 10 → màn hết lượt; "Tự gõ thẻ" mở màn Thêm thẻ kèm văn bản.
+>   Các loại lỗi khác (AI quá tải, nội dung bị chặn…) chỉ mới qua unit test, chưa dựng được
+>   tình huống thật.
 >
 > **Emulator bị xoá trắng (8/10/2026, khoảng 16:18):** emulator Pixel 7a được khởi động lại với
 > dữ liệu trống — app chưa cài, thư viện ảnh trống, mất 5 bộ thẻ mẫu. Hệ quả: debug token App
@@ -248,13 +339,85 @@ emulator — chờ Thi xem và merge.
 
 ### Bước 5 — Cài đặt, nhắc ôn, widget
 
+Màn Cài đặt + màn Ngôn ngữ xong tối 8/10/2026, đã vào `dev` qua pull request #23 (nhánh
+`feat/settings`). Thông báo nhắc ôn hằng ngày code xong cùng tối trên nhánh `feat/reminder`
+(chưa commit), đã chạy thử trên emulator — chờ Thi xem và merge. Widget để sau khi nộp.
+
 **Claude**
-- [ ] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu
-- [ ] Thông báo nhắc ôn hằng ngày (WorkManager)
+- [x] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu, chọn ngôn ngữ
+- [x] Thông báo nhắc ôn hằng ngày (WorkManager)
 - [ ] Widget (Glance): tổng quan 4×2, số thẻ 2×2, ôn nhanh 4×2
 
+> **Màn Cài đặt và màn Ngôn ngữ — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Bố cục theo artboard `Settings`, thêm một mục **Ngôn ngữ** (Thi chọn: mục riêng, nằm giữa
+>   Giao diện và Nhắc ôn tập) với dòng "Ngôn ngữ giao diện · Tiếng Việt ›" mở màn Ngôn ngữ theo
+>   artboard `Language`. Màn Cài đặt cuộn được (máy thấp, cỡ chữ lớn).
+> - Giao diện: chọn là đổi ngay, không dựng lại màn. Icon thanh trạng thái / thanh điều hướng
+>   đổi màu theo giao diện của APP (`AppSystemBars`), không theo chế độ của máy. Giao diện đã
+>   lưu được đọc trước khung hình đầu tiên nên mở app không bị loé. CÒN THIẾU: màn chào của HỆ
+>   THỐNG lúc mở app (trước khi app kịp vẽ) vẫn theo chế độ của máy.
+> - Ngôn ngữ: chọn là áp dụng ngay, không có nút Lưu; người dùng ở lại màn Ngôn ngữ. Dùng
+>   `AppCompatDelegate.setApplicationLocales` (thêm thư viện AppCompat, `MainActivity` kế thừa
+>   `AppCompatActivity`, theme gốc đổi sang `Theme.AppCompat.DayNight.NoActionBar`), chạy từ
+>   Android 7; Android 13+ còn hiện app trong mục "Ngôn ngữ ứng dụng" của máy
+>   (`res/xml/locales_config.xml`). Chưa chọn gì thì app theo ngôn ngữ của máy: máy tiếng Anh
+>   → tiếng Anh, còn lại → tiếng Việt. Chuỗi phát từ ViewModel (`StringProvider`) cũng theo ngôn
+>   ngữ đã chọn. Màn biết "đang nói tiếng gì" nhờ chuỗi `app_language_tag` (vi / en).
+> - Nhắc ôn: mặc định TẮT (thông báo là thứ người dùng tự chọn nhận), giờ gợi ý 20:00. Tắt thì
+>   dòng "Giờ nhắc" mờ và không bấm được. Bấm "Giờ nhắc" mở đồng hồ chọn giờ của Material, kiểu
+>   12 / 24 giờ theo máy. Màn này MỚI CHỈ LƯU cài đặt (`AppPreferences.reminder`); việc xin quyền
+>   thông báo và hẹn giờ bằng WorkManager làm ở phần kế tiếp.
+> - Lượt AI: "đã dùng / tổng" đọc từ cùng bộ đếm với màn Kiểm tra văn bản.
+> - Đăng nhập Google: chỉ là dòng giới thiệu kèm nhãn "Sắp có", chưa bấm được (bước 6).
+> - "Chính sách quyền riêng tư": tạm báo "Tính năng này sắp có." (Thi chọn). "Giới thiệu On Tap
+>   TLD": chỉ hiện số phiên bản, không bấm được (Thi chọn). `versionName` đổi thành `1.0.0` cho
+>   khớp design.
+> - "Xoá toàn bộ dữ liệu trên máy" (Thi chọn phạm vi): hỏi lại, rồi xoá HẲN (không phải đánh dấu
+>   xoá) mọi bộ thẻ, thẻ, ghi chú, lịch sử ôn, hàng đợi đồng bộ, ảnh ghi chú và ảnh tạm của luồng
+>   chụp. GIỮ giao diện, ngôn ngữ, cài đặt nhắc ôn và bộ đếm lượt AI. Xong thì báo "Đã xoá toàn
+>   bộ dữ liệu." và ở lại màn Cài đặt.
+> - Tắt việc Material tự pha màu cam vào nền các bề mặt "nổi" (`surfaceTint`): hộp chọn giờ bị
+>   ám nâu ở giao diện tối. Từ nay hộp thoại, menu giữ đúng màu nền thẻ.
+> - Đã kiểm chứng trên emulator: đổi Việt ⇄ Anh, giao diện Tối khi máy đang sáng (icon thanh
+>   trạng thái trắng), bật nhắc + đổi giờ + mở lại app còn nguyên, snackbar "sắp có", hộp thoại
+>   xoá (chỉ bấm Huỷ vì emulator đang có bộ thẻ của Thi). Việc xoá thật mới qua test
+>   `DeleteAllLocalDataTest` (database trong bộ nhớ) — Thi tự bấm thử khi tiện.
+> - Lưu ý khi lên bản này: lần chạy đầu, AppCompat đồng bộ kho ngôn ngữ của nó với hệ thống và
+>   XOÁ lựa chọn ngôn ngữ đặt bằng `adb shell cmd locale set-app-locales` trước đó (app về theo
+>   máy). Chỉ xảy ra một lần; người dùng thật chưa từng có lựa chọn nào nên không bị ảnh hưởng.
+
+> **Thông báo nhắc ôn hằng ngày — cách hoạt động và những chỗ design không vẽ (nhánh `feat/reminder`):**
+> - Tới giờ nhắc, nếu hôm nay CÒN thẻ đến hạn thì hiện thông báo "Đến giờ ôn tập — Bạn có N thẻ
+>   cần ôn hôm nay."; không còn thẻ nào thì im lặng. N đếm theo cùng mốc "cần ôn hôm nay" với
+>   Home (`dueCutoffMillis`). Mỗi ngày tối đa một thông báo, thông báo mới thay thông báo cũ.
+> - Bấm thông báo = mở app như bấm icon ngoài màn hình chính (vào Home, hoặc trở lại màn đang
+>   dở); thông báo tự biến mất. Chưa mở thẳng vào phiên ôn.
+> - Hẹn giờ bằng WorkManager: mỗi lần hẹn MỘT việc cho giờ nhắc gần nhất sắp tới
+>   (`ReviewReminderWorker`); việc đó chạy xong thì tự hẹn lần của ngày hôm sau. Lịch sống qua
+>   lần khởi động lại máy. Giờ chạy KHÔNG chính xác tới từng giây: máy đang tiết kiệm pin có thể
+>   lùi vài phút (đổi lại không cần xin quyền "báo thức chính xác").
+> - `OnTapTldApp` nghe cài đặt nhắc ôn suốt đời app (`KeepReminderScheduledUseCase`): bật / đổi
+>   giờ thì hẹn lại, tắt thì huỷ lịch. Màn Cài đặt chỉ việc lưu cài đặt.
+> - Quyền thông báo: bật công tắc "Nhắc ôn hằng ngày" trên Android 13+ thì hệ thống hỏi quyền.
+>   Đồng ý → công tắc bật. Từ chối, hoặc thông báo của app đang bị tắt trong Cài đặt của máy →
+>   công tắc vẫn tắt và hiện hộp thoại "Chưa bật được nhắc ôn" có nút "Mở Cài đặt". Nếu về sau
+>   người dùng tự tắt quyền trong Cài đặt của máy thì tới giờ app không gửi gì; công tắc trong
+>   app CHƯA tự tắt theo.
+> - Kênh thông báo "Nhắc ôn tập" (mức thường: có âm báo, không bật lên che màn hình). Icon nhỏ
+>   dùng `ic_cards`, màu cam.
+> - Ngôn ngữ của thông báo theo ngôn ngữ đã chọn trong app, kể cả lúc app đang đóng: lựa chọn ở
+>   màn Ngôn ngữ được ghi thêm một bản sao vào `AppPreferences.languageTag` cho việc nền đọc
+>   (cần cho Android cũ hơn 13).
+> - Đã kiểm chứng trên emulator: bật công tắc → hộp xin quyền của hệ thống → lịch được hẹn cho
+>   20:00 hôm sau; ép lịch chạy ngay → thông báo đúng nội dung, đúng 9 thẻ, và lịch kế tiếp tự
+>   được hẹn; bấm thông báo → về đúng màn đang mở; tắt công tắc → lịch bị huỷ. CHƯA thử: đợi
+>   tới đúng giờ thật, khởi động lại máy, nhánh từ chối quyền (mới qua đọc code), máy OPPO.
+> - Cách ép lịch chạy ngay để thử: `adb shell dumpsys jobscheduler | grep ontaptld` lấy số job
+>   (dạng `…:u0a213/2`), rồi
+>   `adb shell cmd jobscheduler run -f -n androidx.work.systemjobscheduler com.ledinhthi.ontaptld <số>`.
+
 **Thi**
-- [ ] Thử thông báo và widget trên launcher thật
+- [ ] Thử thông báo trên máy thật (để tới đúng giờ nhắc, cả khi app đang đóng)
 
 ### Bước 6 — Tài khoản và đồng bộ *(cần bước 0, phần Auth + Firestore)*
 
@@ -274,7 +437,7 @@ emulator — chờ Thi xem và merge.
 **Claude**
 - [ ] Màn thống kê: chuỗi ngày ôn, số thẻ ôn mỗi ngày, tỉ lệ nhớ
 - [ ] Ba màn onboarding
-- [ ] Chọn ngôn ngữ, bản dịch tiếng Anh
+- [ ] Chọn ngôn ngữ, bản dịch tiếng Anh (màn chọn ngôn ngữ đã làm ở bước 5; còn soát bản dịch)
 
 **Thi**
 - [ ] Soát bản dịch, chạy thử
@@ -313,7 +476,7 @@ emulator — chờ Thi xem và merge.
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
 
 - Home, thẻ "Cần ôn hôm nay": chú giải dùng tên thật của bộ thẻ nên tên dài bị cắt bằng "…" (design dùng tên ngắn). Chờ Thi quyết: giữ một dòng hay cho xuống hai dòng.
-- Icon ứng dụng vẫn là robot Android mặc định. Trên Android 12+ hệ thống tự hiện icon này vài giây lúc khởi động nguội, TRƯỚC màn Splash của app, nên người dùng thấy robot xanh rồi mới tới logo "TLD". Cần bộ icon launcher riêng (và có thể đặt nó làm icon màn chào hệ thống) — chờ Thi quyết làm lúc nào.
+- Icon ứng dụng: ĐÃ LÀM ngày 8/10/2026 (nhánh `feat/launcher-icon`) — nền cam `#F24E1E`, chữ "TLD" trắng. Ba chữ cái được vẽ lại thành hình trong `drawable/ic_launcher_foreground.xml` (vector drawable không chứa được chữ; dáng gần với Nunito Sans ExtraBold nhưng không phải lấy từ font). Android 8+ dùng icon adaptive; Android 7.x dùng bộ PNG trong `mipmap-*dpi` (sinh từ cùng hình đó). Màn chào của hệ thống trên Android 12+ (`values-v31/themes.xml`) hiện đúng ô logo 96dp của màn Splash thay cho icon bị cắt tròn; logo ở màn Splash của app nằm cao hơn khoảng 40dp vì còn tên app bên dưới, nên lúc nối hai màn logo nhích lên một chút. Tên dưới icon (`app_name`) đã đổi từ "OnTapTLD" thành "On Tap TLD" (Thi chốt 8/10/2026, làm kèm nhánh `feat/source-image`).
 - Chi tiết bộ thẻ: menu ⋮ có thêm "Đổi tên / đổi màu bộ thẻ" không. Sửa thẻ: có cho chuyển thẻ sang bộ khác không (hiện ô Bộ thẻ bị khoá). Dải thanh trạng thái / dải dưới thanh đáy có cho trùng màu top bar / thanh đáy không.
 
 ### Ký phát hành — CHƯA LÀM (tại ngày chốt)
@@ -342,10 +505,24 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
-request #12), màn Kiểm tra văn bản cũng vậy (pull request #13). Phần gọi Gemini + màn "Đang tạo
-thẻ" (nhánh `feat/ai-generate`) đã code xong, chờ Thi xem và merge. Thứ tự còn lại: màn duyệt
-thẻ AI (kèm lưu thẻ + ảnh nguồn) → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
-phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
+request #12), màn Kiểm tra văn bản (#13), phần gọi Gemini + màn "Đang tạo thẻ" (#14) và màn duyệt
+thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17), xem ảnh nguồn của thẻ AI (#21) cũng vậy.
+Hai việc dọn dẹp cuối (#22) cũng vậy — bước 4 xong.
+
+Đang làm **bước 5 — Cài đặt, nhắc ôn, widget**. Màn Cài đặt + màn Ngôn ngữ (nhánh
+`feat/settings`) đã vào `dev` (#23). Thông báo nhắc ôn hằng ngày (nhánh `feat/reminder`) đã code
+xong, chờ Thi xem và merge. Artboard: xem bảng ở Mục 6.3.
+
+**Thi chốt tối 8/10/2026 — để SAU khi nộp:** widget (Glance), và việc soát giao diện trên máy
+nhỏ / tablet / xoay ngang / cỡ chữ lớn. Việc còn lại trước khi nộp, theo thứ tự: đăng nhập
+Google + màn Cài đặt khi đã đăng nhập → nạp 4 bộ thẻ mẫu và viết README.
+
+**Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
+làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
+Firestore và xoá tài khoản để sau khi nộp. Thứ tự: hoạt ảnh lật thẻ (đã vào `dev`, pull request
+#18) → icon launcher (đã vào `dev`, pull request #20) → phần còn lại của bước 4 → bước 5 → đăng
+nhập Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình; việc soát app
+trên máy nhỏ / tablet / xoay ngang / cỡ chữ lớn Thi đã chốt để sau khi nộp (xem đoạn trên).
 
 Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
 Pixel 7a đã được kiểm chứng bằng lần gọi AI thật ngày 8/10/2026; token của máy OPPO CPH1911 đã
@@ -397,9 +574,23 @@ thái / bàn phím của hệ thống, và các nút thuộc bước chưa làm 
 - Cài và chụp: `adb install -r app/build/outputs/apk/debug/app-debug.apk`, mở app, rồi
   `adb exec-out screencap -p > anh.png`.
 - Dữ liệu mẫu giống design: chạy `DemoDataSeeder` (lệnh ghi ở đầu file
-  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Emulator của Thi đang có sẵn 4 bộ thẻ mẫu.
-- App trên emulator đang được đặt ngôn ngữ riêng là tiếng Việt
-  (`adb shell cmd locale set-app-locales com.ledinhthi.ontaptld --locales vi-VN`).
+  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Từ lần emulator bị xoá trắng ngày
+  8/10/2026, 4 bộ thẻ mẫu CHƯA được nạp lại.
+- Chạy riêng một lớp test có emulator mà KHÔNG gỡ app (vd `MigrationTest` sau khi đổi schema):
+  `./gradlew :app:assembleDebugAndroidTest`, `adb install -r -t <…androidTest.apk>`, rồi
+  `adb shell am instrument -w -e class com.ledinhthi.ontaptld.core.data.local.db.MigrationTest
+  com.ledinhthi.ontaptld.test/androidx.test.runner.AndroidJUnitRunner`. Cùng cách đó cho
+  `com.ledinhthi.ontaptld.feature.deck.NoteCleanupDaoTest` (SQL dọn ghi chú).
+- Giả lập "app bị hệ thống tắt dưới nền": bấm Home (`adb shell input keyevent 3`), rồi
+  `adb shell run-as com.ledinhthi.ontaptld kill <pid>` (pid lấy bằng `adb shell pidof …`), rồi mở
+  lại app. `am kill` không tắt được process trên emulator này.
+- Camera của emulator không có chữ. Để thử OCR / ảnh nguồn, thư viện ảnh của emulator có sẵn
+  `Pictures/ontap_demo_note.jpg` (một trang ghi chú chữ in, Claude tạo ngày 8/10/2026): vào màn
+  chụp, bấm "Thư viện" rồi chọn ảnh này.
+- App trên emulator đang được đặt ngôn ngữ riêng là tiếng Việt (máy ảo để tiếng Anh). Đổi
+  bằng màn Cài đặt → Ngôn ngữ của app, hoặc
+  `adb shell cmd locale set-app-locales com.ledinhthi.ontaptld --locales vi`; xem bằng
+  `… get-app-locales …`.
 - Xem dark theme: `adb shell cmd uimode night yes`, chụp xong trả lại `night no`.
 - **Đừng xoá dữ liệu app** (`pm clear`, gỡ cài đặt): sẽ mất debug token App Check mà Thi đã đăng
   ký trên Firebase Console, phải lấy token mới trong Logcat và đăng ký lại.

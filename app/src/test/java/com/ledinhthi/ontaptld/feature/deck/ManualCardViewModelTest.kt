@@ -65,11 +65,11 @@ class ManualCardViewModelTest {
     )
 
     /** [cardId] = null: mở màn ở chế độ thêm thẻ vào bộ d1; có giá trị: chế độ sửa thẻ đó. */
-    private fun viewModel(cardId: String? = null): ManualCardViewModel {
+    private fun viewModel(cardId: String? = null, noteText: String? = null): ManualCardViewModel {
         every { observeDecks.invoke() } returns flowOf(decks)
         return ManualCardViewModel(
             toolbox = toolbox,
-            savedState = SavedStateHandle(mapOf("deckId" to "d1", "cardId" to cardId)),
+            savedState = SavedStateHandle(mapOf("deckId" to "d1", "cardId" to cardId, "noteText" to noteText)),
             observeDecks = observeDecks,
             getFlashcard = getFlashcard,
             createManualFlashcard = createCard,
@@ -96,6 +96,15 @@ class ManualCardViewModelTest {
         assertFalse(vm.uiState.value.canSave)
         vm.onAnswerChange("A")
         assertTrue(vm.uiState.value.canSave)
+    }
+
+    @Test
+    fun `mo tu nut tu go the tu van ban - giu van ban ghi chu de hien kem, cac loi vao khac thi khong co`() = runTest {
+        val fromAiFlow = viewModel(noteText = "Bài 1 · Nhân đôi ADN")
+        assertEquals("Bài 1 · Nhân đôi ADN", fromAiFlow.uiState.value.noteText)
+        assertFalse(fromAiFlow.uiState.value.isEditing)
+
+        assertEquals("", viewModel().uiState.value.noteText)
     }
 
     @Test

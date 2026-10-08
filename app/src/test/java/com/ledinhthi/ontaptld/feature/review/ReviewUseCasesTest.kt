@@ -7,10 +7,14 @@ import com.ledinhthi.ontaptld.feature.deck.domain.exception.DeckException
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Deck
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Flashcard
 import com.ledinhthi.ontaptld.feature.deck.domain.model.FlashcardSource
+import com.ledinhthi.ontaptld.feature.deck.domain.model.Note
 import com.ledinhthi.ontaptld.feature.deck.domain.repository.DeckRepository
 import com.ledinhthi.ontaptld.feature.deck.domain.repository.FlashcardRepository
+import com.ledinhthi.ontaptld.feature.deck.domain.repository.NoteRepository
 import com.ledinhthi.ontaptld.feature.review.domain.ReviewGrade
+import com.ledinhthi.ontaptld.feature.review.domain.model.ExcerptLine
 import com.ledinhthi.ontaptld.feature.review.domain.model.ReviewLog
+import com.ledinhthi.ontaptld.feature.review.domain.model.toCardSource
 import com.ledinhthi.ontaptld.feature.review.domain.repository.ReviewLogRepository
 import com.ledinhthi.ontaptld.feature.review.domain.usecase.GetDueReviewCardsUseCase
 import com.ledinhthi.ontaptld.feature.review.domain.usecase.ReviewFlashcardUseCase
@@ -31,6 +35,7 @@ class ReviewUseCasesTest {
 
     private val flashcards = mockk<FlashcardRepository>(relaxed = true)
     private val decks = mockk<DeckRepository>()
+    private val notes = mockk<NoteRepository>()
     private val reviewLogs = mockk<ReviewLogRepository>(relaxed = true)
     private val clock = mockk<Clock> { every { nowMillis() } returns now }
     private val ids = mockk<IdGenerator> { every { newId() } returns "log-1" }
@@ -53,6 +58,8 @@ class ReviewUseCasesTest {
 
     // ---- GetDueReviewCardsUseCase ----
 
+    private fun getDueCards() = GetDueReviewCardsUseCase(flashcards, decks, notes, clock)
+
     private fun givenDue(vararg cards: Flashcard) {
         every { decks.observeDecks() } returns flowOf(listOf(deck("d1"), deck("d2")))
         // Phải hỏi database bằng mốc CUỐI NGÀY hôm nay, không phải "bây giờ".
@@ -63,7 +70,7 @@ class ReviewUseCasesTest {
     fun `lay the den han cua moi bo - giu thu tu, gan kem bo the`() = runTest {
         givenDue(card("a", "d1"), card("b", "d2"), card("c", "d1"))
 
-        val result = GetDueReviewCardsUseCase(flashcards, decks, clock)(null)
+        val result = getDueCards()(null)
 
         assertEquals(listOf("a", "b", "c"), result.map { it.card.id })
         assertEquals(listOf("d1", "d2", "d1"), result.map { it.deck.id })
@@ -73,7 +80,7 @@ class ReviewUseCasesTest {
     fun `chi dinh bo the - chi lay the cua bo do`() = runTest {
         givenDue(card("a", "d1"), card("b", "d2"), card("c", "d1"))
 
-        val result = GetDueReviewCardsUseCase(flashcards, decks, clock)("d2")
+        val result = getDueCards()("d2")
 
         assertEquals(listOf("b"), result.map { it.card.id })
     }
@@ -82,9 +89,81 @@ class ReviewUseCasesTest {
     fun `the cua bo da xoa - bi bo qua`() = runTest {
         givenDue(card("a", "d1"), card("mo-coi", "da-xoa"))
 
-        val result = GetDueReviewCardsUseCase(flashcards, decks, clock)(null)
+        val result = getDueCards()(null)
 
         assertEquals(listOf("a"), result.map { it.card.id })
+    }
+
+    // ---- Nguồn của thẻ AI (đoạn trích ghi chú ở mặt đáp án) ----
+
+    private val note = Note(
+        id = "n1",
+        deckId = "d1",
+        imagePath = "/files/notes/n1.jpg",
+        ocrText = "Bài 1 · Nhân đôi ADN\n\n– Pha S.\n– Bổ sung và bán bảo toàn.\n– Chiều 5'→3'.",
+        createdAt = 5_000,
+        updatedAt = 5_000,
+    )
+
+    private fun aiCard(id: String, sourceLine: Int?) =
+        card(id, "d1").copy(noteId = "n1", source = FlashcardSource.AI, sourceLine = sourceLine)
+
+    @Test
+    fun `the AI con ghi chu - kem ngay chup va doan trich quanh dong nguon`() = runTest {
+        givenDue(aiCard("a", sourceLine = 3))
+        coEvery { notes.getById("n1") } returns note
+
+        val source = getDueCards()(null).single().source
+
+        assertEquals(5_000L, source?.capturedAt)
+        // Dòng 3 tính theo dòng CÓ CHỮ (dòng trống không được đánh số): dòng trước, nguồn, sau.
+        assertEquals(
+            listOf(
+                ExcerptLine("– Pha S.", isSource = false),
+                ExcerptLine("– Bổ sung và bán bảo toàn.", isSource = true),
+                ExcerptLine("– Chiều 5'→3'.", isSource = false),
+            ),
+            source?.excerpt,
+        )
+    }
+
+    @Test
+    fun `dong nguon la dong dau hoac dong cuoi - doan trich khong tran ra ngoai ghi chu`() {
+        assertEquals(
+            listOf(true, false),
+            note.toCardSource(sourceLine = 1).excerpt.map { it.isSource },
+        )
+        assertEquals(
+            listOf("– Bổ sung và bán bảo toàn.", "– Chiều 5'→3'."),
+            note.toCardSource(sourceLine = 4).excerpt.map { it.text },
+        )
+    }
+
+    @Test
+    fun `khong biet dong nguon hoac so dong sai - khong co doan trich nhung van co ngay chup`() {
+        assertTrue(note.toCardSource(sourceLine = null).excerpt.isEmpty())
+        assertTrue(note.toCardSource(sourceLine = 9).excerpt.isEmpty())
+        assertEquals(5_000L, note.toCardSource(sourceLine = null).capturedAt)
+    }
+
+    @Test
+    fun `the thu cong hoac ghi chu da mat - khong co nguon`() = runTest {
+        givenDue(card("thu-cong", "d1"), aiCard("mat-ghi-chu", sourceLine = 2))
+        coEvery { notes.getById("n1") } returns null
+
+        val result = getDueCards()(null)
+
+        assertEquals(listOf(null, null), result.map { it.source })
+    }
+
+    @Test
+    fun `nhieu the chung mot ghi chu - chi doc ghi chu mot lan`() = runTest {
+        givenDue(aiCard("a", sourceLine = 2), aiCard("b", sourceLine = 3), aiCard("c", sourceLine = null))
+        coEvery { notes.getById("n1") } returns note
+
+        getDueCards()(null)
+
+        coVerify(exactly = 1) { notes.getById("n1") }
     }
 
     // ---- ReviewFlashcardUseCase ----

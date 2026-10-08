@@ -22,7 +22,7 @@ import com.ledinhthi.ontaptld.feature.review.data.local.ReviewLogEntity
         SyncQueueEntity::class,
         ReviewLogEntity::class,
     ],
-    version = 2, // đổi schema -> tăng version + thêm Migration vào Migrations.kt (docs Mục 7.3)
+    version = 3, // đổi schema -> tăng version + thêm Migration vào Migrations.kt (docs Mục 7.3)
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

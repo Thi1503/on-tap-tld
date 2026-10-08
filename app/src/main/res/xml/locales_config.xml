@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Các ngôn ngữ app có bản dịch. Android 13+ đọc file này để hiện mục "Ngôn ngữ ứng dụng"
+     trong Cài đặt của máy. Thêm thư mục values-xx mới thì thêm một dòng ở đây. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="vi" />
+    <locale android:name="en" />
+</locale-config>

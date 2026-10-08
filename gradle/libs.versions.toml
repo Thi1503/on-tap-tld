@@ -5,6 +5,7 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 activityCompose = "1.8.0"
+appcompat = "1.7.1"                # đổi ngôn ngữ riêng của app (AppCompatDelegate) trên mọi đời Android
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
 
@@ -24,6 +25,7 @@ firebaseBom = "34.3.0"
 googleServices = "4.4.3"
 camerax = "1.5.3"                 # bước 4: chụp ghi chú
 exifinterface = "1.4.2"           # đọc hướng xoay của ảnh chụp / ảnh chọn từ thư viện
+work = "2.11.0"                   # bước 5: hẹn giờ nhắc ôn hằng ngày
 mlkitTextRecognition = "16.0.1"  # nhận dạng chữ Latin (đủ cho tiếng Việt có dấu)
 # test
 turbine = "1.2.1"
@@ -34,6 +36,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -80,6 +83,9 @@ androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterfa
 
 # ML Kit — nhận dạng chữ (bản gói kèm app: mô hình nằm sẵn trong APK, không cần mạng)
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
+
+# WorkManager — việc nền chạy được cả khi app đang đóng (nhắc ôn hằng ngày)
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 
 # Misc
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }

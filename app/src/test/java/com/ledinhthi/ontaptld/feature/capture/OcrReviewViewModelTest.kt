@@ -20,6 +20,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CreateDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDecksUseCase
 import com.ledinhthi.ontaptld.navigation.AiCardsRoute
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -60,16 +61,24 @@ class OcrReviewViewModelTest {
         Deck("d2", "Sinh học", "#0D9488", createdAt = 1, updatedAt = 1),
     )
 
-    /** [deckId] có giá trị = luồng chụp được mở từ Chi tiết bộ thẻ đó. */
+    /** "Ngăn kéo" của một màn vừa mở: mới chỉ có tham số của route. */
+    private fun routeArgs(deckId: String? = null) =
+        SavedStateHandle(mapOf("imagePath" to "/cache/crop.jpg", "deckId" to deckId))
+
+    /**
+     * [deckId] có giá trị = luồng chụp được mở từ Chi tiết bộ thẻ đó. Truyền lại cùng một
+     * [savedState] cho ViewModel thứ hai = giả lập app bị tắt dưới nền rồi được dựng lại.
+     */
     private fun viewModel(
         deckId: String? = null,
         deckFlow: Flow<List<Deck>> = flowOf(decks),
+        savedState: SavedStateHandle = routeArgs(deckId),
     ): OcrReviewViewModel {
         every { observeDecks.invoke() } returns deckFlow
         every { observeAiQuota.invoke() } returns flowOf(AiQuota(remaining = 8, max = 10))
         return OcrReviewViewModel(
             toolbox = toolbox,
-            savedState = SavedStateHandle(mapOf("imagePath" to "/cache/crop.jpg", "deckId" to deckId)),
+            savedState = savedState,
             observeDecks = observeDecks,
             observeAiQuota = observeAiQuota,
             runOcr = runOcr,
@@ -204,6 +213,58 @@ class OcrReviewViewModelTest {
         verify { navigator.showSnackBar(any(), any()) }
         verify(exactly = 0) { exceptionHandler.handle(any()) }
         assertEquals("d1", vm.uiState.value.selectedDeck?.id)
+    }
+
+    @Test
+    fun `app bi tat duoi nen - mo lai giu van ban da sua va bo the da chon, khong nhan dang lai`() = runTest {
+        coEvery { runOcr.invoke(any()) } returns "Dòng một"
+        val savedState = routeArgs(deckId = "d2")
+        val before = viewModel(savedState = savedState)
+        advanceUntilIdle()
+        before.onTextChange("Dòng một đã sửa")
+        before.onDeckSelected("d1")
+
+        val after = viewModel(savedState = savedState)
+        advanceUntilIdle()
+
+        val state = after.uiState.value
+        assertEquals(OcrStatus.Found, state.ocrStatus)
+        assertEquals("Dòng một đã sửa", state.text)
+        assertEquals("d1", state.selectedDeck?.id)
+        // Mốc so sánh cũng phải còn, để rời màn vẫn được hỏi "Bỏ phần văn bản đã sửa?".
+        assertTrue(state.hasEditedText)
+        coVerify(exactly = 1) { runOcr.invoke(any()) }
+    }
+
+    @Test
+    fun `app bi tat duoi nen khi anh khong co chu - mo lai giu phan tu go, khong nhan dang lai`() = runTest {
+        coEvery { runOcr.invoke(any()) } throws AppException.OcrException(OcrErrorKind.NO_TEXT_FOUND)
+        val savedState = routeArgs()
+        val before = viewModel(savedState = savedState)
+        advanceUntilIdle()
+        before.onTextChange("Tự gõ ghi chú")
+
+        val after = viewModel(savedState = savedState)
+        advanceUntilIdle()
+
+        assertEquals(OcrStatus.NoText, after.uiState.value.ocrStatus)
+        assertEquals("Tự gõ ghi chú", after.uiState.value.text)
+        coVerify(exactly = 1) { runOcr.invoke(any()) }
+    }
+
+    @Test
+    fun `app bi tat khi dang nhan dang do - mo lai thi nhan dang lai tu dau`() = runTest {
+        val pending = CompletableDeferred<String>()
+        coEvery { runOcr.invoke(any()) } coAnswers { pending.await() }
+        val savedState = routeArgs()
+        viewModel(savedState = savedState) // chưa nhận dạng xong thì "bị tắt"
+
+        coEvery { runOcr.invoke(any()) } returns "Dòng một"
+        val after = viewModel(savedState = savedState)
+        advanceUntilIdle()
+
+        assertEquals(OcrStatus.Found, after.uiState.value.ocrStatus)
+        assertEquals("Dòng một", after.uiState.value.text)
     }
 
     @Test
