@@ -22,6 +22,17 @@ class GlobalExceptionHandler @Inject constructor(
             is AppException.OcrException -> navigator.showSnackBar(
                 strings.get(R.string.error_ocr_no_text), SnackBarType.FAILURE,
             )
+            is AppException.AuthException -> navigator.showSnackBar(
+                strings.get(
+                    when (e.kind) {
+                        AuthErrorKind.NOT_CONFIGURED -> R.string.auth_error_not_configured
+                        AuthErrorKind.NETWORK -> R.string.auth_error_network
+                        AuthErrorKind.NO_GOOGLE_ACCOUNT -> R.string.auth_error_no_account
+                        AuthErrorKind.UNKNOWN -> R.string.auth_error_unknown
+                    },
+                ),
+                SnackBarType.FAILURE,
+            )
             is AppException.LocalException -> navigator.showErrorDialog(
                 strings.get(R.string.error_local_storage),
             )

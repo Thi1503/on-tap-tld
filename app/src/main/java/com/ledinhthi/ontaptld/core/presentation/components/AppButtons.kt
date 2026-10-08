@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -64,7 +65,12 @@ fun PrimaryButton(
     ) { ButtonLabel(text, leadingIcon) }
 }
 
-/** Nút phụ (viền xám, nền thẻ) — đi kèm [PrimaryButton] cho lựa chọn thứ hai. */
+/**
+ * Nút phụ (viền xám, nền thẻ) — đi kèm [PrimaryButton] cho lựa chọn thứ hai.
+ *
+ * [leadingIcon] được tô theo màu chữ của nút. Hình cần giữ màu riêng (vd logo Google) thì tự vẽ
+ * trong slot [leadingContent].
+ */
 @Composable
 fun SecondaryButton(
     text: String,
@@ -73,6 +79,7 @@ fun SecondaryButton(
     enabled: Boolean = true,
     @DrawableRes leadingIcon: Int? = null,
     height: Dp = AppDimens.btnLoginFigmaHeight,
+    leadingContent: (@Composable () -> Unit)? = null,
 ) {
     val colors = appColors()
     OutlinedButton(
@@ -87,7 +94,13 @@ fun SecondaryButton(
         ),
         border = BorderStroke(1.dp, colors.borderStrong),
         contentPadding = PaddingValues(horizontal = AppDimens.paddingMedium),
-    ) { ButtonLabel(text, leadingIcon) }
+    ) {
+        if (leadingContent != null) {
+            leadingContent()
+            Spacer(Modifier.width(AppDimens.paddingSmall))
+        }
+        ButtonLabel(text, leadingIcon)
+    }
 }
 
 /** Nút chữ (không nền) cho hành động nhẹ: "Bộ mới", "Chụp lại", "Bỏ qua"… */
@@ -99,6 +112,7 @@ fun AppTextButton(
     enabled: Boolean = true,
     @DrawableRes leadingIcon: Int? = null,
     contentColor: Color = appColors().primaryStrong,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall,
 ) {
     TextButton(
         onClick = onClick,
@@ -111,7 +125,7 @@ fun AppTextButton(
             Icon(painterResource(leadingIcon), contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(Modifier.width(AppDimens.paddingSmallest))
         }
-        Text(text, style = MaterialTheme.typography.titleSmall)
+        Text(text, style = textStyle)
     }
 }
 
