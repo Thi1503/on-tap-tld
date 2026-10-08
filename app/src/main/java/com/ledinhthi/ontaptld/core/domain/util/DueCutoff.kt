@@ -2,6 +2,7 @@ package com.ledinhthi.ontaptld.core.domain.util
 
 import java.time.Instant
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 /**
  * Mốc "cần ôn hôm nay": một thẻ được tính là đến hạn nếu `dueDate` rơi vào bất kỳ lúc nào
@@ -20,3 +21,14 @@ fun dueCutoffMillis(nowMillis: Long, zone: ZoneId = ZoneId.systemDefault()): Lon
         .atStartOfDay(zone)    // 00:00 ngày mai
         .toInstant()
         .toEpochMilli() - 1    // lùi 1 mili giây = 23:59:59.999 hôm nay
+
+/**
+ * Còn bao nhiêu NGÀY LỊCH nữa thì thẻ đến hạn: 0 = hôm nay (hoặc đã quá hạn), 1 = ngày mai…
+ * Đếm theo ngày chứ không theo số giờ, cùng quy ước với [dueCutoffMillis]: thẻ hẹn 0:05 sáng
+ * mai vẫn là "ngày mai" dù chỉ còn cách vài phút.
+ */
+fun daysUntilDue(dueDateMillis: Long, nowMillis: Long, zone: ZoneId = ZoneId.systemDefault()): Int {
+    val today = Instant.ofEpochMilli(nowMillis).atZone(zone).toLocalDate()
+    val dueDay = Instant.ofEpochMilli(dueDateMillis).atZone(zone).toLocalDate()
+    return ChronoUnit.DAYS.between(today, dueDay).toInt().coerceAtLeast(0)
+}

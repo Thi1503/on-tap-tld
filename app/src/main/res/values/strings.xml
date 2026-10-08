@@ -66,6 +66,46 @@
     <string name="deck_error_deck_not_found">Không tìm thấy bộ thẻ.</string>
     <string name="deck_error_card_not_found">Không tìm thấy thẻ.</string>
 
+    <string name="deck_source_manual">Thủ công</string>
+    <string name="deck_source_ai">AI</string>
+
+    <!-- deck_detail — feature/deck/presentation/deckdetail -->
+    <string name="deck_detail_options">Tuỳ chọn bộ thẻ</string>
+    <string name="deck_detail_stat_total">Tổng số thẻ</string>
+    <string name="deck_detail_stat_new">Thẻ mới</string>
+    <plurals name="deck_detail_review_cards">
+        <item quantity="other">Ôn %d thẻ</item>
+    </plurals>
+    <string name="deck_detail_review_none">Hôm nay không còn thẻ cần ôn</string>
+    <!-- %d = số thẻ thuộc nhóm đó -->
+    <string name="deck_detail_filter_all">Tất cả %d</string>
+    <string name="deck_detail_filter_manual">Thủ công %d</string>
+    <string name="deck_detail_filter_ai">AI %d</string>
+    <string name="deck_detail_filter_empty">Chưa có thẻ nào trong nhóm này.</string>
+    <string name="deck_detail_has_source_image">Có ảnh nguồn</string>
+    <string name="deck_detail_due_today">Ôn hôm nay</string>
+    <string name="deck_detail_due_tomorrow">Ôn lại ngày mai</string>
+    <plurals name="deck_detail_due_in_days">
+        <item quantity="other">Ôn lại sau %d ngày</item>
+    </plurals>
+    <string name="deck_detail_capture">Chụp ảnh</string>
+    <string name="deck_detail_add_card">Thêm thẻ</string>
+    <string name="deck_detail_edit_card">Sửa thẻ</string>
+    <string name="deck_detail_delete_card">Xoá thẻ</string>
+    <string name="deck_detail_empty_title">Bộ thẻ này chưa có thẻ nào</string>
+    <string name="deck_detail_empty_message">Thêm vài thẻ đầu tiên để bắt đầu ôn. Thẻ mới có thể ôn ngay trong hôm nay.</string>
+    <string name="deck_detail_empty_capture">Chụp ghi chú để AI tạo thẻ</string>
+    <string name="deck_detail_error_title">Không tải được bộ thẻ</string>
+    <string name="deck_detail_not_found_message">Bộ thẻ này có thể đã bị xoá.</string>
+    <string name="deck_detail_delete_card_title">Xoá thẻ này?</string>
+    <string name="deck_detail_delete_card_message">Thẻ và lịch ôn của nó sẽ bị xoá khỏi bộ thẻ.</string>
+    <string name="deck_detail_card_deleted">Đã xoá thẻ.</string>
+    <string name="deck_detail_delete_deck">Xoá bộ thẻ</string>
+    <!-- %s = tên bộ thẻ -->
+    <string name="deck_detail_delete_deck_title">Xoá bộ thẻ “%s”?</string>
+    <string name="deck_detail_delete_deck_message">Tất cả thẻ trong bộ này cũng sẽ bị xoá. Thao tác này không hoàn tác được.</string>
+    <string name="deck_detail_deck_deleted">Đã xoá bộ thẻ.</string>
+
     <!-- create_deck — bottom sheet tạo bộ thẻ -->
     <string name="create_deck_title">Tạo bộ thẻ mới</string>
     <string name="create_deck_name_label">Tên bộ thẻ</string>
