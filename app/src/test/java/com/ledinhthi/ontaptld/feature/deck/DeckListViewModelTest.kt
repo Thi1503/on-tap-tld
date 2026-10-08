@@ -14,6 +14,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckSummariesUs
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListEffect
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListViewModel
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
+import com.ledinhthi.ontaptld.navigation.ReviewRoute
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -124,6 +125,15 @@ class DeckListViewModelTest {
         advanceUntilIdle()
 
         verify(exactly = 0) { navigator.to(any()) }
+    }
+
+    @Test
+    fun `bam On ngay - mo phien on cho moi bo the`() = runTest {
+        every { observeDecks.invoke() } returns flowOf(emptyList())
+
+        viewModel().onReviewClick()
+
+        verify { navigator.to(ReviewRoute(deckId = null)) }
     }
 
     @Test

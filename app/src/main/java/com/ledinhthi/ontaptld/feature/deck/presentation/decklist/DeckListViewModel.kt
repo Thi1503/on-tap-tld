@@ -11,6 +11,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckSummariesUs
 import com.ledinhthi.ontaptld.feature.deck.presentation.displayMessage
 import com.ledinhthi.ontaptld.navigation.DeckDetailRoute
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
+import com.ledinhthi.ontaptld.navigation.ReviewRoute
 import com.ledinhthi.ontaptld.navigation.SettingsRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -110,8 +111,10 @@ class DeckListViewModel @Inject constructor(
 
     fun onSettingsClick() = navigator.to(SettingsRoute)
 
-    // Ôn tập và chụp ghi chú thuộc bước 3 và 4 của docs/KE_HOACH_PHAT_TRIEN.md.
-    fun onReviewClick() = showComingSoon()
+    /** "Ôn ngay" trên Home: ôn mọi thẻ đến hạn, không giới hạn theo bộ. */
+    fun onReviewClick() = navigator.to(ReviewRoute())
+
+    // Chụp ghi chú thuộc bước 4 của docs/KE_HOACH_PHAT_TRIEN.md.
     fun onCaptureClick() = showComingSoon()
 
     private fun showComingSoon() =

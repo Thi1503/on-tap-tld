@@ -74,8 +74,8 @@ Home + bảng tạo bộ thẻ xong ngày 7/10/2026, **đã nằm trong `dev`** 
 không qua pull request do nhánh `feat/deck-ui` bị gắn nhầm với `origin/dev` — xem Mục 6.2).
 Chi tiết bộ thẻ xong ngày 8/10/2026, đã vào `dev` qua pull request #7 (nhánh `feat/deck-detail`).
 Thêm / sửa thẻ thủ công xong ngày 8/10/2026, đã vào `dev` qua pull request #8 (`feat/manual-card`).
-Splash code xong ngày 8/10/2026 trên nhánh `feat/splash` (chưa commit) — chờ Thi xem. Phần việc
-của Claude ở bước 2 đến đây là hết.
+Splash xong ngày 8/10/2026, đã vào `dev` qua pull request #9 (`feat/splash`). Phần việc của Claude
+ở bước 2 đến đây là hết.
 
 **Claude**
 - [x] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ; đủ trạng thái rỗng / đang tải (skeleton) / lỗi
@@ -111,10 +111,27 @@ của Claude ở bước 2 đến đây là hết.
 
 ### Bước 3 — Ôn tập
 
+Code xong ngày 8/10/2026 trên nhánh `feat/review` (chưa commit) — chờ Thi chạy thử.
+
 **Claude**
-- [ ] Màn câu hỏi, màn đáp án + 4 mức (Quên / Khó / Dễ / Rất dễ), màn hoàn thành phiên
-- [ ] Lấy thẻ đến hạn theo toàn bộ hoặc theo từng bộ thẻ
-- [ ] Unit test cho luồng ôn
+- [x] Màn câu hỏi, màn đáp án + 4 mức (Quên / Khó / Dễ / Rất dễ), màn hoàn thành phiên
+- [x] Lấy thẻ đến hạn theo toàn bộ hoặc theo từng bộ thẻ
+- [x] Unit test cho luồng ôn
+
+> **Cách phiên ôn hoạt động (những chỗ design không nói):**
+> - Cả phiên là MỘT route (`ReviewRoute`), một ViewModel, đi qua các chặng trong `ReviewPhase`.
+>   "Ôn ngay" ở Home mở `ReviewRoute()`; "Ôn N thẻ" ở Chi tiết bộ thẻ mở `ReviewRoute(deckId)`.
+> - Hàng thẻ được chụp MỘT LẦN lúc mở phiên (thẻ hẹn sớm nhất trước), không nghe database.
+> - Mỗi lần chấm được lưu ngay (SM-2 + một dòng `review_logs`), nên thoát giữa phiên không mất
+>   gì và không cần hỏi lại.
+> - "Ôn lại N thẻ đã quên" mở lượt mới gồm các thẻ vừa chấm Quên; chấm ở lượt này VẪN được ghi
+>   nhận như bình thường (tính lại SM-2, thêm dòng lịch sử).
+> - "Lịch ôn tiếp theo" gom 3 nhóm: ngày mai / 2–13 ngày (ghi "Sau N ngày" nếu cả nhóm cùng số
+>   ngày, không thì "Trong 2 tuần tới") / từ 2 tuần trở lên. Nhóm trống thì ẩn.
+> - "Về trang chủ" xoá hết chồng màn rồi mở Home (`replaceAll` đã sửa để làm đúng việc này).
+> - Nút bút chì ở mặt câu hỏi mở màn sửa thẻ; quay lại thì nội dung thẻ đang ôn được nạp lại.
+> - CHƯA làm (thuộc bước 4): dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi
+>   chú ở mặt đáp án — hiện chỉ có badge nguồn AI / Thủ công. Lật thẻ chưa có hoạt ảnh.
 
 **Thi**
 - [ ] Chạy thử một phiên ôn đầy đủ
@@ -229,17 +246,17 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 Bước 2 đã code xong cả ba màn còn lại (Chi tiết bộ thẻ, Thêm / sửa thẻ thủ công, Splash); Splash
 đang ở nhánh `feat/splash` chờ Thi xem và merge.
 
-Tiếp theo là **bước 3 — Ôn tập**, trên nhánh mới tách từ `dev` sau khi Splash đã merge:
+**Bước 3 — Ôn tập** đã code xong trên nhánh `feat/review` (xem ghi chú ở Mục 2), chờ Thi chạy thử
+một phiên ôn đầy đủ rồi merge.
 
-1. Màn câu hỏi, màn đáp án với 4 mức đánh giá (hiện mô tả, không hiện số ngày — xem Mục 4), màn
-   hoàn thành phiên. Artboard: `ReviewQuestion`, `ReviewAnswer`, `ReviewDone`.
-2. Lấy thẻ đến hạn theo toàn bộ hoặc theo từng bộ thẻ, dùng chung mốc `dueCutoffMillis`; ghi lịch
-   sử vào `review_logs`.
-3. Nối nút "Ôn ngay" (Home) và "Ôn N thẻ" (Chi tiết bộ thẻ) — hiện đang báo "sắp có".
-4. Với mỗi màn: chuỗi vi / en, unit test cho ViewModel, chụp emulator so với design, cập nhật
-   checkbox ở Mục 2.
+Tiếp theo là **bước 4 — Chụp ảnh + AI**, trên nhánh mới tách từ `dev` sau khi bước 3 đã merge. Đây
+là bước đầu tiên cần Firebase thật (AI Logic + App Check) và quyền camera, nên trước khi code cần
+Thi xác nhận: debug token App Check đã đăng ký chưa (việc còn mở ở bước 1), và thử trên emulator
+hay máy thật. Thứ tự dự kiến: CameraX + crop → OCR (ML Kit) + màn sửa văn bản → gọi Gemini + màn
+"đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
+phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
 
-Nút "Chụp ghi chú" / "Chụp ảnh" vẫn báo "sắp có" cho tới bước 4.
+Nút "Chụp ghi chú" / "Chụp ảnh" vẫn báo "sắp có" cho tới khi đó.
 
 ### 6.2 Cách phối hợp
 
