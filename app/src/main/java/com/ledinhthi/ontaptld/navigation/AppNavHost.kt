@@ -1,5 +1,6 @@
 package com.ledinhthi.ontaptld.navigation
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
@@ -14,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,6 +26,7 @@ import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
+import com.ledinhthi.ontaptld.feature.review.presentation.ReviewScreen
 import com.ledinhthi.ontaptld.feature.settings.SettingsScreen
 import com.ledinhthi.ontaptld.feature.splash.SplashScreen
 
@@ -42,8 +43,10 @@ fun AppNavHost(navigator: AppNavigator) {
                 launchSingleTop = intent.singleTop
             }
 
+            // Xoá HẾT các màn đang xếp chồng rồi mới mở màn mới. Dùng id của cả đồ thị (thay vì
+            // màn bắt đầu) vì Splash — màn bắt đầu — đã bị gỡ khỏi chồng ngay sau khi vào Home.
             is NavIntent.ReplaceAll -> navController.navigate(intent.route) {
-                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                popUpTo(navController.graph.id) { inclusive = true }
             }
 
             NavIntent.Back -> navController.popBackStack()
@@ -56,7 +59,12 @@ fun AppNavHost(navigator: AppNavigator) {
         NavHost(
             navController = navController,
             startDestination = SplashRoute,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                // Báo cho các màn bên trong biết phần thanh hệ thống đã được chừa ở đây rồi. Nhờ
+                // vậy màn nào dùng `imePadding()` (né bàn phím) chỉ cộng thêm đúng phần chênh,
+                // không chừa thanh điều hướng lần thứ hai.
+                .consumeWindowInsets(innerPadding),
         ) {
             composable<SplashRoute> { SplashScreen() }
             // Màn Login email/mật khẩu cũ đã gỡ khỏi luồng — đăng nhập Google (tuỳ chọn, từ
@@ -65,10 +73,8 @@ fun AppNavHost(navigator: AppNavigator) {
             composable<DeckDetailRoute> { DeckDetailScreen() }
             composable<ManualCardRoute> { ManualCardScreen() }
             composable<SettingsRoute> { SettingsScreen() }
-            // composable<CaptureRoute> { CaptureScreen() }        // Sprint 1 tuần 2
-            // composable<ReviewRoute>(                             // Sprint 1 tuần 3
-            //     deepLinks = listOf(navDeepLink { uriPattern = "ontaptld://review" }),
-            // ) { ReviewScreen() }
+            composable<ReviewRoute> { ReviewScreen() }
+            // composable<CaptureRoute> { CaptureScreen() }        // bước 4
         }
     }
 

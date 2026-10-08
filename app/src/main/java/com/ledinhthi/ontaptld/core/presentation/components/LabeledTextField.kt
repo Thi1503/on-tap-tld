@@ -56,7 +56,11 @@ fun LabeledTextField(
         }
         OutlinedTextField(
             value = value,
-            onValueChange = { if (maxLength == null || it.length <= maxLength) onValueChange(it) },
+            // Chặn gõ vượt [maxLength], nhưng luôn cho XOÁ BỚT: nội dung có sẵn dài quá giới hạn
+            // (vd thẻ do AI tạo) vẫn phải sửa ngắn lại được.
+            onValueChange = {
+                if (maxLength == null || it.length <= maxLength || it.length < value.length) onValueChange(it)
+            },
             modifier = fieldModifier
                 .fillMaxWidth()
                 // Nhãn nằm ngoài TextField nên phải gắn lại để trình đọc màn hình đọc đúng tên ô.

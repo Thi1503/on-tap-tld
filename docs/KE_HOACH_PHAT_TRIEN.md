@@ -72,16 +72,32 @@ Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — ch�
 
 Home + bảng tạo bộ thẻ xong ngày 7/10/2026, **đã nằm trong `dev`** (commit `d81249c`, vào thẳng `dev`
 không qua pull request do nhánh `feat/deck-ui` bị gắn nhầm với `origin/dev` — xem Mục 6.2).
-Phần còn lại của bước 2 làm trên nhánh mới `feat/deck-detail` tách từ `dev`. Thi chưa xác nhận
-"làm tiếp" sau khi xem ảnh Home.
+Chi tiết bộ thẻ xong ngày 8/10/2026, đã vào `dev` qua pull request #7 (nhánh `feat/deck-detail`).
+Thêm / sửa thẻ thủ công xong ngày 8/10/2026, đã vào `dev` qua pull request #8 (`feat/manual-card`).
+Splash xong ngày 8/10/2026, đã vào `dev` qua pull request #9 (`feat/splash`). Phần việc của Claude
+ở bước 2 đến đây là hết.
 
 **Claude**
 - [x] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ; đủ trạng thái rỗng / đang tải (skeleton) / lỗi
-- [ ] Chi tiết bộ thẻ: thống kê, lọc Tất cả / Thủ công / AI, vuốt để sửa / xoá
-- [ ] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
+- [x] Chi tiết bộ thẻ: thống kê, lọc Tất cả / Thủ công / AI, vuốt để sửa / xoá
+- [x] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
 - [x] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
-- [ ] Splash theo design
-- [ ] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách (Home đã có; còn Chi tiết bộ thẻ)
+- [x] Splash theo design (màn chào giữ tối thiểu 0,8 giây rồi vào Home; màu cửa sổ lúc khởi động trùng nền Splash)
+- [x] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách (Home, Chi tiết bộ thẻ)
+
+> **Chi tiết bộ thẻ — những chỗ design không vẽ:** nút ⋮ mở menu chỉ có "Xoá bộ thẻ" (xoá luôn
+> các thẻ bên trong, trong một transaction); xoá thẻ và xoá bộ thẻ đều hỏi lại; **chạm vào thẻ =
+> mở thẳng màn sửa thẻ** (Thi chốt 8/10/2026 — không có màn / bảng "chi tiết thẻ" riêng), chỉ
+> vuốt mới lộ Sửa / Xoá; đổi chip lọc thì danh sách về đầu và không chạy hoạt ảnh; "Thẻ mới" =
+> thẻ chưa ôn lần nào; nhãn "Có ảnh nguồn" chỉ hiện khi thẻ AI có `noteId`.
+>
+> **Thêm / sửa thẻ — những chỗ design không vẽ:** một màn cho hai chế độ, route có `cardId` là
+> SỬA. Khi sửa: tiêu đề "Sửa thẻ", nút "Lưu thay đổi", ô Bộ thẻ chỉ để xem (chưa cho chuyển thẻ
+> sang bộ khác), ẩn ô tick và dòng nhắc, badge theo nguồn thẻ (AI / Thủ công). Khi thêm với ô
+> tick bật: lưu xong ở lại màn, xoá trắng hai ô, con trỏ về ô Câu hỏi, dòng nhắc đổi thành "Đã
+> lưu N thẻ" (không dùng snackbar vì nó nằm sau bàn phím / đè nút Lưu). Nút Lưu chỉ bật khi cả
+> hai ô có chữ. Thi chốt 8/10/2026: top bar dùng mũi tên ← thay nút ✕ của design; rời màn (nút
+> ← hoặc Back hệ thống) khi còn nội dung chưa lưu thì hỏi "Bỏ nội dung chưa lưu?".
 
 > **Quy ước "cần ôn hôm nay":** thẻ được tính là đến hạn nếu `dueDate` rơi vào bất kỳ lúc nào trong
 > hôm nay (tới 23:59), không phải chỉ khi đã qua đúng giờ hẹn — xem `core/domain/util/DueCutoff.kt`.
@@ -95,10 +111,27 @@ Phần còn lại của bước 2 làm trên nhánh mới `feat/deck-detail` tá
 
 ### Bước 3 — Ôn tập
 
+Code xong ngày 8/10/2026 trên nhánh `feat/review` (chưa commit) — chờ Thi chạy thử.
+
 **Claude**
-- [ ] Màn câu hỏi, màn đáp án + 4 mức (Quên / Khó / Dễ / Rất dễ), màn hoàn thành phiên
-- [ ] Lấy thẻ đến hạn theo toàn bộ hoặc theo từng bộ thẻ
-- [ ] Unit test cho luồng ôn
+- [x] Màn câu hỏi, màn đáp án + 4 mức (Quên / Khó / Dễ / Rất dễ), màn hoàn thành phiên
+- [x] Lấy thẻ đến hạn theo toàn bộ hoặc theo từng bộ thẻ
+- [x] Unit test cho luồng ôn
+
+> **Cách phiên ôn hoạt động (những chỗ design không nói):**
+> - Cả phiên là MỘT route (`ReviewRoute`), một ViewModel, đi qua các chặng trong `ReviewPhase`.
+>   "Ôn ngay" ở Home mở `ReviewRoute()`; "Ôn N thẻ" ở Chi tiết bộ thẻ mở `ReviewRoute(deckId)`.
+> - Hàng thẻ được chụp MỘT LẦN lúc mở phiên (thẻ hẹn sớm nhất trước), không nghe database.
+> - Mỗi lần chấm được lưu ngay (SM-2 + một dòng `review_logs`), nên thoát giữa phiên không mất
+>   gì và không cần hỏi lại.
+> - "Ôn lại N thẻ đã quên" mở lượt mới gồm các thẻ vừa chấm Quên; chấm ở lượt này VẪN được ghi
+>   nhận như bình thường (tính lại SM-2, thêm dòng lịch sử).
+> - "Lịch ôn tiếp theo" gom 3 nhóm: ngày mai / 2–13 ngày (ghi "Sau N ngày" nếu cả nhóm cùng số
+>   ngày, không thì "Trong 2 tuần tới") / từ 2 tuần trở lên. Nhóm trống thì ẩn.
+> - "Về trang chủ" xoá hết chồng màn rồi mở Home (`replaceAll` đã sửa để làm đúng việc này).
+> - Nút bút chì ở mặt câu hỏi mở màn sửa thẻ; quay lại thì nội dung thẻ đang ôn được nạp lại.
+> - CHƯA làm (thuộc bước 4): dòng "Trích từ ghi chú chụp…", nút "Xem cả ảnh" và đoạn trích ghi
+>   chú ở mặt đáp án — hiện chỉ có badge nguồn AI / Thủ công. Lật thẻ chưa có hoạt ảnh.
 
 **Thi**
 - [ ] Chạy thử một phiên ôn đầy đủ
@@ -184,6 +217,8 @@ Phần còn lại của bước 2 làm trên nhánh mới `feat/deck-detail` tá
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
 
 - Home, thẻ "Cần ôn hôm nay": chú giải dùng tên thật của bộ thẻ nên tên dài bị cắt bằng "…" (design dùng tên ngắn). Chờ Thi quyết: giữ một dòng hay cho xuống hai dòng.
+- Icon ứng dụng vẫn là robot Android mặc định. Trên Android 12+ hệ thống tự hiện icon này vài giây lúc khởi động nguội, TRƯỚC màn Splash của app, nên người dùng thấy robot xanh rồi mới tới logo "TLD". Cần bộ icon launcher riêng (và có thể đặt nó làm icon màn chào hệ thống) — chờ Thi quyết làm lúc nào.
+- Chi tiết bộ thẻ: menu ⋮ có thêm "Đổi tên / đổi màu bộ thẻ" không. Sửa thẻ: có cho chuyển thẻ sang bộ khác không (hiện ô Bộ thẻ bị khoá). Dải thanh trạng thái / dải dưới thanh đáy có cho trùng màu top bar / thanh đáy không.
 
 ### Ký phát hành — CHƯA LÀM (tại ngày chốt)
 
@@ -208,21 +243,20 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 
 ### 6.1 Việc tiếp theo
 
-Phần còn lại của **bước 2**, theo thứ tự:
+Bước 2 đã code xong cả ba màn còn lại (Chi tiết bộ thẻ, Thêm / sửa thẻ thủ công, Splash); Splash
+đang ở nhánh `feat/splash` chờ Thi xem và merge.
 
-1. **Chi tiết bộ thẻ** (`feature/deck/presentation/deckdetail/`, hiện là UI tạm): top bar có chấm
-   màu + tên bộ thẻ + nút ⋮; dải 3 số (tổng thẻ / cần ôn hôm nay / thẻ mới) + nút "Ôn N thẻ";
-   chip lọc Tất cả / Thủ công / AI; danh sách thẻ có badge nguồn và hạn ôn; vuốt để Sửa / Xoá;
-   thanh đáy "Chụp ảnh" + "Thêm thẻ"; trạng thái rỗng / đang tải / lỗi.
-   Artboard: `DeckDetail`, `DeckEmpty`.
-2. **Thêm / sửa thẻ thủ công** (`.../manualcard/`, hiện là UI tạm): chọn bộ thẻ, ô Câu hỏi / Câu
-   trả lời có bộ đếm 250 ký tự, ô tick "Lưu xong thêm thẻ tiếp", dòng nhắc "thẻ mới ôn được ngay".
-   Cùng màn này dùng cho SỬA thẻ (đã có `EditFlashcardUseCase`). Artboard: `ManualCard`.
-3. **Splash** theo design (logo + tên + khẩu hiệu). Artboard: `Splash`.
-4. Chuyển chuỗi của các màn trên vào `strings.xml` (vi / en), thêm unit test cho ViewModel,
-   chụp emulator so với design, cập nhật checkbox ở Mục 2.
+**Bước 3 — Ôn tập** đã code xong trên nhánh `feat/review` (xem ghi chú ở Mục 2), chờ Thi chạy thử
+một phiên ôn đầy đủ rồi merge.
 
-Sau đó là bước 3 (ôn tập). Nút "Ôn ngay" và "Chụp ghi chú" trên Home hiện báo "sắp có".
+Tiếp theo là **bước 4 — Chụp ảnh + AI**, trên nhánh mới tách từ `dev` sau khi bước 3 đã merge. Đây
+là bước đầu tiên cần Firebase thật (AI Logic + App Check) và quyền camera, nên trước khi code cần
+Thi xác nhận: debug token App Check đã đăng ký chưa (việc còn mở ở bước 1), và thử trên emulator
+hay máy thật. Thứ tự dự kiến: CameraX + crop → OCR (ML Kit) + màn sửa văn bản → gọi Gemini + màn
+"đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
+phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
+
+Nút "Chụp ghi chú" / "Chụp ảnh" vẫn báo "sắp có" cho tới khi đó.
 
 ### 6.2 Cách phối hợp
 

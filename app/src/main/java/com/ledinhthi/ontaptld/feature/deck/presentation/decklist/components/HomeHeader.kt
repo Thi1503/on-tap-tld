@@ -24,7 +24,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ledinhthi.ontaptld.R
@@ -87,25 +90,29 @@ fun HomeHeader(onSettingsClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/** Ô logo vuông bo góc "TLD" — cũng dùng ở Splash. Thuần trang trí với trình đọc màn hình. */
+/**
+ * Ô logo vuông bo góc "TLD". Mặc định là cỡ nhỏ ở đầu trang Home; Splash truyền [size], [shape],
+ * [textStyle] lớn hơn. Thuần trang trí với trình đọc màn hình.
+ */
 @Composable
-fun AppLogoTile(modifier: Modifier = Modifier) {
+fun AppLogoTile(
+    modifier: Modifier = Modifier,
+    size: Dp = 44.dp,
+    shape: Shape = MaterialTheme.shapes.medium,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall.copy(
+        fontWeight = FontWeight.W800,
+        letterSpacing = 0.5.sp,
+    ),
+) {
     val colors = appColors()
     Box(
         modifier = modifier
-            .size(44.dp)
-            .background(colors.primary, MaterialTheme.shapes.medium)
+            .size(size)
+            .background(colors.primary, shape)
             .clearAndSetSemantics { },
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = "TLD",
-            style = MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.W800,
-                letterSpacing = 0.5.sp,
-            ),
-            color = colors.textOnAccent,
-        )
+        Text(text = "TLD", style = textStyle, color = colors.textOnAccent)
     }
 }
 

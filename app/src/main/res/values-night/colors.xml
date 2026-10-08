@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Thư mục "values-night" được Android tự chọn khi máy đang ở chế độ tối. -->
+    <color name="window_background">#FF111214</color>
+</resources>
