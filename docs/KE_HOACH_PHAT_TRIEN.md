@@ -73,15 +73,16 @@ Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — ch�
 Home + bảng tạo bộ thẻ xong ngày 7/10/2026, **đã nằm trong `dev`** (commit `d81249c`, vào thẳng `dev`
 không qua pull request do nhánh `feat/deck-ui` bị gắn nhầm với `origin/dev` — xem Mục 6.2).
 Chi tiết bộ thẻ xong ngày 8/10/2026, đã vào `dev` qua pull request #7 (nhánh `feat/deck-detail`).
-Thêm / sửa thẻ thủ công code xong ngày 8/10/2026 trên nhánh `feat/manual-card` (chưa commit) —
-chờ Thi xem ảnh rồi mới làm Splash.
+Thêm / sửa thẻ thủ công xong ngày 8/10/2026, đã vào `dev` qua pull request #8 (`feat/manual-card`).
+Splash code xong ngày 8/10/2026 trên nhánh `feat/splash` (chưa commit) — chờ Thi xem. Phần việc
+của Claude ở bước 2 đến đây là hết.
 
 **Claude**
 - [x] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ; đủ trạng thái rỗng / đang tải (skeleton) / lỗi
 - [x] Chi tiết bộ thẻ: thống kê, lọc Tất cả / Thủ công / AI, vuốt để sửa / xoá
 - [x] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
 - [x] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
-- [ ] Splash theo design
+- [x] Splash theo design (màn chào giữ tối thiểu 0,8 giây rồi vào Home; màu cửa sổ lúc khởi động trùng nền Splash)
 - [x] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách (Home, Chi tiết bộ thẻ)
 
 > **Chi tiết bộ thẻ — những chỗ design không vẽ:** nút ⋮ mở menu chỉ có "Xoá bộ thẻ" (xoá luôn
@@ -199,6 +200,8 @@ chờ Thi xem ảnh rồi mới làm Splash.
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
 
 - Home, thẻ "Cần ôn hôm nay": chú giải dùng tên thật của bộ thẻ nên tên dài bị cắt bằng "…" (design dùng tên ngắn). Chờ Thi quyết: giữ một dòng hay cho xuống hai dòng.
+- Icon ứng dụng vẫn là robot Android mặc định. Trên Android 12+ hệ thống tự hiện icon này vài giây lúc khởi động nguội, TRƯỚC màn Splash của app, nên người dùng thấy robot xanh rồi mới tới logo "TLD". Cần bộ icon launcher riêng (và có thể đặt nó làm icon màn chào hệ thống) — chờ Thi quyết làm lúc nào.
+- Chi tiết bộ thẻ: menu ⋮ có thêm "Đổi tên / đổi màu bộ thẻ" không. Sửa thẻ: có cho chuyển thẻ sang bộ khác không (hiện ô Bộ thẻ bị khoá). Dải thanh trạng thái / dải dưới thanh đáy có cho trùng màu top bar / thanh đáy không.
 
 ### Ký phát hành — CHƯA LÀM (tại ngày chốt)
 
@@ -223,16 +226,20 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 
 ### 6.1 Việc tiếp theo
 
-Phần còn lại của **bước 2**, theo thứ tự:
+Bước 2 đã code xong cả ba màn còn lại (Chi tiết bộ thẻ, Thêm / sửa thẻ thủ công, Splash); Splash
+đang ở nhánh `feat/splash` chờ Thi xem và merge.
 
-1. ~~Chi tiết bộ thẻ~~ — xong, đã vào `dev` (pull request #7).
-2. ~~Thêm / sửa thẻ thủ công~~ — xong ngày 8/10/2026 trên nhánh `feat/manual-card` (chuỗi vi / en
-   và unit test đã kèm theo), chờ Thi xem.
-3. **Splash** theo design (logo + tên + khẩu hiệu). Artboard: `Splash`.
-4. Với mỗi màn: chuyển chuỗi vào `strings.xml` (vi / en), thêm unit test cho ViewModel, chụp
-   emulator so với design, cập nhật checkbox ở Mục 2.
+Tiếp theo là **bước 3 — Ôn tập**, trên nhánh mới tách từ `dev` sau khi Splash đã merge:
 
-Sau đó là bước 3 (ôn tập). Nút "Ôn ngay" và "Chụp ghi chú" trên Home hiện báo "sắp có".
+1. Màn câu hỏi, màn đáp án với 4 mức đánh giá (hiện mô tả, không hiện số ngày — xem Mục 4), màn
+   hoàn thành phiên. Artboard: `ReviewQuestion`, `ReviewAnswer`, `ReviewDone`.
+2. Lấy thẻ đến hạn theo toàn bộ hoặc theo từng bộ thẻ, dùng chung mốc `dueCutoffMillis`; ghi lịch
+   sử vào `review_logs`.
+3. Nối nút "Ôn ngay" (Home) và "Ôn N thẻ" (Chi tiết bộ thẻ) — hiện đang báo "sắp có".
+4. Với mỗi màn: chuỗi vi / en, unit test cho ViewModel, chụp emulator so với design, cập nhật
+   checkbox ở Mục 2.
+
+Nút "Chụp ghi chú" / "Chụp ảnh" vẫn báo "sắp có" cho tới bước 4.
 
 ### 6.2 Cách phối hợp
 

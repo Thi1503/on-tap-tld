@@ -25,6 +25,10 @@
         <item quantity="other">%d bộ</item>
     </plurals>
 
+    <!-- splash — feature/splash -->
+    <string name="splash_tagline">Ghi chú &amp; ôn tập bằng AI</string>
+    <string name="splash_footer">Thẻ của bạn được lưu ngay trên máy</string>
+
     <!-- home — feature/deck/presentation/decklist -->
     <string name="app_display_name" translatable="false">On Tap TLD</string>
     <string name="home_settings">Cài đặt</string>
