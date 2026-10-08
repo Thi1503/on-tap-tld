@@ -32,6 +32,14 @@ interface AppPreferences {
     suspend fun setReminderEnabled(enabled: Boolean)
     suspend fun setReminderTime(hour: Int, minute: Int)
 
+    /**
+     * Mã ngôn ngữ người dùng chọn ở màn Ngôn ngữ ("vi" / "en"); null = chưa chọn, theo máy.
+     * Chỉ là BẢN SAO cho việc nền đọc khi app đang đóng (thông báo nhắc ôn) — nơi giữ lựa chọn
+     * chính thức vẫn là hệ thống, xem AppCompatLanguageManager.
+     */
+    val languageTag: Flow<String?>
+    suspend fun setLanguageTag(tag: String)
+
     // ---- Sprint 2 ----
     val lastSyncAtMillis: Flow<Long>
     suspend fun setLastSyncAt(millis: Long)

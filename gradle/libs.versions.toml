@@ -25,6 +25,7 @@ firebaseBom = "34.3.0"
 googleServices = "4.4.3"
 camerax = "1.5.3"                 # bước 4: chụp ghi chú
 exifinterface = "1.4.2"           # đọc hướng xoay của ảnh chụp / ảnh chọn từ thư viện
+work = "2.11.0"                   # bước 5: hẹn giờ nhắc ôn hằng ngày
 mlkitTextRecognition = "16.0.1"  # nhận dạng chữ Latin (đủ cho tiếng Việt có dấu)
 # test
 turbine = "1.2.1"
@@ -82,6 +83,9 @@ androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterfa
 
 # ML Kit — nhận dạng chữ (bản gói kèm app: mô hình nằm sẵn trong APK, không cần mạng)
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
+
+# WorkManager — việc nền chạy được cả khi app đang đóng (nhắc ôn hằng ngày)
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 
 # Misc
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
