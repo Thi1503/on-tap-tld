@@ -70,13 +70,22 @@ Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — ch�
 
 ### Bước 2 — Bộ thẻ
 
+Đang làm trên nhánh `feat/deck-ui` (tách từ `dev`), chưa commit. Home xong ngày 7/10/2026 — chờ Thi xem ảnh rồi làm tiếp các màn còn lại.
+
 **Claude**
-- [ ] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ
+- [x] Home: thẻ "Cần ôn hôm nay", hai lối tạo thẻ (chụp ghi chú / gõ tay), danh sách bộ thẻ; đủ trạng thái rỗng / đang tải (skeleton) / lỗi
 - [ ] Chi tiết bộ thẻ: thống kê, lọc Tất cả / Thủ công / AI, vuốt để sửa / xoá
 - [ ] Thêm / sửa thẻ thủ công (có "lưu xong thêm thẻ tiếp")
-- [ ] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
+- [x] Tạo bộ thẻ: bottom sheet tên + màu nhận diện
 - [ ] Splash theo design
-- [ ] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách
+- [ ] Đủ 3 trạng thái Empty / Loading / Error cho mọi màn danh sách (Home đã có; còn Chi tiết bộ thẻ)
+
+> **Quy ước "cần ôn hôm nay":** thẻ được tính là đến hạn nếu `dueDate` rơi vào bất kỳ lúc nào trong
+> hôm nay (tới 23:59), không phải chỉ khi đã qua đúng giờ hẹn — xem `core/domain/util/DueCutoff.kt`.
+> Home, Ôn tập và Widget phải dùng chung mốc này để con số khớp nhau.
+>
+> **Dữ liệu mẫu để chụp màn hình / demo:** `androidTest/.../tools/DemoDataSeeder.kt` nạp 4 bộ thẻ
+> giống bản design vào bản debug (chỉ chạy khi gọi tường minh, không ghi đè dữ liệu đang có).
 
 **Thi**
 - [ ] Chạy thử trên máy, so với design, báo chỗ lệch

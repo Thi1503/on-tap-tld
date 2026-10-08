@@ -19,6 +19,8 @@ interface StringProvider {
 class AndroidStringProvider @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : StringProvider {
+    // `vararg args` nhận số lượng tham số tuỳ ý (để điền vào %1$s, %2$d… trong chuỗi);
+    // dấu `*` trước `args` "trải" mảng đó ra thành từng tham số khi gọi tiếp hàm khác.
     override fun get(id: Int, vararg args: Any): String =
         if (args.isEmpty()) context.getString(id) else context.getString(id, *args)
 }

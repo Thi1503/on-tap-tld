@@ -128,6 +128,7 @@ fun ErrorState(
     retryText: String = stringResource(R.string.common_retry),
 ) = StateMessage(
     title = title,
+    // liveRegion: trình đọc màn hình tự đọc to thông báo này ngay khi nó hiện ra.
     modifier = modifier.semantics { liveRegion = LiveRegionMode.Assertive },
     message = message,
     icon = R.drawable.ic_warning,
@@ -159,6 +160,7 @@ fun SkeletonBlock(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(AppDimens.radius8),
 ) {
+    // Hoạt ảnh lặp vô hạn: độ mờ chạy qua lại giữa 1 và 0.45, mỗi chiều 0,9 giây -> nhấp nháy nhẹ.
     val transition = rememberInfiniteTransition(label = "skeleton")
     val alpha by transition.animateFloat(
         initialValue = 1f,

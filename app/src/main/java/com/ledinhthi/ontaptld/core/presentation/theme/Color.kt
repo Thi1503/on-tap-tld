@@ -180,6 +180,8 @@ object AppPalette {
  * [AppPalette] nếu sau này cần thêm token mới).
  */
 data class AppExtendedColors(
+    /** true ở dark theme — cho những nơi phải tự suy màu (vd màu riêng của từng bộ thẻ). */
+    val isDark: Boolean,
     val textPrimary: Color,
     /** Chữ phụ nhưng cần đậm hơn [textSecondary] (nhãn trong badge xám, icon trên nền trắng). */
     val textStrong: Color,
@@ -233,6 +235,7 @@ data class AppExtendedColors(
 )
 
 val LightAppExtendedColors = AppExtendedColors(
+    isDark = false,
     textPrimary = AppPalette.GrayLight1,
     textStrong = AppPalette.GrayLight2,
     textSecondary = AppPalette.GrayLight3,
@@ -281,6 +284,7 @@ val LightAppExtendedColors = AppExtendedColors(
 )
 
 val DarkAppExtendedColors = AppExtendedColors(
+    isDark = true,
     textPrimary = AppPalette.White,
     textStrong = AppPalette.GrayLight7,
     textSecondary = AppPalette.GrayDark2,

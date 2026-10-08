@@ -12,6 +12,72 @@
     <string name="common_save">Lưu</string>
     <string name="common_delete">Xoá</string>
     <string name="common_edit">Sửa</string>
+    <string name="common_coming_soon">Tính năng này sắp có.</string>
+    <string name="common_loading">Đang tải…</string>
+    <!-- Tiếng Việt không chia số ít/nhiều nên chỉ cần "other"; bản tiếng Anh có đủ "one". -->
+    <plurals name="common_cards">
+        <item quantity="other">%d thẻ</item>
+    </plurals>
+    <plurals name="common_card_unit">
+        <item quantity="other">thẻ</item>
+    </plurals>
+    <plurals name="common_decks">
+        <item quantity="other">%d bộ</item>
+    </plurals>
+
+    <!-- home — feature/deck/presentation/decklist -->
+    <string name="app_display_name" translatable="false">On Tap TLD</string>
+    <string name="home_settings">Cài đặt</string>
+    <!-- Mẫu định dạng ngày của java.time (không phải câu chữ): "Thứ Tư, 7 tháng 10" -->
+    <string name="home_date_pattern">EEEE, d \'tháng\' M</string>
+    <string name="home_due_label">Cần ôn hôm nay</string>
+    <plurals name="home_due_in_decks">
+        <item quantity="other">trong %d bộ thẻ</item>
+    </plurals>
+    <string name="home_review_now">Ôn ngay</string>
+    <string name="home_all_done">Đã ôn xong</string>
+    <string name="home_legend_other">Khác</string>
+    <string name="home_action_capture_title">Chụp ghi chú</string>
+    <string name="home_action_capture_subtitle">AI tạo thẻ từ ảnh</string>
+    <string name="home_action_manual_title">Gõ thẻ mới</string>
+    <string name="home_action_manual_subtitle">Thêm thủ công, không cần mạng</string>
+    <string name="home_decks_title">Bộ thẻ của bạn</string>
+    <!-- %1$s = "4 bộ", %2$s = "316 thẻ" -->
+    <string name="home_decks_summary">%1$s · %2$s</string>
+    <string name="home_new_deck">Bộ mới</string>
+    <string name="home_empty_title">Chưa có bộ thẻ nào</string>
+    <string name="home_empty_message">Chụp một trang ghi chú để AI gợi ý thẻ ôn tập, hoặc tự gõ thẻ đầu tiên. Mọi thứ lưu ngay trên máy.</string>
+    <string name="home_empty_capture">Chụp ghi chú đầu tiên</string>
+    <string name="home_empty_manual">Gõ thẻ thủ công</string>
+    <string name="home_how_title">Cách hoạt động</string>
+    <string name="home_how_step1">Chụp ảnh vở, sách hoặc slide</string>
+    <string name="home_how_step2">Duyệt các thẻ AI đề xuất trước khi lưu</string>
+    <string name="home_how_step3">Ôn vài phút mỗi ngày, app tự xếp lịch</string>
+    <string name="home_error_title">Không tải được danh sách bộ thẻ</string>
+    <string name="home_error_message">Đã có lỗi khi đọc dữ liệu trên máy. Hãy thử tải lại.</string>
+
+    <!-- deck — dùng chung cho các màn bộ thẻ -->
+    <plurals name="deck_due_count">
+        <item quantity="other">%d cần ôn</item>
+    </plurals>
+    <string name="deck_no_cards">Chưa có thẻ</string>
+    <string name="deck_error_blank_name">Tên bộ thẻ không được để trống.</string>
+    <string name="deck_error_blank_card">Câu hỏi và câu trả lời không được để trống.</string>
+    <string name="deck_error_deck_not_found">Không tìm thấy bộ thẻ.</string>
+    <string name="deck_error_card_not_found">Không tìm thấy thẻ.</string>
+
+    <!-- create_deck — bottom sheet tạo bộ thẻ -->
+    <string name="create_deck_title">Tạo bộ thẻ mới</string>
+    <string name="create_deck_name_label">Tên bộ thẻ</string>
+    <string name="create_deck_name_placeholder">Ví dụ: Tiếng Anh – IELTS</string>
+    <string name="create_deck_color_label">Màu nhận diện</string>
+    <string name="create_deck_confirm">Tạo bộ thẻ</string>
+    <string name="deck_color_purple">Tím</string>
+    <string name="deck_color_teal">Xanh ngọc</string>
+    <string name="deck_color_pink">Hồng</string>
+    <string name="deck_color_blue">Xanh dương</string>
+    <string name="deck_color_amber">Vàng cam</string>
+    <string name="deck_color_gray">Xám</string>
 
     <!-- error — thông báo lỗi do GlobalExceptionHandler phát ra -->
     <string name="error_generic">Đã có lỗi xảy ra.</string>

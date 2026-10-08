@@ -8,6 +8,14 @@ import androidx.compose.runtime.Composable
  * Mặc định: Loading là vòng xoay, Empty là [EmptyState] chỉ có [emptyText], Error là
  * [ErrorState]. Màn nào có thiết kế riêng thì truyền slot [loading] (skeleton) / [empty]
  * (minh hoạ + nút hành động) để thay phần mặc định.
+ *
+ * `<T>` là kiểu tổng quát: hàm dùng được cho danh sách bất kỳ (bộ thẻ, thẻ…). Nơi gọi chỉ viết
+ * phần "có dữ liệu" trong ngoặc nhọn cuối cùng:
+ * ```
+ * ScreenStateHost(isLoading = …, items = cards, error = …, onRetry = …, emptyText = "…") { cards ->
+ *     LazyColumn { items(cards) { … } }
+ * }
+ * ```
  */
 @Composable
 fun <T> ScreenStateHost(

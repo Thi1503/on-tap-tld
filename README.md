@@ -284,6 +284,27 @@ lúc bấm "Lưu"), dùng [
 bọc quanh cả `Scaffold` — xem cách `ManualCardScreen`/`LoginScreen`
 đang dùng.
 
+### 6.1 Bộ "mảnh ghép" giao diện dùng chung
+
+Khi dựng màn mới, **đừng** gọi thẳng `Button`, `Card`, `TopAppBar`… của Material và đừng tự gõ mã
+màu / cỡ chữ. Dùng các mảnh có sẵn trong `core/presentation/components/` để mọi màn giống nhau và
+khớp bản thiết kế:
+
+| Cần gì | Dùng | File |
+| --- | --- | --- |
+| Nút chính / nút phụ / nút chữ / nút icon | `PrimaryButton`, `SecondaryButton`, `AppTextButton`, `AppIconButton` | `AppButtons.kt` |
+| Khung thẻ nền trắng bo góc | `AppCard { … }` | `AppCard.kt` |
+| Nhãn nhỏ ("AI", "12 cần ôn"…) | `AppBadge`, `StatusPill` | `AppBadge.kt` |
+| Thanh tiêu đề có nút quay lại / đóng | `AppTopBar` | `AppTopBar.kt` |
+| Ô nhập có nhãn phía trên | `LabeledTextField` | `LabeledTextField.kt` |
+| Màn rỗng / lỗi / đang tải / khung giữ chỗ | `EmptyState`, `ErrorState`, `LoadingState`, `SkeletonBlock` | `StateViews.kt` |
+
+Màu lấy qua `appColors().<tên>` (vd `appColors().textSecondary`), cỡ chữ qua
+`MaterialTheme.typography.<tên>`, khoảng cách qua `AppDimens.<tên>`, icon là các file
+`res/drawable/ic_*.xml`. Màn mẫu nên đọc để bắt chước: Home —
+[`DeckListScreen.kt`](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/presentation/decklist/DeckListScreen.kt)
+(đầu file có sơ đồ cách chia Screen → Content → các khối con).
+
 ---
 
 ## 7. Điều hướng (chuyển màn hình) hoạt động thế nào

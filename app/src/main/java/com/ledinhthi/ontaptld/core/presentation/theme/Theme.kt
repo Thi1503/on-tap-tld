@@ -21,6 +21,12 @@ import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
 // Ánh xạ token ngữ nghĩa sang đủ các slot Material3 mà component gốc (TextField, Switch,
 // Checkbox, BottomSheet, Snackbar…) tự đọc — để chúng ra đúng màu thiết kế mà không phải
 // truyền `colors = …` ở từng nơi dùng.
+//
+// `with(x) { … }`: bên trong khối, viết `primary` được hiểu là `x.primary` — đỡ lặp tên.
+//
+// App có 2 "cửa" lấy màu, cùng một nguồn:
+//   - appColors().xxx            -> token riêng của app (đầy đủ nhất, ưu tiên dùng trong màn hình)
+//   - MaterialTheme.colorScheme  -> để component Material tự đọc; ít khi cần gọi trực tiếp
 private val DarkColorScheme = with(DarkAppExtendedColors) {
     darkColorScheme(
         primary = primary,

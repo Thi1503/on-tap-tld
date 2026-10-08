@@ -31,6 +31,14 @@ enum class TopBarNavigation { None, Back, Close }
  *
  * @param titleLeading phần tử nhỏ đứng trước tiêu đề (vd chấm màu của bộ thẻ).
  * @param actions các nút bên phải — dùng [AppIconButton] hoặc chữ ngắn.
+ *
+ * Ví dụ:
+ * ```
+ * AppTopBar(title = "Cài đặt", onNavigationClick = viewModel::onBack)
+ * AppTopBar(title = "Thêm thẻ", navigation = TopBarNavigation.Close, onNavigationClick = …) {
+ *     AppIconButton(R.drawable.ic_more_vert, "Tuỳ chọn", onClick = …)   // slot `actions`
+ * }
+ * ```
  */
 @Composable
 fun AppTopBar(

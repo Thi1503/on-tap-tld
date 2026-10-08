@@ -26,6 +26,14 @@ import androidx.compose.ui.unit.dp
 import com.ledinhthi.ontaptld.core.presentation.theme.AppDimens
 import com.ledinhthi.ontaptld.core.presentation.theme.appColors
 
+/*
+ * Bộ nút dùng chung. Màn hình KHÔNG gọi thẳng Button/OutlinedButton của Material mà gọi các
+ * hàm ở đây, để mọi nút trong app cùng chiều cao, bo góc, màu và cỡ chữ theo thiết kế.
+ *
+ * Về các tham số có giá trị mặc định (`modifier = Modifier`, `enabled = true`…): nơi gọi chỉ
+ * cần truyền những gì khác mặc định, vd `PrimaryButton(text = "Lưu", onClick = { … })`.
+ */
+
 /** Vùng chạm tối thiểu cho mọi nút chỉ có icon / chữ. */
 private val MinTouchTarget = 44.dp
 

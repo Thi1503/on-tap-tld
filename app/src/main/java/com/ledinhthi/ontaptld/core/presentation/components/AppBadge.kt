@@ -55,7 +55,13 @@ fun StatusPill(
     modifier = modifier,
 )
 
-/** Cặp (nền, chữ) của từng tông — dùng lại cho emblem ở [StateMessage]. */
+/**
+ * Cặp (nền, chữ) của từng tông — dùng lại cho emblem ở [StateMessage].
+ *
+ * `fun BadgeTone.colors()` là hàm MỞ RỘNG: gọi như thể nó là hàm của enum (`tone.colors()`).
+ * `a to b` tạo một `Pair`; nơi dùng tách ra bằng `val (nen, chu) = tone.colors()`.
+ * `internal` = chỉ dùng được trong module app, không lộ ra ngoài.
+ */
 @Composable
 internal fun BadgeTone.colors(): Pair<Color, Color> = with(appColors()) {
     when (this@colors) {
