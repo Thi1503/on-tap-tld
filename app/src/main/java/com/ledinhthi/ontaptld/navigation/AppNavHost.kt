@@ -41,7 +41,8 @@ import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
 import com.ledinhthi.ontaptld.feature.review.presentation.ReviewScreen
 import com.ledinhthi.ontaptld.feature.review.presentation.sourceimage.SourceImageScreen
-import com.ledinhthi.ontaptld.feature.settings.SettingsScreen
+import com.ledinhthi.ontaptld.feature.settings.presentation.language.LanguageScreen
+import com.ledinhthi.ontaptld.feature.settings.presentation.settings.SettingsScreen
 import com.ledinhthi.ontaptld.feature.splash.SplashScreen
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -121,6 +122,7 @@ fun AppNavHost(navigator: AppNavigator) {
                 composable<DeckDetailRoute> { DeckDetailScreen() }
                 composable<ManualCardRoute> { ManualCardScreen() }
                 composable<SettingsRoute> { SettingsScreen() }
+                composable<LanguageRoute> { LanguageScreen() }
                 composable<ReviewRoute> { ReviewScreen() }
                 composable<SourceImageRoute> { SourceImageScreen() }
                 composable<CaptureRoute> { CaptureScreen() }

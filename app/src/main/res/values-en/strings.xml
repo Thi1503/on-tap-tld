@@ -299,4 +299,41 @@
     <string name="login_button">Sign in</string>
     <string name="login_no_account">Don\'t have an account?</string>
     <string name="login_sign_up">Sign up</string>
+    <string name="app_language_tag">en</string>
+    <string name="app_language_name">English</string>
+
+    <!-- settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_language_row">App language</string>
+    <string name="settings_section_reminder">Review reminder</string>
+    <string name="settings_reminder_daily">Daily review reminder</string>
+    <string name="settings_reminder_time">Reminder time</string>
+    <string name="settings_section_ai">AI card generation</string>
+    <string name="settings_ai_usage_today">Used today</string>
+    <string name="settings_ai_usage_value">%1$d / %2$d</string>
+    <string name="settings_ai_usage_note">Resets at 0:00 every day. Typed cards are unlimited.</string>
+    <string name="settings_section_sync">Sync</string>
+    <string name="settings_sync_google">Sign in with Google</string>
+    <string name="settings_sync_google_note">Sync cards across devices · photos are never uploaded</string>
+    <string name="settings_badge_coming_soon">Coming soon</string>
+    <string name="settings_section_data">Data &amp; about</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_about">About On Tap TLD</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_delete_all">Delete all data on this device</string>
+    <string name="settings_delete_all_title">Delete all data?</string>
+    <string name="settings_delete_all_message">Every deck, card, note photo and your review history on this device will be deleted. This can\'t be undone.</string>
+    <string name="settings_delete_all_confirm">Delete all</string>
+    <string name="settings_delete_all_done">All data deleted.</string>
+
+    <!-- language -->
+    <string name="language_title">Language</string>
+    <string name="language_vietnamese_note">Vietnamese · default</string>
+    <string name="language_english_note">App interface in English</string>
+    <string name="language_note">Only the app interface changes. Your card content stays as it is.</string>
 </resources>

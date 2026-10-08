@@ -25,6 +25,9 @@ interface CaptureImageRepository {
      */
     suspend fun keepNoteImage(tempPath: String, noteId: String): String
 
+    /** Xoá mọi ảnh tạm của luồng chụp (ảnh vừa chụp / vừa cắt nhưng chưa lưu thành thẻ). */
+    suspend fun clearTempImages()
+
     /** Xoá ảnh ghi chú đã lưu lâu dài — dùng để dọn dẹp khi việc lưu thẻ hỏng giữa chừng. */
     suspend fun deleteNoteImage(path: String)
 }

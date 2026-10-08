@@ -50,3 +50,7 @@ data class SourceImageRoute(val cardId: String)
 
 @Serializable
 data object SettingsRoute
+
+/** Chọn ngôn ngữ giao diện — mở từ màn Cài đặt. */
+@Serializable
+data object LanguageRoute

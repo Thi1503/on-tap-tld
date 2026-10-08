@@ -4,6 +4,8 @@ import com.ledinhthi.ontaptld.core.data.ai.FirebaseGeminiClient
 import com.ledinhthi.ontaptld.core.data.ai.GeminiClient
 import com.ledinhthi.ontaptld.core.data.local.prefs.AppPreferences
 import com.ledinhthi.ontaptld.core.data.local.prefs.DataStorePreferences
+import com.ledinhthi.ontaptld.core.presentation.language.AppCompatLanguageManager
+import com.ledinhthi.ontaptld.core.presentation.language.AppLanguageManager
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigatorImpl
 import com.ledinhthi.ontaptld.core.presentation.text.AndroidStringProvider
@@ -28,6 +30,10 @@ interface CoreBindsModule {
     @Binds
     @Singleton
     fun strings(impl: AndroidStringProvider): StringProvider
+
+    @Binds
+    @Singleton
+    fun languageManager(impl: AppCompatLanguageManager): AppLanguageManager
 
     @Binds
     @Singleton

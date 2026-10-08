@@ -2,6 +2,7 @@ package com.ledinhthi.ontaptld.core.data.local.prefs
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -21,6 +22,8 @@ class DataStorePreferences @Inject constructor(
         val AI_DATE = stringPreferencesKey("ai_usage_date")
         val AI_COUNT = intPreferencesKey("ai_usage_count")
         val LAST_SYNC = longPreferencesKey("last_sync_at")
+        val REMINDER_ENABLED = booleanPreferencesKey("reminder_enabled")
+        val REMINDER_MINUTE = intPreferencesKey("reminder_minute_of_day")
     }
 
     override val themeMode: Flow<ThemeMode> = dataStore.data.map { p ->
@@ -43,6 +46,22 @@ class DataStorePreferences @Inject constructor(
             }
             p[Keys.AI_COUNT] = (p[Keys.AI_COUNT] ?: 0) + 1
         }
+    }
+
+    override val reminder: Flow<ReminderSettings> = dataStore.data.map { p ->
+        ReminderSettings(
+            enabled = p[Keys.REMINDER_ENABLED] ?: ReminderSettings.Default.enabled,
+            minuteOfDay = p[Keys.REMINDER_MINUTE] ?: ReminderSettings.Default.minuteOfDay,
+        )
+    }
+
+    override suspend fun setReminderEnabled(enabled: Boolean) {
+        dataStore.edit { it[Keys.REMINDER_ENABLED] = enabled }
+    }
+
+    override suspend fun setReminderTime(hour: Int, minute: Int) {
+        // coerceIn: giữ giá trị trong khoảng hợp lệ dù nơi gọi truyền nhầm.
+        dataStore.edit { it[Keys.REMINDER_MINUTE] = hour.coerceIn(0, 23) * 60 + minute.coerceIn(0, 59) }
     }
 
     override val lastSyncAtMillis: Flow<Long> = dataStore.data.map { it[Keys.LAST_SYNC] ?: 0L }

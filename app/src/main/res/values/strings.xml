@@ -312,4 +312,45 @@
     <string name="login_button">Đăng nhập</string>
     <string name="login_no_account">Chưa có tài khoản?</string>
     <string name="login_sign_up">Đăng ký ngay</string>
+    <!-- Ngôn ngữ của bộ chuỗi này. App đọc hai chuỗi dưới để biết giao diện đang nói tiếng gì
+         (xem LanguageScreen) — bản values-en ghi "en" / "English". -->
+    <string name="app_language_tag">vi</string>
+    <string name="app_language_name">Tiếng Việt</string>
+
+    <!-- settings — feature/settings -->
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_section_appearance">Giao diện</string>
+    <string name="settings_theme_system">Theo máy</string>
+    <string name="settings_theme_light">Sáng</string>
+    <string name="settings_theme_dark">Tối</string>
+    <string name="settings_section_language">Ngôn ngữ</string>
+    <string name="settings_language_row">Ngôn ngữ giao diện</string>
+    <string name="settings_section_reminder">Nhắc ôn tập</string>
+    <string name="settings_reminder_daily">Nhắc ôn hằng ngày</string>
+    <string name="settings_reminder_time">Giờ nhắc</string>
+    <string name="settings_section_ai">Tạo thẻ bằng AI</string>
+    <string name="settings_ai_usage_today">Lượt dùng hôm nay</string>
+    <string name="settings_ai_usage_value">%1$d / %2$d</string>
+    <string name="settings_ai_usage_note">Làm mới lúc 0:00 mỗi ngày. Thẻ gõ tay không giới hạn.</string>
+    <string name="settings_section_sync">Đồng bộ</string>
+    <string name="settings_sync_google">Đăng nhập Google</string>
+    <string name="settings_sync_google_note">Đồng bộ thẻ giữa các thiết bị · không tải ảnh lên</string>
+    <string name="settings_badge_coming_soon">Sắp có</string>
+    <string name="settings_section_data">Dữ liệu &amp; giới thiệu</string>
+    <string name="settings_privacy_policy">Chính sách quyền riêng tư</string>
+    <string name="settings_about">Giới thiệu On Tap TLD</string>
+    <string name="settings_version">Phiên bản %1$s</string>
+    <string name="settings_delete_all">Xoá toàn bộ dữ liệu trên máy</string>
+    <string name="settings_delete_all_title">Xoá toàn bộ dữ liệu?</string>
+    <string name="settings_delete_all_message">Mọi bộ thẻ, thẻ, ảnh ghi chú và lịch sử ôn trên máy này sẽ bị xoá. Thao tác này không hoàn tác được.</string>
+    <string name="settings_delete_all_confirm">Xoá hết</string>
+    <string name="settings_delete_all_done">Đã xoá toàn bộ dữ liệu.</string>
+
+    <!-- language — màn chọn ngôn ngữ. Tên ngôn ngữ luôn viết bằng chính ngôn ngữ đó. -->
+    <string name="language_title">Ngôn ngữ</string>
+    <string name="language_vietnamese" translatable="false">Tiếng Việt</string>
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_vietnamese_note">Mặc định</string>
+    <string name="language_english_note">Tiếng Anh</string>
+    <string name="language_note">Chỉ đổi ngôn ngữ giao diện. Nội dung thẻ của bạn được giữ nguyên.</string>
 </resources>
