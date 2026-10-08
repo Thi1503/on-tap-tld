@@ -149,8 +149,9 @@ request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo 
 vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ xong
 cùng ngày, đã vào `dev` qua pull request #15 (nhánh `feat/ai-suggestions`). Màn lỗi AI + màn hết
 lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-error-quota`). Xem ảnh
-nguồn của thẻ AI code xong cùng ngày trên nhánh `feat/source-image` (chưa commit), đã chạy thử
-trọn chuỗi trên emulator — chờ Thi xem và merge. Bước 4 còn lại hai việc dọn dẹp (xem Mục 6.1).
+nguồn của thẻ AI xong cùng ngày, đã vào `dev` qua pull request #21 (nhánh `feat/source-image`).
+Hai việc dọn dẹp cuối của bước 4 code xong tối 8/10/2026 trên nhánh `feat/note-cleanup` (chưa
+commit), đã chạy thử trên emulator — chờ Thi xem và merge.
 
 **Claude**
 - [x] CameraX + crop vùng chữ
@@ -159,7 +160,7 @@ trọn chuỗi trên emulator — chờ Thi xem và merge. Bước 4 còn lại 
 - [x] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [x] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
 - [x] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
-- [ ] Dọn dẹp: xoá bộ thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị tắt dưới nền
+- [x] Dọn dẹp: xoá bộ thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị tắt dưới nền
 
 > **Màn Chụp ghi chú — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
 > - Một route (`CaptureRoute`), hai chặng: **ngắm** (camera chạy, khung cắt hiện sẵn, kéo được) →
@@ -239,8 +240,35 @@ trọn chuỗi trên emulator — chờ Thi xem và merge. Bước 4 còn lại 
 >   trên emulator); lúc quay lại app hiện đúng danh sách cũ thay vì gọi AI lần nữa.
 > - Bấm Huỷ lúc đang gọi AI: thư viện Firebase bọc tín hiệu huỷ coroutine vào `UnknownException`
 >   — `FirebaseGeminiClient` gọi `ensureActive()` để nhận ra đây là "bị huỷ", không phải lỗi.
-> - CHƯA làm: xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản
->   chưa giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+> - Dọn `Note` + ảnh khi xoá, và giữ văn bản đã sửa ở màn Kiểm tra văn bản: đã làm — xem mục
+>   "Dọn ghi chú và ảnh" bên dưới.
+>
+> **Dọn ghi chú và ảnh, thông báo ngắn, bàn phím (nhánh `feat/note-cleanup`, 8/10/2026):**
+> - Xoá bộ thẻ: trong cùng một transaction, đánh dấu xoá bộ thẻ, các thẻ và mọi `Note` của bộ;
+>   xong mới xoá các file ảnh `filesDir/notes/<noteId>.jpg`.
+> - Xoá một thẻ AI: một ghi chú sinh ra nhiều thẻ, nên `Note` và ảnh chỉ bị xoá khi đó là thẻ
+>   cuối cùng còn dùng ghi chú đó; các thẻ còn lại vẫn xem được ảnh nguồn.
+> - Dòng `Note` vẫn xoá mềm (`isDeleted = 1`) như bộ thẻ và thẻ, để dành cho đồng bộ; chỉ file
+>   ảnh là xoá thật. Không đổi schema Room.
+> - Quét dọn lúc mở app (Thi chốt): `OnTapTldApp` chạy nền `CleanUpOrphanNotesUseCase` — đánh dấu
+>   xoá ghi chú không còn thẻ sống nào dùng, rồi xoá file trong `filesDir/notes/` không còn ghi
+>   chú nào trỏ tới. Ghi chú / file mới hơn một phút được chừa lại (có thể một lượt lưu thẻ AI
+>   đang chạy dở). Nhờ vậy ảnh của thẻ đã xoá từ bản app cũ cũng được dọn.
+> - Màn Kiểm tra văn bản: văn bản đang sửa, văn bản gốc sau nhận dạng, trạng thái nhận dạng và bộ
+>   thẻ đang chọn được cất vào `SavedStateHandle`. App bị tắt dưới nền rồi mở lại thì không nhận
+>   dạng lại, và rời màn vẫn được hỏi "Bỏ phần văn bản đã sửa?". Bị tắt lúc ĐANG nhận dạng dở
+>   thì nhận dạng lại từ đầu.
+> - Thông báo ngắn (snackbar) của cả app (Thi chốt): hiện ở ĐỈNH màn, ngay dưới thanh trạng thái,
+>   tự tắt sau 3 giây (người bật trợ năng được hệ thống kéo dài thêm). Trước đó nó nằm sát đáy,
+>   đè lên hàng nút. Trong 3 giây đó nó đè lên top bar (nút ← và tiêu đề).
+> - Bàn phím ở màn Thêm / sửa thẻ và màn Kiểm tra văn bản (Thi chốt): bàn phím hiện lên thì
+>   thanh nút ở đáy (Lưu thẻ / Tạo thẻ bằng AI) ĐỨNG YÊN và bị bàn phím che, chỉ phần nội dung
+>   co lại và cuộn được; đóng bàn phím mới bấm được nút. Trước đó thanh nút bị đẩy lên nằm ngay
+>   trên bàn phím. Hai bảng trượt (Tạo bộ thẻ, sửa thẻ đề xuất) không đổi.
+> - Đã kiểm chứng trên emulator: lần mở app đầu tiên xoá đúng 2 ảnh mồ côi cũ, giữ 2 ảnh đang
+>   dùng; lưu thẻ AI vào bộ tạm rồi xoá bộ đó → ảnh mất theo; tắt hẳn process lúc đang ở màn Kiểm
+>   tra văn bản rồi mở lại → văn bản đã sửa còn nguyên. Trường hợp "xoá thẻ cuối cùng của ghi
+>   chú" mới qua test (`NoteCleanupDaoTest` trên emulator), chưa bấm tay.
 >
 > **Xem ảnh nguồn của thẻ AI — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
 > - Mỗi thẻ AI lưu thêm hai thứ: `sourceLine` = dòng ghi chú mà AI rút thẻ ra (đếm từ 1, chỉ
@@ -406,10 +434,9 @@ Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
 request #12), màn Kiểm tra văn bản (#13), phần gọi Gemini + màn "Đang tạo thẻ" (#14) và màn duyệt
-thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17) cũng vậy. Xem ảnh nguồn của thẻ AI (nhánh
-`feat/source-image`) đã code xong, chờ Thi xem và merge. Bước 4 chỉ còn hai việc dọn dẹp: xoá bộ
-thẻ / xoá thẻ phải xoá cả `Note` và file ảnh; màn Kiểm tra văn bản giữ phần đã sửa khi app bị
-tắt dưới nền. Artboard: xem bảng ở Mục 6.3.
+thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17), xem ảnh nguồn của thẻ AI (#21) cũng vậy.
+Hai việc dọn dẹp cuối (nhánh `feat/note-cleanup`) đã code xong, chờ Thi xem và merge; sau đó là
+**bước 5 — Cài đặt, nhắc ôn, widget**. Artboard: xem bảng ở Mục 6.3.
 
 **Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
 làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
@@ -473,7 +500,11 @@ thái / bàn phím của hệ thống, và các nút thuộc bước chưa làm 
 - Chạy riêng một lớp test có emulator mà KHÔNG gỡ app (vd `MigrationTest` sau khi đổi schema):
   `./gradlew :app:assembleDebugAndroidTest`, `adb install -r -t <…androidTest.apk>`, rồi
   `adb shell am instrument -w -e class com.ledinhthi.ontaptld.core.data.local.db.MigrationTest
-  com.ledinhthi.ontaptld.test/androidx.test.runner.AndroidJUnitRunner`.
+  com.ledinhthi.ontaptld.test/androidx.test.runner.AndroidJUnitRunner`. Cùng cách đó cho
+  `com.ledinhthi.ontaptld.feature.deck.NoteCleanupDaoTest` (SQL dọn ghi chú).
+- Giả lập "app bị hệ thống tắt dưới nền": bấm Home (`adb shell input keyevent 3`), rồi
+  `adb shell run-as com.ledinhthi.ontaptld kill <pid>` (pid lấy bằng `adb shell pidof …`), rồi mở
+  lại app. `am kill` không tắt được process trên emulator này.
 - Camera của emulator không có chữ. Để thử OCR / ảnh nguồn, thư viện ảnh của emulator có sẵn
   `Pictures/ontap_demo_note.jpg` (một trang ghi chú chữ in, Claude tạo ngày 8/10/2026): vào màn
   chụp, bấm "Thư viện" rồi chọn ảnh này.

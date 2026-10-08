@@ -3,6 +3,7 @@ package com.ledinhthi.ontaptld.feature.deck.data.repository
 import com.ledinhthi.ontaptld.core.data.local.db.wrapLocal
 import com.ledinhthi.ontaptld.core.domain.util.Clock
 import com.ledinhthi.ontaptld.feature.deck.data.local.DeckDao
+import com.ledinhthi.ontaptld.feature.deck.data.local.NoteImageStore
 import com.ledinhthi.ontaptld.feature.deck.data.mapper.DeckEntityMapper
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Deck
 import com.ledinhthi.ontaptld.feature.deck.domain.repository.DeckRepository
@@ -14,6 +15,7 @@ class DeckRepositoryImpl @Inject constructor(
     private val dao: DeckDao,
     private val mapper: DeckEntityMapper,
     private val clock: Clock,
+    private val images: NoteImageStore,
 ) : DeckRepository {
 
     override fun observeDecks(): Flow<List<Deck>> =
@@ -24,6 +26,10 @@ class DeckRepositoryImpl @Inject constructor(
 
     override suspend fun upsert(deck: Deck) = wrapLocal { dao.upsert(mapper.toEntity(deck)) }
 
-    override suspend fun delete(deckId: String) =
-        wrapLocal { dao.softDeleteWithCards(deckId, clock.nowMillis()) }
+    override suspend fun delete(deckId: String) {
+        val imagePaths = wrapLocal { dao.softDeleteWithContents(deckId, clock.nowMillis()) }
+        // Xoá file SAU khi database đã ghi xong: nếu database lỗi thì ảnh còn nguyên, không có
+        // chuyện thẻ vẫn còn mà ảnh nguồn đã mất.
+        images.delete(imagePaths)
+    }
 }
