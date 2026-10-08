@@ -310,7 +310,8 @@ class AiCardsViewModelTest {
                     imagePath = "/cache/crop.jpg",
                     noteText = "Bài 1 · Nhân đôi ADN",
                     cards = listOf(
-                        SaveSuggestedCardsUseCase.CardDraft("Đoạn Okazaki là gì?", "Đoạn ADN ngắn trên mạch chậm.", fromAi = true),
+                        // Thẻ AI mang theo số dòng nguồn, để lưu kèm vùng của nó trên ảnh.
+                        SaveSuggestedCardsUseCase.CardDraft("Đoạn Okazaki là gì?", "Đoạn ADN ngắn trên mạch chậm.", fromAi = true, sourceLine = 4),
                         SaveSuggestedCardsUseCase.CardDraft("Câu tự thêm?", "Đáp tự thêm", fromAi = false),
                     ),
                 ),

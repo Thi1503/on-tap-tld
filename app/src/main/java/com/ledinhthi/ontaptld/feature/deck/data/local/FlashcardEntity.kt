@@ -20,6 +20,7 @@ data class FlashcardEntity(
     val sourceBoxTop: Float? = null,
     val sourceBoxRight: Float? = null,
     val sourceBoxBottom: Float? = null,
+    val sourceLine: Int? = null, // thêm ở schema v3
     val easeFactor: Double = 2.5,
     val interval: Int = 0,
     val repetitions: Int = 0,

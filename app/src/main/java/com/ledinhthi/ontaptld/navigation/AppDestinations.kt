@@ -44,5 +44,9 @@ data class AiCardsRoute(val imagePath: String, val noteText: String, val deckId:
 @Serializable
 data class ReviewRoute(val deckId: String? = null)
 
+/** Xem cả ảnh ghi chú mà thẻ AI [cardId] được rút ra, có tô sáng vùng của thẻ. */
+@Serializable
+data class SourceImageRoute(val cardId: String)
+
 @Serializable
 data object SettingsRoute

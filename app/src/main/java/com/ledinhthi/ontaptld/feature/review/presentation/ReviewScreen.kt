@@ -41,6 +41,8 @@ import com.ledinhthi.ontaptld.feature.deck.domain.model.Deck
 import com.ledinhthi.ontaptld.feature.deck.domain.model.Flashcard
 import com.ledinhthi.ontaptld.feature.deck.domain.model.FlashcardSource
 import com.ledinhthi.ontaptld.feature.review.domain.ReviewGrade
+import com.ledinhthi.ontaptld.feature.review.domain.model.CardSource
+import com.ledinhthi.ontaptld.feature.review.domain.model.ExcerptLine
 import com.ledinhthi.ontaptld.feature.review.domain.model.ReviewCard
 import com.ledinhthi.ontaptld.feature.review.presentation.components.GradeButtons
 import com.ledinhthi.ontaptld.feature.review.presentation.components.ReviewAnswerCard
@@ -79,6 +81,7 @@ fun ReviewScreen(viewModel: ReviewViewModel = hiltViewModel()) {
         onRetry = viewModel::onRetry,
         onShowAnswer = viewModel::onShowAnswer,
         onEditCard = viewModel::onEditCard,
+        onViewSourceImage = viewModel::onViewSourceImage,
         onGrade = viewModel::onGrade,
         onGoHome = viewModel::onGoHome,
         onReviewForgotten = viewModel::onReviewForgotten,
@@ -92,6 +95,7 @@ private fun ReviewContent(
     onRetry: () -> Unit,
     onShowAnswer: () -> Unit,
     onEditCard: () -> Unit,
+    onViewSourceImage: () -> Unit,
     onGrade: (ReviewGrade) -> Unit,
     onGoHome: () -> Unit,
     onReviewForgotten: () -> Unit,
@@ -147,6 +151,7 @@ private fun ReviewContent(
                 onClose = onClose,
                 onShowAnswer = onShowAnswer,
                 onEditCard = onEditCard,
+                onViewSourceImage = onViewSourceImage,
                 onGrade = onGrade,
             )
         }
@@ -161,6 +166,7 @@ private fun ColumnScope.ReviewingContent(
     onClose: () -> Unit,
     onShowAnswer: () -> Unit,
     onEditCard: () -> Unit,
+    onViewSourceImage: () -> Unit,
     onGrade: (ReviewGrade) -> Unit,
 ) {
     ReviewProgressHeader(
@@ -206,6 +212,8 @@ private fun ColumnScope.ReviewingContent(
             } else {
                 ReviewAnswerCard(
                     card = current.card,
+                    source = current.source,
+                    onViewSourceImage = onViewSourceImage,
                     modifier = Modifier
                         .fillMaxSize()
                         // Cả khung đã quay quá nửa vòng nên mặt này đang bị nhìn từ "sau lưng";
@@ -281,6 +289,14 @@ private fun previewCard(id: String) = ReviewCard(
         updatedAt = 0,
     ),
     deck = previewDeck,
+    source = CardSource(
+        capturedAt = 1_791_158_400_000, // 5/10/2026
+        excerpt = listOf(
+            ExcerptLine("– Diễn ra ở pha S của kì trung gian.", isSource = false),
+            ExcerptLine("– Nguyên tắc: bổ sung (A–T, G–X) và bán bảo toàn.", isSource = true),
+            ExcerptLine("– ADN pôlimeraza tổng hợp mạch mới theo chiều 5'→3'.", isSource = false),
+        ),
+    ),
 )
 
 private val previewCards = List(24) { previewCard(it.toString()) }
@@ -300,6 +316,7 @@ private fun PreviewHost(state: ReviewState, themeMode: ThemeMode = ThemeMode.LIG
             onRetry = {},
             onShowAnswer = {},
             onEditCard = {},
+            onViewSourceImage = {},
             onGrade = {},
             onGoHome = {},
             onReviewForgotten = {},
