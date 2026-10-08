@@ -1,7 +1,7 @@
 package com.ledinhthi.ontaptld.core.di
 
+import com.ledinhthi.ontaptld.core.data.ai.FirebaseGeminiClient
 import com.ledinhthi.ontaptld.core.data.ai.GeminiClient
-import com.ledinhthi.ontaptld.core.data.ai.StubGeminiClient
 import com.ledinhthi.ontaptld.core.data.local.prefs.AppPreferences
 import com.ledinhthi.ontaptld.core.data.local.prefs.DataStorePreferences
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
@@ -29,8 +29,7 @@ interface CoreBindsModule {
     @Singleton
     fun strings(impl: AndroidStringProvider): StringProvider
 
-    // Sprint 1: stub. Đổi sang FirebaseGeminiClient khi gắn Firebase AI Logic.
     @Binds
     @Singleton
-    fun gemini(impl: StubGeminiClient): GeminiClient
+    fun gemini(impl: FirebaseGeminiClient): GeminiClient
 }

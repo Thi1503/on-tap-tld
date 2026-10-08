@@ -208,6 +208,11 @@
     <string name="ocr_review_discard_title">Discard your edits?</string>
     <string name="ocr_review_discard_message">If you leave this screen, the changes you just made won\'t be kept.</string>
     <string name="ocr_review_discard_confirm">Leave</string>
+    <string name="ai_generating_title">Creating cards</string>
+    <string name="ai_generating_headline">AI is reading your notes</string>
+    <string name="ai_generating_message">Stay connected while you wait. You will review every card before it is saved.</string>
+    <string name="ai_suggestions_title">Review suggested cards</string>
+    <string name="ai_suggestions_source_line">Source: line %d in the photo</string>
     <string name="deck_selector_new_deck">New deck</string>
 
     <!-- create_deck -->
@@ -231,6 +236,7 @@
     <string name="error_ai_network">Creating cards with AI needs an internet connection. Manual cards still work offline.</string>
     <string name="error_ai_content_blocked">AI couldn\'t create cards from this content. You can add cards manually instead.</string>
     <string name="error_ai_bad_response">AI returned an invalid result. Please try again.</string>
+    <string name="error_ai_no_cards">AI found nothing in this text to make cards from. Try a part of your notes with more content — this attempt did not use up a generation.</string>
     <string name="error_ai_app_check">App verification failed. Update to the latest version.</string>
     <string name="error_ai_not_configured">AI isn\'t enabled in this build.</string>
     <string name="error_ai_unavailable">The AI service is temporarily unavailable.</string>

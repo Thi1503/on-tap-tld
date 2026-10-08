@@ -2,12 +2,10 @@ package com.ledinhthi.ontaptld.feature.capture.presentation.ocrreview
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.exception.AppException
 import com.ledinhthi.ontaptld.core.exception.OcrErrorKind
 import com.ledinhthi.ontaptld.core.presentation.mvi.BaseViewModel
 import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
-import com.ledinhthi.ontaptld.core.presentation.navigation.SnackBarType
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.RunOcrUseCase
 import com.ledinhthi.ontaptld.feature.capture.presentation.CaptureFlowEvents
@@ -15,6 +13,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.exception.DeckException
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CreateDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDecksUseCase
 import com.ledinhthi.ontaptld.feature.deck.presentation.displayMessage
+import com.ledinhthi.ontaptld.navigation.AiCardsRoute
 import com.ledinhthi.ontaptld.navigation.OcrReviewRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
@@ -94,10 +93,12 @@ class OcrReviewViewModel @Inject constructor(
         navigator.back()
     }
 
-    // Gọi AI thuộc phần việc kế tiếp của bước 4 (docs/KE_HOACH_PHAT_TRIEN.md).
+    /** "Tạo thẻ bằng AI": sang bước 3 với đúng văn bản đang có trong ô và bộ thẻ đang chọn. */
     fun onGenerateClick() {
-        if (!currentState.canGenerate) return
-        navigator.showSnackBar(strings.get(R.string.common_coming_soon), SnackBarType.INFO)
+        val state = currentState
+        val deck = state.selectedDeck
+        if (!state.canGenerate || deck == null) return
+        navigator.to(AiCardsRoute(imagePath = state.imagePath, noteText = state.text.trim(), deckId = deck.id))
     }
 
     private companion object {
