@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.OnTapTLD" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.OnTapTLD" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Màu cửa sổ lúc app vừa bật, TRƯỚC khi Compose kịp vẽ. Đặt trùng màu nền của màn
+             Splash (sáng / tối theo máy, xem values-night/colors.xml) để không bị loé trắng. -->
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 </resources>
