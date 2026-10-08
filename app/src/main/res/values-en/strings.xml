@@ -171,6 +171,71 @@
     <string name="review_empty_message">You\'ve reviewed everything due today. Come back tomorrow.</string>
     <string name="review_error_title">Couldn\'t load cards to review</string>
 
+    <!-- capture -->
+    <string name="capture_title">Capture notes</string>
+    <string name="capture_step">Step %1$d/%2$d</string>
+    <string name="capture_crop_hint">Drag the 4 corners to select the text to recognise</string>
+    <string name="capture_gallery">Gallery</string>
+    <string name="capture_shutter">Take photo</string>
+    <string name="capture_torch_off">Light off</string>
+    <string name="capture_torch_on">Light on</string>
+    <string name="capture_retake">Retake</string>
+    <string name="capture_use_photo">Use this photo</string>
+    <string name="capture_photo_description">The note photo you picked</string>
+    <string name="capture_permission_title">Camera access needed</string>
+    <string name="capture_permission_message">Allow the app to use the camera to capture your notes. You can still pick an existing photo from the Gallery.</string>
+    <string name="capture_permission_grant">Allow camera</string>
+    <string name="capture_permission_settings">Open Settings</string>
+    <string name="capture_error_camera">Couldn\'t take the photo. Please try again.</string>
+    <string name="capture_error_image">Couldn\'t open this image. Pick another one.</string>
+    <string name="capture_error_save">Couldn\'t save the photo. Check your free storage.</string>
+    <string name="ocr_review_title">Check the text</string>
+    <string name="ocr_review_cropped_image">Cropped photo</string>
+    <string name="ocr_review_on_device">Recognised on this device · the photo never leaves it</string>
+    <string name="ocr_review_text_label">Recognised text</string>
+    <plurals name="ocr_review_char_count">
+        <item quantity="one">%d character</item>
+        <item quantity="other">%d characters</item>
+    </plurals>
+    <string name="ocr_review_recognizing">Recognising text…</string>
+    <string name="ocr_review_note_edit">Fix any recognition mistakes right here. AI only uses this exact text to create cards.</string>
+    <string name="ocr_review_note_no_text">No text was found in the photo. Retake it more clearly, or type the text here yourself.</string>
+    <string name="ocr_review_note_failed">Text recognition failed. Retake the photo, or type the text here yourself.</string>
+    <string name="ocr_review_deck_label">Save to deck</string>
+    <string name="ocr_review_deck_placeholder">Choose a deck</string>
+    <string name="ocr_review_quota">%1$d/%2$d AI generations left today · needs internet</string>
+    <string name="ocr_review_generate">Create cards with AI</string>
+    <string name="ocr_review_discard_title">Discard your edits?</string>
+    <string name="ocr_review_discard_message">If you leave this screen, the changes you just made won\'t be kept.</string>
+    <string name="ocr_review_discard_confirm">Leave</string>
+    <string name="ai_generating_title">Creating cards</string>
+    <string name="ai_generating_headline">AI is reading your notes</string>
+    <string name="ai_generating_message">Stay connected while you wait. You will review every card before it is saved.</string>
+    <string name="ai_suggestions_title">Review suggested cards</string>
+    <string name="ai_suggestions_selected_count">%1$d of %2$d cards selected</string>
+    <string name="ai_suggestions_unselected">Not selected · will not be saved</string>
+    <string name="ai_suggestions_added_by_you">Added by you</string>
+    <string name="ai_suggestions_edit_card">Edit card %d</string>
+    <string name="ai_suggestions_delete_card">Delete card %d</string>
+    <string name="ai_suggestions_disclaimer">AI-made cards can be wrong — read them again before saving.</string>
+    <plurals name="ai_suggestions_save">
+        <item quantity="one">Save %1$d card to %2$s</item>
+        <item quantity="other">Save %1$d cards to %2$s</item>
+    </plurals>
+    <string name="ai_suggestions_saved">Cards saved: %1$d.</string>
+    <string name="ai_suggestions_empty_title">No cards left</string>
+    <string name="ai_suggestions_empty_message">You removed every suggested card. Tap “Add card” to write your own, or go back to generate again.</string>
+    <string name="ai_suggestions_delete_title">Delete this card?</string>
+    <string name="ai_suggestions_delete_message">The card will be removed from the suggestions and will not be saved.</string>
+    <string name="ai_suggestions_leave_title">Discard these cards?</string>
+    <string name="ai_suggestions_leave_message">If you leave, these cards are lost and the AI generation you used is not refunded.</string>
+    <string name="ai_report_button">Report AI content</string>
+    <string name="ai_report_email_subject">AI content report — On Tap TLD</string>
+    <string name="ai_report_email_intro">Please describe which card has a problem and what the problem is:\n\n\n--- AI cards just generated ---</string>
+    <string name="ai_report_no_email_app">No email app is installed to send the report.</string>
+    <string name="ai_suggestions_source_line">Source: line %d in the photo</string>
+    <string name="deck_selector_new_deck">New deck</string>
+
     <!-- create_deck -->
     <string name="create_deck_title">New deck</string>
     <string name="create_deck_name_label">Deck name</string>
@@ -192,6 +257,7 @@
     <string name="error_ai_network">Creating cards with AI needs an internet connection. Manual cards still work offline.</string>
     <string name="error_ai_content_blocked">AI couldn\'t create cards from this content. You can add cards manually instead.</string>
     <string name="error_ai_bad_response">AI returned an invalid result. Please try again.</string>
+    <string name="error_ai_no_cards">AI found nothing in this text to make cards from. Try a part of your notes with more content — this attempt did not use up a generation.</string>
     <string name="error_ai_app_check">App verification failed. Update to the latest version.</string>
     <string name="error_ai_not_configured">AI isn\'t enabled in this build.</string>
     <string name="error_ai_unavailable">The AI service is temporarily unavailable.</string>

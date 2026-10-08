@@ -1,14 +1,13 @@
 package com.ledinhthi.ontaptld.feature.deck.presentation.decklist
 
 import androidx.lifecycle.viewModelScope
-import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.presentation.mvi.BaseViewModel
 import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
-import com.ledinhthi.ontaptld.core.presentation.navigation.SnackBarType
 import com.ledinhthi.ontaptld.feature.deck.domain.exception.DeckException
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CreateDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckSummariesUseCase
 import com.ledinhthi.ontaptld.feature.deck.presentation.displayMessage
+import com.ledinhthi.ontaptld.navigation.CaptureRoute
 import com.ledinhthi.ontaptld.navigation.DeckDetailRoute
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
 import com.ledinhthi.ontaptld.navigation.ReviewRoute
@@ -114,9 +113,6 @@ class DeckListViewModel @Inject constructor(
     /** "Ôn ngay" trên Home: ôn mọi thẻ đến hạn, không giới hạn theo bộ. */
     fun onReviewClick() = navigator.to(ReviewRoute())
 
-    // Chụp ghi chú thuộc bước 4 của docs/KE_HOACH_PHAT_TRIEN.md.
-    fun onCaptureClick() = showComingSoon()
-
-    private fun showComingSoon() =
-        navigator.showSnackBar(strings.get(R.string.common_coming_soon), SnackBarType.INFO)
+    /** "Chụp ghi chú": mở luồng tạo thẻ bằng AI; bộ thẻ để lưu sẽ chọn ở bước 2 của luồng. */
+    fun onCaptureClick() = navigator.to(CaptureRoute())
 }

@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Chụp ghi chú. Quyền này phải xin lúc chạy (xem CaptureScreen), khai ở đây thôi chưa đủ. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- required="false": máy không có camera vẫn cài được app — vẫn gõ thẻ tay và chọn ảnh từ
+         thư viện được. Thiếu dòng này, CH Play tự coi camera là bắt buộc và ẩn app với máy đó. -->
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
 
     <application
         android:name=".OnTapTldApp"

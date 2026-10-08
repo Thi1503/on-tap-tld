@@ -65,7 +65,7 @@ Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — ch�
 
 **Thi**
 - [ ] Review, merge
-- [ ] Chép debug token của App Check (Logcat, tag `DebugAppCheckProvider`) vào Firebase Console → App Check → Manage debug tokens
+- [x] Chép debug token của App Check (Logcat, lọc chữ `DebugAppCheckProvider`) vào Firebase Console → App Check → Apps → ⋮ → Manage debug tokens — đã đăng ký ngày 8/10/2026 cho hai máy: "Emulator Pixel 7a" và "OPPO CPH1911". Mỗi máy một token; gỡ app / xoá dữ liệu app thì phải lấy và đăng ký lại
 - [x] Cho phép Claude tải font Nunito Sans
 
 ### Bước 2 — Bộ thẻ
@@ -111,7 +111,7 @@ Splash xong ngày 8/10/2026, đã vào `dev` qua pull request #9 (`feat/splash`)
 
 ### Bước 3 — Ôn tập
 
-Code xong ngày 8/10/2026 trên nhánh `feat/review` (chưa commit) — chờ Thi chạy thử.
+Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`).
 
 **Claude**
 - [x] Màn câu hỏi, màn đáp án + 4 mức (Quên / Khó / Dễ / Rất dễ), màn hoàn thành phiên
@@ -138,13 +138,109 @@ Code xong ngày 8/10/2026 trên nhánh `feat/review` (chưa commit) — chờ Th
 
 ### Bước 4 — Chụp ảnh + AI *(cần bước 0)*
 
+Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào `dev` qua pull request #12
+(nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) xong cùng ngày, đã vào `dev` qua pull
+request #13 (nhánh `feat/ocr-review`). Phần gọi Gemini + màn "Đang tạo thẻ" xong cùng ngày, đã
+vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ đề xuất + lưu thẻ code
+xong cùng ngày trên nhánh `feat/ai-suggestions` (chưa commit), đã chạy thử trọn chuỗi trên
+emulator — chờ Thi xem và merge.
+
 **Claude**
-- [ ] CameraX + crop vùng chữ
-- [ ] OCR bằng ML Kit, màn sửa văn bản
-- [ ] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
-- [ ] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
+- [x] CameraX + crop vùng chữ
+- [x] OCR bằng ML Kit, màn sửa văn bản
+- [x] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
+- [x] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
 - [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
+
+> **Màn Chụp ghi chú — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Một route (`CaptureRoute`), hai chặng: **ngắm** (camera chạy, khung cắt hiện sẵn, kéo được) →
+>   bấm chụp → **chỉnh** (ảnh đứng yên, kéo 4 góc, bấm ✓ mới sang bước 2). Ảnh chọn từ Thư viện
+>   vào thẳng chặng chỉnh, khung mở đầu ôm gần hết ảnh.
+> - Chặng chỉnh: hàng nút dưới đổi thành "Chụp lại" · ✓ · (trống). Back của hệ thống = chụp lại;
+>   nút ✕ (giữ như design) = thoát cả luồng.
+> - "Đèn tắt / Đèn bật" là đèn pin sáng liên tục; máy không có đèn thì nút bị mờ.
+> - Quyền camera: vào màn là hỏi ngay. Bị từ chối thì khung ngắm hiện lời nhắc + nút "Cho phép
+>   camera" (bị từ chối hẳn thì nút thành "Mở Cài đặt"); Thư viện vẫn dùng được, không cần quyền.
+> - Chỉ kéo được 4 góc (không kéo cả khung, không xoay). Dòng nhắc "Kéo 4 góc…" tự ẩn khi khung
+>   kéo xuống chạm tới nó.
+> - Màn luôn tối kể cả khi app ở giao diện sáng; hai dải sau thanh trạng thái / thanh điều hướng
+>   cũng tối theo khi màn này đang hiện (`AppNavHost`).
+> - Ảnh của luồng chỉ nằm trong `cacheDir/capture/` (xoá khi chụp ảnh mới); ảnh đã cắt có cạnh
+>   dài tối đa 2560 px. Việc chuyển ảnh sang chỗ lưu lâu dài làm ở bước lưu thẻ AI.
+> - Mở từ Chi tiết bộ thẻ thì `deckId` đi theo route để bước 2 chọn sẵn bộ đó.
+>
+> **Màn Kiểm tra văn bản — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - OCR dùng ML Kit Text Recognition bản GÓI KÈM APP (Thi chọn): chạy không cần mạng. Đổi lại
+>   thư viện gốc nặng khoảng 11 MB cho mỗi kiến trúc CPU — APK debug (gộp cả 4 kiến trúc) tăng từ
+>   18 lên 61 MB; bản phát hành dạng App Bundle chỉ tải phần của đúng một kiến trúc.
+> - Các khối chữ được xếp lại theo vị trí trên ảnh (trên xuống, trái sang phải) trước khi ghép
+>   thành văn bản. Chưa giữ toạ độ từng dòng — sẽ thêm khi làm phần tô sáng ảnh nguồn.
+> - Ô văn bản cao cố định 272dp, dài thì cuộn bên trong ô; đang nhận dạng thì ô tạm khoá.
+> - Không nhận ra chữ / bộ nhận dạng lỗi: ở lại màn, dòng nhắc cam đổi nội dung, cho tự gõ; nút
+>   "Tạo thẻ bằng AI" mờ cho tới khi có chữ và có bộ thẻ.
+> - Ô "Lưu vào bộ thẻ": mở từ Chi tiết bộ thẻ thì chọn sẵn bộ đó, mở từ Home thì chọn bộ dùng
+>   gần nhất. Danh sách có dòng cuối "Bộ thẻ mới" mở bảng tạo bộ thẻ; tạo xong tự chọn bộ đó.
+> - Nút ← / Back: về màn chụp ở chặng chỉnh khung (ảnh cũ còn nguyên). "Chụp lại": về camera,
+>   bỏ ảnh cũ (`CaptureFlowEvents` nhắn màn chụp). Đã sửa văn bản mà rời màn bằng một trong hai
+>   lối thì hỏi "Bỏ phần văn bản đã sửa?" (Huỷ / Thoát hoặc Huỷ / Chụp lại).
+> - Dòng "Còn x/N lượt" đọc số thật từ `AiQuotaGuard.MAX_CALLS_PER_DAY` (nguồn duy nhất của con
+>   số này). Thi chốt 8/10/2026: N đặt theo hạn mức miễn phí thật. Hạn mức đó tính cho CẢ
+>   project (mọi người dùng chung) và chỉ xem được ở AI Studio → Rate limits. Bảng Thi gửi ngày
+>   8/10/2026 (gói Free): các model **Flash** (2.5 / 3 / 3.5 / 3.6 / 3.7 / 3.8) chỉ 5 lượt/phút,
+>   **20 lượt/ngày**; **Flash-Lite 3.1 và 3.5** được 15 lượt/phút, **500 lượt/ngày**. Vì vậy app
+>   sẽ dùng dòng Flash-Lite, và N = **10 lượt mỗi máy mỗi ngày** (khoảng 50 máy dùng hết lượt
+>   cùng ngày mới chạm trần). Đã đối chiếu đúng project `on-tap-tld` trong AI Studio.
+>
+> **Gọi Gemini + màn "Đang tạo thẻ" — cách hoạt động và những chỗ design không nói:**
+> - Bước 3/3 là MỘT route (`AiCardsRoute`: ảnh, văn bản, bộ thẻ), một ViewModel, đi qua các
+>   chặng trong `AiCardsPhase` — cùng cách với phiên ôn. Màn duyệt thẻ, màn lỗi mạng và màn hết
+>   lượt sẽ là các chặng thêm vào đây.
+> - Model `gemini-3.5-flash-lite` qua Firebase AI Logic (`FirebaseGeminiClient`), chờ tối đa 45
+>   giây. AI bị buộc trả JSON theo khuôn: câu hỏi, câu trả lời, số dòng nguồn.
+> - Lời dặn cho AI nằm ở `FlashcardPrompt`: chỉ dùng ý có trong ghi chú, thẻ cùng ngôn ngữ với
+>   ghi chú, mỗi thẻ một ý, bỏ qua mọi "mệnh lệnh" nằm lẫn trong ghi chú. Ghi chú được đánh số
+>   từng dòng có chữ; "Nguồn: dòng N trong ảnh" là số đó.
+> - Mỗi lần tối đa 10 thẻ. Chỉ lần gọi có trả về thẻ mới bị trừ lượt; mất mạng, AI lỗi, AI
+>   không soạn được thẻ nào, hay bấm Huỷ đều không trừ.
+> - "Huỷ", nút ← và Back trong lúc chờ: bỏ lần gọi đang dở, về bước 2 (văn bản còn nguyên).
+> - Đã kiểm chứng trên emulator ngày 8/10/2026: debug token App Check hoạt động, gọi được AI
+>   thật với ghi chú tiếng Anh và tiếng Việt. Máy OPPO chưa thử.
+> - TẠM: lỗi nào cũng báo bằng hộp thoại / snackbar chung rồi về bước 2 — màn lỗi mạng và màn
+>   hết lượt theo design làm ở phần sau.
+>
+> **Màn Duyệt thẻ đề xuất — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Là chặng `Suggestions` của `AiCardsRoute`. Mọi thẻ AI được tích sẵn. Chạm vào ô tích hoặc
+>   phần chữ của thẻ = tích / bỏ tích; thẻ bỏ tích có viền nét đứt và không được lưu.
+> - Nút bút chì và "Thêm thẻ" mở một bảng trượt (hai ô Câu hỏi / Câu trả lời, tối đa 250 ký tự
+>   như thẻ thủ công). Thẻ ở đây chưa nằm trong database nên không dùng lại màn Sửa thẻ.
+> - Nút thùng rác: hỏi lại "Xoá thẻ này?" (Thi chọn). Xoá hết thì màn hiện trạng thái rỗng,
+>   vẫn thêm thẻ tự gõ được.
+> - Nút lá cờ "Báo cáo nội dung AI" (Thi chọn): mở app email của máy với thư soạn sẵn gửi tới
+>   địa chỉ trong `strings.xml` (`support_email`), kèm nội dung các thẻ AI; người dùng tự bấm
+>   Gửi. Máy không có app email thì báo bằng snackbar.
+> - Nút ← / Back ở chặng này luôn hỏi "Bỏ các thẻ vừa tạo?" vì rời màn là mất thẻ và lượt AI.
+> - Lưu (`SaveSuggestedCardsUseCase`): chép ảnh đã cắt sang `filesDir/notes/<noteId>.jpg`, ghi
+>   một `Note` (ảnh + văn bản), rồi ghi các thẻ đang tích. Thẻ AI: `source = AI`, có `noteId`.
+>   Thẻ tự gõ thêm trong màn này: `source = MANUAL`, không có `noteId`. Hỏng giữa chừng thì dọn
+>   ghi chú và ảnh đã ghi. Lưu xong: báo "Đã lưu N thẻ", gỡ cả luồng chụp khỏi chồng màn rồi mở
+>   Chi tiết bộ thẻ (Back ở đó về Home).
+> - Danh sách thẻ đang duyệt được cất vào `SavedStateHandle` (dạng JSON) mỗi lần đổi. Lý do:
+>   khi người dùng sang app email để gửi báo cáo, Android có thể tắt app dưới nền (đã xảy ra
+>   trên emulator); lúc quay lại app hiện đúng danh sách cũ thay vì gọi AI lần nữa.
+> - Bấm Huỷ lúc đang gọi AI: thư viện Firebase bọc tín hiệu huỷ coroutine vào `UnknownException`
+>   — `FirebaseGeminiClient` gọi `ensureActive()` để nhận ra đây là "bị huỷ", không phải lỗi.
+> - CHƯA làm: `sourceBox` của thẻ (vùng tô sáng trên ảnh) đang để trống — thuộc phần "xem ảnh
+>   nguồn". Xoá bộ thẻ / xoá thẻ chưa dọn `Note` và file ảnh đi kèm. Màn Kiểm tra văn bản chưa
+>   giữ phần đã sửa nếu app bị tắt dưới nền (nhận dạng lại từ đầu, không tốn lượt AI).
+>
+> **Emulator bị xoá trắng (8/10/2026, khoảng 16:18):** emulator Pixel 7a được khởi động lại với
+> dữ liệu trống — app chưa cài, thư viện ảnh trống, mất 5 bộ thẻ mẫu. Hệ quả: debug token App
+> Check của emulator là token MỚI, phải đăng ký lại trên Firebase Console (token cũ "Emulator
+> Pixel 7a" không còn dùng được); ngôn ngữ riêng của app phải đặt lại `vi-VN`; muốn có lại 4 bộ
+> thẻ mẫu thì chạy `DemoDataSeeder`. Lỗi App Check khi token chưa đăng ký đã được kiểm chứng:
+> app báo "Lỗi xác thực ứng dụng…" và không trừ lượt. Thi đã đăng ký token mới cùng ngày và
+> lệnh gọi AI trên emulator chạy lại bình thường; 4 bộ thẻ mẫu CHƯA được nạp lại.
 
 **Thi**
 - [ ] Thử trên máy thật với vở viết tay và chữ in có dấu
@@ -243,20 +339,20 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 
 ### 6.1 Việc tiếp theo
 
-Bước 2 đã code xong cả ba màn còn lại (Chi tiết bộ thẻ, Thêm / sửa thẻ thủ công, Splash); Splash
-đang ở nhánh `feat/splash` chờ Thi xem và merge.
+Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
-**Bước 3 — Ôn tập** đã code xong trên nhánh `feat/review` (xem ghi chú ở Mục 2), chờ Thi chạy thử
-một phiên ôn đầy đủ rồi merge.
-
-Tiếp theo là **bước 4 — Chụp ảnh + AI**, trên nhánh mới tách từ `dev` sau khi bước 3 đã merge. Đây
-là bước đầu tiên cần Firebase thật (AI Logic + App Check) và quyền camera, nên trước khi code cần
-Thi xác nhận: debug token App Check đã đăng ký chưa (việc còn mở ở bước 1), và thử trên emulator
-hay máy thật. Thứ tự dự kiến: CameraX + crop → OCR (ML Kit) + màn sửa văn bản → gọi Gemini + màn
-"đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
+Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
+request #12), màn Kiểm tra văn bản cũng vậy (pull request #13). Phần gọi Gemini + màn "Đang tạo
+thẻ" (nhánh `feat/ai-generate`) đã code xong, chờ Thi xem và merge. Thứ tự còn lại: màn duyệt
+thẻ AI (kèm lưu thẻ + ảnh nguồn) → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
 phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
 
-Nút "Chụp ghi chú" / "Chụp ảnh" vẫn báo "sắp có" cho tới khi đó.
+Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
+Pixel 7a đã được kiểm chứng bằng lần gọi AI thật ngày 8/10/2026; token của máy OPPO CPH1911 đã
+đăng ký nhưng chưa thử. Thi tự thử trên máy thật ở cuối bước; Claude kiểm tra trên emulator
+(camera của emulator chỉ là cảnh ảo, không dùng để đánh giá chất lượng OCR được). Emulator đang
+thiếu bộ nhớ: adb hay rớt kết nối và có lần hệ thống tự tắt app (LOW_MEMORY) — không phải app
+crash.
 
 ### 6.2 Cách phối hợp
 
