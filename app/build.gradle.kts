@@ -106,6 +106,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.exifinterface)
 
+    // Nhận dạng chữ trong ảnh (OCR), chạy ngay trên máy
+    implementation(libs.mlkit.text.recognition)
+
     // Misc
     implementation(libs.timber)
     coreLibraryDesugaring(libs.desugar.jdk.libs)

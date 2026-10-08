@@ -12,6 +12,7 @@ import com.ledinhthi.ontaptld.feature.capture.domain.model.CropRect
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.CropNoteImageUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ImportGalleryImageUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.PreparePhotoFileUseCase
+import com.ledinhthi.ontaptld.feature.capture.presentation.CaptureFlowEvents
 import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CameraPermission
 import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CaptureEffect
 import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CapturePhase
@@ -40,6 +41,7 @@ class CaptureViewModelTest {
     private val preparePhotoFile = mockk<PreparePhotoFileUseCase>()
     private val importGalleryImage = mockk<ImportGalleryImageUseCase>()
     private val cropNoteImage = mockk<CropNoteImageUseCase>()
+    private val flowEvents = CaptureFlowEvents() // lớp nhỏ không phụ thuộc gì nên dùng bản thật
     private val navigator = mockk<AppNavigator>(relaxed = true)
     private val exceptionHandler = mockk<GlobalExceptionHandler>(relaxed = true)
     private val strings = mockk<StringProvider>(relaxed = true)
@@ -52,6 +54,7 @@ class CaptureViewModelTest {
         preparePhotoFile = preparePhotoFile,
         importGalleryImage = importGalleryImage,
         cropNoteImage = cropNoteImage,
+        flowEvents = flowEvents,
     ).apply { isTestMode = true }
 
     /** ViewModel đã có quyền camera — điểm xuất phát của đa số ca kiểm thử. */
@@ -176,6 +179,21 @@ class CaptureViewModelTest {
         assertNull(state.photoPath)
         assertEquals(CropRect.CameraDefault, state.crop)
         assertTrue(state.canShoot)
+    }
+
+    @Test
+    fun `buoc 2 yeu cau chup lai - man chup tu ve camera du dang o chang chinh khung`() = runTest {
+        coEvery { importGalleryImage.invoke(any()) } returns "/cache/picked.jpg"
+        val vm = readyViewModel()
+        vm.onGalleryImagePicked("content://media/1")
+        advanceUntilIdle()
+        assertEquals(CapturePhase.Adjust, vm.uiState.value.phase)
+
+        flowEvents.requestRetake()
+        advanceUntilIdle()
+
+        assertEquals(CapturePhase.Camera, vm.uiState.value.phase)
+        assertNull(vm.uiState.value.photoPath)
     }
 
     @Test

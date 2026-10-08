@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.ledinhthi.ontaptld.core.presentation.theme.appColors
 
@@ -34,6 +35,10 @@ fun LabeledTextField(
     minLines: Int = 1,
     maxLength: Int? = null,
     showCounter: Boolean = maxLength != null && !singleLine,
+    /** Chữ nhỏ bên phải nhãn; mặc định là bộ đếm "n/max". Truyền vào để tự ghi (vd "214 ký tự"). */
+    trailingLabel: String? = if (showCounter && maxLength != null) "${value.length}/$maxLength" else null,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
@@ -46,9 +51,9 @@ fun LabeledTextField(
                 style = MaterialTheme.typography.titleSmall,
                 color = colors.textPrimary,
             )
-            if (showCounter && maxLength != null) {
+            if (trailingLabel != null) {
                 Text(
-                    text = "${value.length}/$maxLength",
+                    text = trailingLabel,
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.textSecondary,
                 )
@@ -65,9 +70,10 @@ fun LabeledTextField(
                 .fillMaxWidth()
                 // Nhãn nằm ngoài TextField nên phải gắn lại để trình đọc màn hình đọc đúng tên ô.
                 .semantics { contentDescription = label },
-            textStyle = MaterialTheme.typography.bodyLarge,
+            enabled = enabled,
+            textStyle = textStyle,
             placeholder = placeholder?.let {
-                { Text(it, style = MaterialTheme.typography.bodyLarge) }
+                { Text(it, style = textStyle) }
             },
             singleLine = singleLine,
             minLines = if (singleLine) 1 else minLines,
@@ -81,6 +87,10 @@ fun LabeledTextField(
                 unfocusedContainerColor = colors.inputBackground,
                 focusedBorderColor = colors.primary,
                 unfocusedBorderColor = colors.borderStrong,
+                disabledContainerColor = colors.inputBackground,
+                disabledBorderColor = colors.borderStrong,
+                disabledPlaceholderColor = colors.textHint,
+                disabledTextColor = colors.textSecondary,
                 cursorColor = colors.primary,
                 focusedPlaceholderColor = colors.textHint,
                 unfocusedPlaceholderColor = colors.textHint,

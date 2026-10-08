@@ -191,6 +191,25 @@
     <string name="capture_error_save">Không lưu được ảnh. Kiểm tra dung lượng trống của máy.</string>
     <string name="ocr_review_title">Kiểm tra văn bản</string>
     <string name="ocr_review_cropped_image">Ảnh đã cắt</string>
+    <string name="ocr_review_on_device">Nhận dạng ngay trên máy · ảnh không rời khỏi thiết bị</string>
+    <string name="ocr_review_text_label">Văn bản nhận dạng được</string>
+    <plurals name="ocr_review_char_count">
+        <item quantity="other">%d ký tự</item>
+    </plurals>
+    <string name="ocr_review_recognizing">Đang nhận dạng chữ…</string>
+    <string name="ocr_review_note_edit">Sửa chỗ nhận dạng sai ngay tại đây. AI chỉ dùng đúng đoạn văn bản này để tạo thẻ.</string>
+    <string name="ocr_review_note_no_text">Không nhận ra chữ nào trong ảnh. Chụp lại cho rõ hơn hoặc tự gõ văn bản vào đây.</string>
+    <string name="ocr_review_note_failed">Nhận dạng chữ gặp lỗi. Chụp lại hoặc tự gõ văn bản vào đây.</string>
+    <string name="ocr_review_deck_label">Lưu vào bộ thẻ</string>
+    <string name="ocr_review_deck_placeholder">Chọn bộ thẻ</string>
+    <!-- %1$d = số lượt còn lại, %2$d = tổng số lượt mỗi ngày -->
+    <string name="ocr_review_quota">Còn %1$d/%2$d lượt tạo thẻ AI hôm nay · cần kết nối mạng</string>
+    <string name="ocr_review_generate">Tạo thẻ bằng AI</string>
+    <string name="ocr_review_discard_title">Bỏ phần văn bản đã sửa?</string>
+    <string name="ocr_review_discard_message">Nếu rời màn này, những chỗ bạn vừa sửa sẽ không được giữ lại.</string>
+    <string name="ocr_review_discard_confirm">Thoát</string>
+    <!-- Dòng cuối trong danh sách chọn bộ thẻ -->
+    <string name="deck_selector_new_deck">Bộ thẻ mới</string>
 
     <!-- create_deck — bottom sheet tạo bộ thẻ -->
     <string name="create_deck_title">Tạo bộ thẻ mới</string>

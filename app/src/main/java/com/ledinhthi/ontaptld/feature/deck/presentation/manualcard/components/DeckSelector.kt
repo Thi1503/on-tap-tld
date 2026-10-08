@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -45,6 +46,9 @@ import com.ledinhthi.ontaptld.feature.deck.presentation.components.parseDeckColo
 /**
  * Ô "Bộ thẻ": hiện bộ đang chọn, bấm vào thì thả xuống danh sách các bộ để đổi.
  * [enabled] = false (khi sửa thẻ): chỉ cho biết thẻ thuộc bộ nào, không bấm được.
+ *
+ * @param placeholder chữ mờ hiện trong ô khi chưa chọn bộ nào.
+ * @param onCreateNew nếu có, danh sách thêm dòng cuối "Bộ thẻ mới" và gọi hàm này khi bấm.
  */
 @Composable
 fun DeckSelector(
@@ -53,9 +57,11 @@ fun DeckSelector(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    label: String = stringResource(R.string.manual_card_deck_label),
+    placeholder: String? = null,
+    onCreateNew: (() -> Unit)? = null,
 ) {
     val colors = appColors()
-    val label = stringResource(R.string.manual_card_deck_label)
     var expanded by remember { mutableStateOf(false) }
     // Bề rộng thật của ô (tính bằng pixel, đo sau khi xếp chỗ) để menu thả xuống rộng đúng bằng ô.
     var fieldWidthPx by remember { mutableIntStateOf(0) }
@@ -86,9 +92,10 @@ fun DeckSelector(
                 ) {
                     if (selected != null) DeckDot(selected.colorHex)
                     Text(
-                        text = selected?.name.orEmpty(),
+                        text = selected?.name ?: placeholder.orEmpty(),
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyLarge,
+                        color = if (selected != null) colors.textPrimary else colors.textHint,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -135,6 +142,30 @@ fun DeckSelector(
                             }
                         } else {
                             null
+                        },
+                    )
+                }
+                if (onCreateNew != null) {
+                    if (decks.isNotEmpty()) HorizontalDivider(color = colors.divider)
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(R.string.deck_selector_new_deck),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryStrong,
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onCreateNew()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_add),
+                                contentDescription = null,
+                                modifier = Modifier.size(AppDimens.sizeIcon),
+                                tint = colors.primaryStrong,
+                            )
                         },
                     )
                 }

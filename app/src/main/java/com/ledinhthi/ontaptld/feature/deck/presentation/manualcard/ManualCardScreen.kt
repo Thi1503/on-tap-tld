@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,7 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -50,6 +47,7 @@ import com.ledinhthi.ontaptld.core.presentation.components.AppBadge
 import com.ledinhthi.ontaptld.core.presentation.components.AppTopBar
 import com.ledinhthi.ontaptld.core.presentation.components.BadgeTone
 import com.ledinhthi.ontaptld.core.presentation.components.ConfirmDialog
+import com.ledinhthi.ontaptld.core.presentation.components.InfoBanner
 import com.ledinhthi.ontaptld.core.presentation.components.LabeledTextField
 import com.ledinhthi.ontaptld.core.presentation.components.LoadingOverlay
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
@@ -264,34 +262,17 @@ private fun KeepAddingToggle(checked: Boolean, onCheckedChange: (Boolean) -> Uni
  */
 @Composable
 private fun InfoNote(savedCount: Int) {
-    val colors = appColors()
     val saved = savedCount > 0
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colors.primarySoft, MaterialTheme.shapes.medium)
-            .padding(horizontal = 14.dp, vertical = AppDimens.paddingSmall)
-            // Khi nội dung đổi sang "Đã lưu…", trình đọc màn hình tự đọc lên.
-            .semantics { if (saved) liveRegion = LiveRegionMode.Polite },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AppDimens.padding10),
-    ) {
-        Icon(
-            painter = painterResource(if (saved) R.drawable.ic_check else R.drawable.ic_info),
-            contentDescription = null,
-            modifier = Modifier.size(AppDimens.sizeIcon),
-            tint = colors.primaryStrong,
-        )
-        Text(
-            text = if (saved) {
-                pluralStringResource(R.plurals.manual_card_saved_count, savedCount, savedCount)
-            } else {
-                stringResource(R.string.manual_card_new_card_note)
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.textStrong,
-        )
-    }
+    InfoBanner(
+        text = if (saved) {
+            pluralStringResource(R.plurals.manual_card_saved_count, savedCount, savedCount)
+        } else {
+            stringResource(R.string.manual_card_new_card_note)
+        },
+        // Khi nội dung đổi sang "Đã lưu…", trình đọc màn hình tự đọc lên.
+        modifier = Modifier.semantics { if (saved) liveRegion = LiveRegionMode.Polite },
+        icon = if (saved) R.drawable.ic_check else R.drawable.ic_info,
+    )
 }
 
 // ---------------------------------------------------------------------------------------

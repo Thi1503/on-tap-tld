@@ -1,6 +1,7 @@
 package com.ledinhthi.ontaptld.feature.capture.presentation.capture
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.exception.AppException
 import com.ledinhthi.ontaptld.core.presentation.mvi.BaseViewModel
@@ -10,10 +11,13 @@ import com.ledinhthi.ontaptld.feature.capture.domain.model.CropRect
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.CropNoteImageUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ImportGalleryImageUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.PreparePhotoFileUseCase
+import com.ledinhthi.ontaptld.feature.capture.presentation.CaptureFlowEvents
 import com.ledinhthi.ontaptld.feature.capture.presentation.displayMessage
 import com.ledinhthi.ontaptld.navigation.CaptureRoute
 import com.ledinhthi.ontaptld.navigation.OcrReviewRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 /**
@@ -29,10 +33,19 @@ class CaptureViewModel @Inject constructor(
     private val preparePhotoFile: PreparePhotoFileUseCase,
     private val importGalleryImage: ImportGalleryImageUseCase,
     private val cropNoteImage: CropNoteImageUseCase,
+    flowEvents: CaptureFlowEvents,
 ) : BaseViewModel<CaptureState>(CaptureState(), toolbox) {
 
     /** Bộ thẻ sẽ được chọn sẵn ở bước 2 — chỉ có khi mở màn này từ Chi tiết bộ thẻ. */
     private val deckId: String? = savedState[CaptureRoute::deckId.name]
+
+    init {
+        // Màn này vẫn "sống" bên dưới khi người dùng đang ở bước 2. Bấm "Chụp lại" ở đó thì
+        // tín hiệu về tới đây trước khi màn kịp hiện lại, nên lúc hiện lại đã là camera.
+        flowEvents.retakeRequests
+            .onEach { onRetake() }
+            .launchIn(viewModelScope)
+    }
 
     fun onClose() = navigator.back()
 

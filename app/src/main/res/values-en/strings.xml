@@ -191,6 +191,24 @@
     <string name="capture_error_save">Couldn\'t save the photo. Check your free storage.</string>
     <string name="ocr_review_title">Check the text</string>
     <string name="ocr_review_cropped_image">Cropped photo</string>
+    <string name="ocr_review_on_device">Recognised on this device · the photo never leaves it</string>
+    <string name="ocr_review_text_label">Recognised text</string>
+    <plurals name="ocr_review_char_count">
+        <item quantity="one">%d character</item>
+        <item quantity="other">%d characters</item>
+    </plurals>
+    <string name="ocr_review_recognizing">Recognising text…</string>
+    <string name="ocr_review_note_edit">Fix any recognition mistakes right here. AI only uses this exact text to create cards.</string>
+    <string name="ocr_review_note_no_text">No text was found in the photo. Retake it more clearly, or type the text here yourself.</string>
+    <string name="ocr_review_note_failed">Text recognition failed. Retake the photo, or type the text here yourself.</string>
+    <string name="ocr_review_deck_label">Save to deck</string>
+    <string name="ocr_review_deck_placeholder">Choose a deck</string>
+    <string name="ocr_review_quota">%1$d/%2$d AI generations left today · needs internet</string>
+    <string name="ocr_review_generate">Create cards with AI</string>
+    <string name="ocr_review_discard_title">Discard your edits?</string>
+    <string name="ocr_review_discard_message">If you leave this screen, the changes you just made won\'t be kept.</string>
+    <string name="ocr_review_discard_confirm">Leave</string>
+    <string name="deck_selector_new_deck">New deck</string>
 
     <!-- create_deck -->
     <string name="create_deck_title">New deck</string>

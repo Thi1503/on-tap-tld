@@ -24,6 +24,7 @@ firebaseBom = "34.3.0"
 googleServices = "4.4.3"
 camerax = "1.5.3"                 # bước 4: chụp ghi chú
 exifinterface = "1.4.2"           # đọc hướng xoay của ảnh chụp / ảnh chọn từ thư viện
+mlkitTextRecognition = "16.0.1"  # nhận dạng chữ Latin (đủ cho tiếng Việt có dấu)
 # test
 turbine = "1.2.1"
 mockk = "1.14.2"
@@ -75,6 +76,9 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+
+# ML Kit — nhận dạng chữ (bản gói kèm app: mô hình nằm sẵn trong APK, không cần mạng)
+mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
 
 # Misc
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
