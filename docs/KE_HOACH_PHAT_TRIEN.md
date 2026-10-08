@@ -65,7 +65,7 @@ Code xong ngày 7/10/2026 trên nhánh `feat/foundation` (chưa commit) — ch�
 
 **Thi**
 - [ ] Review, merge
-- [ ] Chép debug token của App Check (Logcat, tag `DebugAppCheckProvider`) vào Firebase Console → App Check → Manage debug tokens
+- [x] Chép debug token của App Check (Logcat, lọc chữ `DebugAppCheckProvider`) vào Firebase Console → App Check → Apps → ⋮ → Manage debug tokens — đã đăng ký ngày 8/10/2026 cho hai máy: "Emulator Pixel 7a" và "OPPO CPH1911". Mỗi máy một token; gỡ app / xoá dữ liệu app thì phải lấy và đăng ký lại
 - [x] Cho phép Claude tải font Nunito Sans
 
 ### Bước 2 — Bộ thẻ
@@ -272,10 +272,11 @@ Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 văn bản → gọi Gemini + màn "đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết
 lượt → xem ảnh nguồn (kèm phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
 
-Chụp và OCR chạy hoàn toàn trên máy. Từ màn gọi Gemini trở đi mới cần Firebase thật: lúc đó Thi
-phải xác nhận debug token App Check của máy thử đã có trong Firebase Console (App Check → nút ⋮
-của app → Manage debug tokens). Thi tự thử trên máy thật ở cuối bước; Claude kiểm tra trên
-emulator (camera của emulator chỉ là cảnh ảo, không dùng để đánh giá chất lượng OCR được).
+Chụp và OCR chạy hoàn toàn trên máy. Từ màn gọi Gemini trở đi mới cần Firebase thật; debug token
+App Check của emulator Pixel 7a và máy OPPO CPH1911 đã đăng ký ngày 8/10/2026, nhưng CHƯA được
+kiểm chứng bằng một lần gọi AI thật — việc đó làm ở màn gọi Gemini. Thi tự thử trên máy thật ở
+cuối bước; Claude kiểm tra trên emulator (camera của emulator chỉ là cảnh ảo, không dùng để đánh
+giá chất lượng OCR được).
 
 ### 6.2 Cách phối hợp
 
