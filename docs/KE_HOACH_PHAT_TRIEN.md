@@ -111,7 +111,7 @@ Splash xong ngày 8/10/2026, đã vào `dev` qua pull request #9 (`feat/splash`)
 
 ### Bước 3 — Ôn tập
 
-Code xong ngày 8/10/2026 trên nhánh `feat/review` (chưa commit) — chờ Thi chạy thử.
+Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`).
 
 **Claude**
 - [x] Màn câu hỏi, màn đáp án + 4 mức (Quên / Khó / Dễ / Rất dễ), màn hoàn thành phiên
@@ -138,13 +138,35 @@ Code xong ngày 8/10/2026 trên nhánh `feat/review` (chưa commit) — chờ Th
 
 ### Bước 4 — Chụp ảnh + AI *(cần bước 0)*
 
+Màn Chụp ghi chú (bước 1/3 của luồng) code xong ngày 8/10/2026 trên nhánh `feat/capture` (chưa
+commit) — chờ Thi xem và merge.
+
 **Claude**
-- [ ] CameraX + crop vùng chữ
+- [x] CameraX + crop vùng chữ
 - [ ] OCR bằng ML Kit, màn sửa văn bản
 - [ ] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
 - [ ] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
 - [ ] Xem ảnh nguồn của thẻ AI (tô sáng đúng vùng `sourceBox`)
+
+> **Màn Chụp ghi chú — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Một route (`CaptureRoute`), hai chặng: **ngắm** (camera chạy, khung cắt hiện sẵn, kéo được) →
+>   bấm chụp → **chỉnh** (ảnh đứng yên, kéo 4 góc, bấm ✓ mới sang bước 2). Ảnh chọn từ Thư viện
+>   vào thẳng chặng chỉnh, khung mở đầu ôm gần hết ảnh.
+> - Chặng chỉnh: hàng nút dưới đổi thành "Chụp lại" · ✓ · (trống). Back của hệ thống = chụp lại;
+>   nút ✕ (giữ như design) = thoát cả luồng.
+> - "Đèn tắt / Đèn bật" là đèn pin sáng liên tục; máy không có đèn thì nút bị mờ.
+> - Quyền camera: vào màn là hỏi ngay. Bị từ chối thì khung ngắm hiện lời nhắc + nút "Cho phép
+>   camera" (bị từ chối hẳn thì nút thành "Mở Cài đặt"); Thư viện vẫn dùng được, không cần quyền.
+> - Chỉ kéo được 4 góc (không kéo cả khung, không xoay). Dòng nhắc "Kéo 4 góc…" tự ẩn khi khung
+>   kéo xuống chạm tới nó.
+> - Màn luôn tối kể cả khi app ở giao diện sáng; hai dải sau thanh trạng thái / thanh điều hướng
+>   cũng tối theo khi màn này đang hiện (`AppNavHost`).
+> - Ảnh của luồng chỉ nằm trong `cacheDir/capture/` (xoá khi chụp ảnh mới); ảnh đã cắt có cạnh
+>   dài tối đa 2560 px. Việc chuyển ảnh sang chỗ lưu lâu dài làm ở bước lưu thẻ AI.
+> - Mở từ Chi tiết bộ thẻ thì `deckId` đi theo route để bước 2 chọn sẵn bộ đó.
+> - TẠM: bấm ✓ đang mở `OcrReviewPlaceholderScreen` (chỉ hiện ảnh đã cắt) — sẽ được thay bằng
+>   màn Kiểm tra văn bản thật ở phần việc kế tiếp.
 
 **Thi**
 - [ ] Thử trên máy thật với vở viết tay và chữ in có dấu
@@ -243,20 +265,17 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 
 ### 6.1 Việc tiếp theo
 
-Bước 2 đã code xong cả ba màn còn lại (Chi tiết bộ thẻ, Thêm / sửa thẻ thủ công, Splash); Splash
-đang ở nhánh `feat/splash` chờ Thi xem và merge.
+Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
-**Bước 3 — Ôn tập** đã code xong trên nhánh `feat/review` (xem ghi chú ở Mục 2), chờ Thi chạy thử
-một phiên ôn đầy đủ rồi merge.
+Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn đầu (Chụp ghi chú, nhánh
+`feat/capture`) đã code xong, chờ Thi xem và merge. Thứ tự còn lại: OCR (ML Kit) + màn Kiểm tra
+văn bản → gọi Gemini + màn "đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết
+lượt → xem ảnh nguồn (kèm phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
 
-Tiếp theo là **bước 4 — Chụp ảnh + AI**, trên nhánh mới tách từ `dev` sau khi bước 3 đã merge. Đây
-là bước đầu tiên cần Firebase thật (AI Logic + App Check) và quyền camera, nên trước khi code cần
-Thi xác nhận: debug token App Check đã đăng ký chưa (việc còn mở ở bước 1), và thử trên emulator
-hay máy thật. Thứ tự dự kiến: CameraX + crop → OCR (ML Kit) + màn sửa văn bản → gọi Gemini + màn
-"đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết lượt → xem ảnh nguồn (kèm
-phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
-
-Nút "Chụp ghi chú" / "Chụp ảnh" vẫn báo "sắp có" cho tới khi đó.
+Chụp và OCR chạy hoàn toàn trên máy. Từ màn gọi Gemini trở đi mới cần Firebase thật: lúc đó Thi
+phải xác nhận debug token App Check của máy thử đã có trong Firebase Console (App Check → nút ⋮
+của app → Manage debug tokens). Thi tự thử trên máy thật ở cuối bước; Claude kiểm tra trên
+emulator (camera của emulator chỉ là cảnh ảo, không dùng để đánh giá chất lượng OCR được).
 
 ### 6.2 Cách phối hợp
 

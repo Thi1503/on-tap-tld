@@ -1,8 +1,10 @@
 package com.ledinhthi.ontaptld.navigation
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -15,14 +17,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppDialog
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
+import com.ledinhthi.ontaptld.core.presentation.theme.DarkAppExtendedColors
+import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CaptureScreen
+import com.ledinhthi.ontaptld.feature.capture.presentation.ocrreview.OcrReviewPlaceholderScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
@@ -55,7 +63,24 @@ fun AppNavHost(navigator: AppNavigator) {
     ObserveEffects(navigator.snackBars) { snackbarHostState.showSnackbar(it.text) }
     ObserveEffects(navigator.dialogs) { dialog = it }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+    // Scaffold tô màu cho hai dải nằm sau thanh trạng thái và thanh điều hướng của hệ thống.
+    // Màn chụp ảnh tối toàn bộ kể cả khi app đang ở giao diện sáng, nên khi nó đang hiện thì
+    // hai dải này cũng phải tối theo (đổi màu từ từ cho khớp hiệu ứng chuyển màn).
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val isCameraScreen = currentEntry?.destination?.hasRoute<CaptureRoute>() == true
+    val systemBarBackdrop by animateColorAsState(
+        targetValue = if (isCameraScreen) {
+            DarkAppExtendedColors.scaffoldBackground
+        } else {
+            MaterialTheme.colorScheme.background
+        },
+        label = "systemBarBackdrop",
+    )
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = systemBarBackdrop,
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = SplashRoute,
@@ -74,7 +99,14 @@ fun AppNavHost(navigator: AppNavigator) {
             composable<ManualCardRoute> { ManualCardScreen() }
             composable<SettingsRoute> { SettingsScreen() }
             composable<ReviewRoute> { ReviewScreen() }
-            // composable<CaptureRoute> { CaptureScreen() }        // bước 4
+            composable<CaptureRoute> { CaptureScreen() }
+            // TẠM: màn Kiểm tra văn bản (bước 2/3) chưa làm — hiện ảnh đã cắt để kiểm tra khung cắt.
+            composable<OcrReviewRoute> { entry ->
+                OcrReviewPlaceholderScreen(
+                    imagePath = entry.toRoute<OcrReviewRoute>().imagePath,
+                    onBack = navigator::back,
+                )
+            }
         }
     }
 

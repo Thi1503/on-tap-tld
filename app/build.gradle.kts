@@ -100,6 +100,12 @@ dependencies {
     implementation(libs.firebase.appcheck.playintegrity)
     debugImplementation(libs.firebase.appcheck.debug)
 
+    // Camera: CameraX (khung ngắm + chụp) và ExifInterface (ảnh bị xoay thì dựng lại cho thẳng)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.exifinterface)
+
     // Misc
     implementation(libs.timber)
     coreLibraryDesugaring(libs.desugar.jdk.libs)

@@ -171,6 +171,27 @@
     <string name="review_empty_message">You\'ve reviewed everything due today. Come back tomorrow.</string>
     <string name="review_error_title">Couldn\'t load cards to review</string>
 
+    <!-- capture -->
+    <string name="capture_title">Capture notes</string>
+    <string name="capture_step">Step %1$d/%2$d</string>
+    <string name="capture_crop_hint">Drag the 4 corners to select the text to recognise</string>
+    <string name="capture_gallery">Gallery</string>
+    <string name="capture_shutter">Take photo</string>
+    <string name="capture_torch_off">Light off</string>
+    <string name="capture_torch_on">Light on</string>
+    <string name="capture_retake">Retake</string>
+    <string name="capture_use_photo">Use this photo</string>
+    <string name="capture_photo_description">The note photo you picked</string>
+    <string name="capture_permission_title">Camera access needed</string>
+    <string name="capture_permission_message">Allow the app to use the camera to capture your notes. You can still pick an existing photo from the Gallery.</string>
+    <string name="capture_permission_grant">Allow camera</string>
+    <string name="capture_permission_settings">Open Settings</string>
+    <string name="capture_error_camera">Couldn\'t take the photo. Please try again.</string>
+    <string name="capture_error_image">Couldn\'t open this image. Pick another one.</string>
+    <string name="capture_error_save">Couldn\'t save the photo. Check your free storage.</string>
+    <string name="ocr_review_title">Check the text</string>
+    <string name="ocr_review_cropped_image">Cropped photo</string>
+
     <!-- create_deck -->
     <string name="create_deck_title">New deck</string>
     <string name="create_deck_name_label">Deck name</string>
