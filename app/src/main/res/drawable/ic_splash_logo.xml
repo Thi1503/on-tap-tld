@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Hình ở giữa màn chào CỦA HỆ THỐNG (Android 12 trở lên tự hiện màn này trong lúc app đang
+    khởi động, trước khi màn Splash của app kịp vẽ — xem values-v31/themes.xml). Vẽ đúng ô logo
+    của màn Splash: ô vuông cam 96dp bo góc 20dp, chữ "TLD" trắng, để hai màn nối nhau liền mạch.
+
+    Hệ thống dành cho hình này một khung 288dp và chỉ hiện phần nằm trong vòng tròn đường kính
+    192dp ở giữa, nên ô logo 96dp được đặt chính giữa khung.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+    <path
+        android:fillColor="#F24E1E"
+        android:pathData="M116,96H172A20,20 0,0 1,192 116V172A20,20 0,0 1,172 192H116A20,20 0,0 1,96 172V116A20,20 0,0 1,116 96Z" />
+    <!--
+        Ba chữ cái dùng lại đúng toạ độ trong ic_launcher_foreground.xml (khung 108, tâm 54,54).
+        Nhóm này phóng chúng lên 4/3 lần quanh tâm đó rồi dời tâm về giữa khung 288 (144,144).
+    -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="1.3333"
+        android:scaleY="1.3333"
+        android:translateX="90"
+        android:translateY="90">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M32.65,45.75H45.85V49.25H41.25V62.25H37.25V49.25H32.65Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M47.75,45.75H51.75V58.75H58.65V62.25H47.75Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M60.45,45.75H67.1C71.656,45.75 75.35,49.444 75.35,54C75.35,58.556 71.656,62.25 67.1,62.25H60.45ZM64.45,49.25V58.75H67C69.35,58.75 71.25,56.62 71.25,54C71.25,51.38 69.35,49.25 67,49.25Z" />
+    </group>
+</vector>
