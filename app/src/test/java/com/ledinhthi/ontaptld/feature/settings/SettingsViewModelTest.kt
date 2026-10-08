@@ -22,6 +22,11 @@ import com.ledinhthi.ontaptld.feature.capture.domain.model.AiQuota
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.settings.domain.DeleteAllLocalDataUseCase
 import com.ledinhthi.ontaptld.feature.settings.presentation.language.LanguageViewModel
+import com.ledinhthi.ontaptld.feature.sync.domain.ObserveSyncStatusUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncNowUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncRepository
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncStatus
+import com.ledinhthi.ontaptld.core.exception.SyncErrorKind
 import com.ledinhthi.ontaptld.feature.settings.presentation.settings.SettingsViewModel
 import com.ledinhthi.ontaptld.navigation.GoogleSignInRoute
 import com.ledinhthi.ontaptld.navigation.LanguageRoute
@@ -65,6 +70,11 @@ class SettingsViewModelTest {
     }
     private val observeAuthUser = ObserveAuthUserUseCase(authRepository)
     private val signOut = SignOutUseCase(authRepository)
+    // Bộ máy đồng bộ giả: `syncFlow` là trạng thái mà màn Cài đặt sẽ thấy.
+    private val syncFlow = MutableStateFlow(SyncStatus())
+    private val syncRepository = mockk<SyncRepository> {
+        every { status } returns syncFlow
+    }
     private val signedInUser = AuthUser(uid = "u1", displayName = "Minh Anh", email = "minhanh@example.com")
     private val navigator = mockk<AppNavigator>(relaxed = true)
     private val exceptionHandler = mockk<GlobalExceptionHandler>(relaxed = true)
@@ -82,7 +92,10 @@ class SettingsViewModelTest {
             reminderFlow.value = reminderFlow.value.copy(minuteOfDay = firstArg<Int>() * 60 + secondArg<Int>())
         }
         every { observeAiQuota.invoke() } returns flowOf(AiQuota(remaining = 8, max = 10))
-        return SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut).apply { isTestMode = true }
+        return SettingsViewModel(
+            toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut,
+            ObserveSyncStatusUseCase(syncRepository), SyncNowUseCase(syncRepository),
+        ).apply { isTestMode = true }
     }
 
     @Test
@@ -106,7 +119,10 @@ class SettingsViewModelTest {
         every { prefs.themeMode } returns themeFlow
         every { prefs.reminder } returns reminderFlow
         every { observeAiQuota.invoke() } returns flow { } // dòng dữ liệu không phát gì
-        val vm = SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut)
+        val vm = SettingsViewModel(
+            toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut,
+            ObserveSyncStatusUseCase(syncRepository), SyncNowUseCase(syncRepository),
+        )
         advanceUntilIdle()
 
         assertNull(vm.uiState.value.aiQuota)
@@ -146,7 +162,10 @@ class SettingsViewModelTest {
         every { prefs.reminder } returns reminderFlow
         every { observeAiQuota.invoke() } returns flowOf(AiQuota(remaining = 10, max = 10))
 
-        val vm = SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut).apply { isTestMode = true }
+        val vm = SettingsViewModel(
+            toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut,
+            ObserveSyncStatusUseCase(syncRepository), SyncNowUseCase(syncRepository),
+        ).apply { isTestMode = true }
         advanceUntilIdle()
 
         assertEquals(ThemeMode.SYSTEM, vm.uiState.value.themeMode)
@@ -209,6 +228,57 @@ class SettingsViewModelTest {
         verify { exceptionHandler.handle(any()) }
         verify(exactly = 0) { navigator.showSnackBar(any(), SnackBarType.SUCCESS) }
         assertEquals(signedInUser, vm.uiState.value.account)
+    }
+
+    @Test
+    fun `trang thai dong bo doi - man Cai dat thay ngay`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertNull(vm.uiState.value.sync.lastSyncedAtMillis)
+
+        syncFlow.value = SyncStatus(isSyncing = true) // việc nền vừa bắt đầu một lượt
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.sync.isSyncing)
+
+        syncFlow.value = SyncStatus(lastSyncedAtMillis = 5_000)
+        advanceUntilIdle()
+        assertEquals(5_000L, vm.uiState.value.sync.lastSyncedAtMillis)
+    }
+
+    @Test
+    fun `bam Dong bo ngay - chay mot luot, xong khong can bao gi`() = runTest {
+        coEvery { syncRepository.sync() } returns Unit
+        val vm = viewModel()
+
+        vm.onSyncNowClick()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { syncRepository.sync() }
+        verify(exactly = 0) { navigator.showSnackBar(any(), any()) }
+        verify(exactly = 0) { exceptionHandler.handle(any()) }
+    }
+
+    @Test
+    fun `dang dong bo ma bam Dong bo ngay - bo qua`() = runTest {
+        syncFlow.value = SyncStatus(isSyncing = true)
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onSyncNowClick()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { syncRepository.sync() }
+    }
+
+    @Test
+    fun `dong bo loi mang - de bo xu ly loi chung bao`() = runTest {
+        coEvery { syncRepository.sync() } throws AppException.SyncException(SyncErrorKind.NETWORK)
+        val vm = viewModel()
+
+        vm.onSyncNowClick()
+        advanceUntilIdle()
+
+        verify { exceptionHandler.handle(match { (it.exception as? AppException.SyncException)?.kind == SyncErrorKind.NETWORK }) }
     }
 
     @Test

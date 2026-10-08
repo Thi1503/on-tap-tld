@@ -3,6 +3,7 @@ package com.ledinhthi.ontaptld.core.data.local.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.ledinhthi.ontaptld.core.sync.SyncDao
 import com.ledinhthi.ontaptld.core.sync.SyncQueueDao
 import com.ledinhthi.ontaptld.core.sync.SyncQueueEntity
 import com.ledinhthi.ontaptld.feature.deck.data.local.DeckDao
@@ -31,5 +32,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun flashcardDao(): FlashcardDao
     abstract fun syncQueueDao(): SyncQueueDao
+    abstract fun syncDao(): SyncDao
     abstract fun reviewLogDao(): ReviewLogDao
 }

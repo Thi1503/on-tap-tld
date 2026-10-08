@@ -8,13 +8,21 @@ enum class SyncEntityType { DECK, NOTE, FLASHCARD }
 
 enum class SyncAction { CREATE, UPDATE, DELETE }
 
+/** Tên collection trên Firestore của từng loại dữ liệu (docs_tld Mục 7.1). */
+val SyncEntityType.collectionName: String
+    get() = when (this) {
+        SyncEntityType.DECK -> "decks"
+        SyncEntityType.NOTE -> "notes"
+        SyncEntityType.FLASHCARD -> "flashcards"
+    }
+
 /**
- * Hàng đợi lệnh chờ đẩy lên Firestore (docs_tld Mục 6.4). Bảng có mặt từ bây giờ để schema
- * không phải đổi khi làm đồng bộ; phần Push/Pull dùng nó nằm ở bước 6 của
- * docs/KE_HOACH_PHAT_TRIEN.md.
+ * Hàng đợi lệnh chờ đẩy lên Firestore (docs_tld Mục 6.4). Ghi vào đây: [SyncQueueRecorder];
+ * đọc ra để đẩy lên: `feature/sync`.
  *
- * Quy tắc khi ghi: trước khi thêm, tìm lệnh đang chờ của cùng [entityId] — nếu đã có thì cập
- * nhật lệnh đó thay vì thêm dòng mới (sửa 1 thẻ nhiều lần lúc offline chỉ giữ 1 lệnh).
+ * Mỗi dòng dữ liệu chỉ có MỘT lệnh chờ: [id] của lệnh lấy luôn [entityId], nên ghi lệnh mới là
+ * đè lệnh cũ (sửa 1 thẻ nhiều lần lúc offline chỉ giữ 1 lệnh). Lệnh không chép nội dung của dòng
+ * dữ liệu — lúc đẩy mới đọc dòng đó ra, nên thứ lên đám mây luôn là bản mới nhất.
  */
 @Entity(tableName = "sync_queue", indices = [Index("entityId")])
 data class SyncQueueEntity(

@@ -6,6 +6,7 @@ import com.ledinhthi.ontaptld.core.presentation.mvi.UiState
 import com.ledinhthi.ontaptld.core.presentation.mvi.UiStatus
 import com.ledinhthi.ontaptld.feature.auth.domain.model.AuthUser
 import com.ledinhthi.ontaptld.feature.capture.domain.model.AiQuota
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncStatus
 
 data class SettingsState(
     override val status: UiStatus = UiStatus(),
@@ -15,6 +16,8 @@ data class SettingsState(
     val aiQuota: AiQuota? = null,
     /** Người đang đăng nhập Google; null khi chưa đăng nhập. */
     val account: AuthUser? = null,
+    /** Trạng thái đồng bộ đám mây — chỉ có ý nghĩa khi [account] khác null. */
+    val sync: SyncStatus = SyncStatus(),
 ) : UiState {
     /** Số lượt AI đã dùng hôm nay (bộ đếm lưu số lượt CÒN LẠI). */
     val aiUsed: Int get() = aiQuota?.let { it.max - it.remaining } ?: 0

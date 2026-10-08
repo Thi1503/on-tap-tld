@@ -54,6 +54,9 @@ class FirebaseAuthRepository @Inject constructor(
             }
         }
 
+    override val currentUserId: String?
+        get() = auth?.currentUser?.uid
+
     override suspend fun signInWithGoogle(idToken: String): AuthUser {
         val auth = auth ?: throw AppException.AuthException(AuthErrorKind.NOT_CONFIGURED)
         try {

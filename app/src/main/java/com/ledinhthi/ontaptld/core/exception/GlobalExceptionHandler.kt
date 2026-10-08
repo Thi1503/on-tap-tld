@@ -33,6 +33,18 @@ class GlobalExceptionHandler @Inject constructor(
                 ),
                 SnackBarType.FAILURE,
             )
+            is AppException.SyncException -> navigator.showSnackBar(
+                strings.get(
+                    when (e.kind) {
+                        SyncErrorKind.NOT_SIGNED_IN -> R.string.sync_error_not_signed_in
+                        SyncErrorKind.NOT_CONFIGURED -> R.string.sync_error_not_configured
+                        SyncErrorKind.NETWORK -> R.string.sync_error_network
+                        SyncErrorKind.PERMISSION_DENIED -> R.string.sync_error_permission
+                        SyncErrorKind.UNKNOWN -> R.string.sync_error_unknown
+                    },
+                ),
+                SnackBarType.FAILURE,
+            )
             is AppException.LocalException -> navigator.showErrorDialog(
                 strings.get(R.string.error_local_storage),
             )

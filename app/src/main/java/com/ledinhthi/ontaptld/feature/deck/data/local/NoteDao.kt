@@ -9,7 +9,7 @@ interface NoteDao : BaseDao<NoteEntity> {
     @Query("SELECT * FROM notes WHERE id = :id AND isDeleted = 0")
     suspend fun getById(id: String): NoteEntity?
 
-    @Query("UPDATE notes SET isDeleted = 1, updatedAt = :now WHERE id = :id")
+    @Query("UPDATE notes SET isDeleted = 1, synced = 0, updatedAt = :now WHERE id = :id")
     suspend fun softDelete(id: String, now: Long)
 
     @Query("SELECT imagePath FROM notes WHERE isDeleted = 0")
@@ -24,7 +24,7 @@ interface NoteDao : BaseDao<NoteEntity> {
      * được ghi trước rồi mới tới thẻ, nên trong khoảnh khắc đó nó chưa có thẻ nào.
      */
     @Query(
-        "UPDATE notes SET isDeleted = 1, updatedAt = :now " +
+        "UPDATE notes SET isDeleted = 1, synced = 0, updatedAt = :now " +
             "WHERE isDeleted = 0 AND createdAt < :createdBefore AND NOT EXISTS (" +
             "SELECT 1 FROM flashcards WHERE flashcards.noteId = notes.id AND flashcards.isDeleted = 0)",
     )
