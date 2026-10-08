@@ -103,6 +103,14 @@ dependencies {
     // Firebase AI Logic — gọi Gemini mà không phải nhúng API key vào app
     implementation(libs.firebase.ai)
 
+    // Đăng nhập Google (tuỳ chọn, vào từ Cài đặt): Credential Manager lấy "ID token" của tài
+    // khoản Google người dùng chọn, Firebase Auth đổi token đó thành phiên đăng nhập của app.
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // Camera: CameraX (khung ngắm + chụp) và ExifInterface (ảnh bị xoay thì dựng lại cho thẳng)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)

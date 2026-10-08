@@ -340,8 +340,8 @@ Hai việc dọn dẹp cuối của bước 4 xong tối 8/10/2026, đã vào `d
 ### Bước 5 — Cài đặt, nhắc ôn, widget
 
 Màn Cài đặt + màn Ngôn ngữ xong tối 8/10/2026, đã vào `dev` qua pull request #23 (nhánh
-`feat/settings`). Thông báo nhắc ôn hằng ngày code xong cùng tối trên nhánh `feat/reminder`
-(chưa commit), đã chạy thử trên emulator — chờ Thi xem và merge. Widget để sau khi nộp.
+`feat/settings`). Thông báo nhắc ôn hằng ngày xong cùng tối, đã vào `dev` qua pull request #24
+(nhánh `feat/reminder`). Widget để sau khi nộp.
 
 **Claude**
 - [x] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu, chọn ngôn ngữ
@@ -422,11 +422,56 @@ Màn Cài đặt + màn Ngôn ngữ xong tối 8/10/2026, đã vào `dev` qua pu
 ### Bước 6 — Tài khoản và đồng bộ *(cần bước 0, phần Auth + Firestore)*
 
 **Claude**
-- [ ] Đăng nhập Google tuỳ chọn, vào từ Cài đặt
+- [x] Đăng nhập Google tuỳ chọn, vào từ Cài đặt
 - [ ] Đồng bộ hai chiều Local ⇄ Firestore (push qua `sync_queue`, pull theo `updatedAt`, Last-Write-Wins)
 - [ ] Gán `userId` cho dữ liệu cũ khi đăng nhập lần đầu
-- [ ] Cài đặt khi đã đăng nhập: trạng thái đồng bộ, đăng xuất
+- [x] Cài đặt khi đã đăng nhập: thẻ tài khoản, đăng xuất (trạng thái đồng bộ để cùng phần đồng bộ)
 - [ ] Xoá tài khoản (xác nhận bằng cách nhập "XÓA", đăng nhập lại nếu cần)
+
+> **Màn Đăng nhập Google — cách hoạt động (Thi chốt 9/10/2026) và những chỗ khác design (nhánh
+> `feat/google-sign-in`):**
+> - Trước khi nộp chỉ làm ĐĂNG NHẬP; đồng bộ Firestore và xoá tài khoản để sau. Vì vậy lời trên
+>   màn được viết lại cho đúng thực tế (artboard `LoginGoogle` hứa "đồng bộ", "dùng trên nhiều
+>   thiết bị", "xoá tài khoản bất cứ lúc nào"): tiêu đề "Đăng nhập bằng Google", ba ý "thẻ vẫn lưu
+>   trên máy này / ảnh không tải lên / đăng xuất bất cứ lúc nào", và dòng cuối "chỉ dùng tên và
+>   địa chỉ email" thay cho câu đồng ý với Chính sách quyền riêng tư (trang đó chưa có). Bố cục,
+>   kích thước, màu giữ đúng artboard. Khi làm đồng bộ thì đổi lời lại theo design.
+> - Mở từ dòng "Đăng nhập Google" ở màn Cài đặt (route `GoogleSignInRoute`). Nút ←, Back và "Để
+>   sau" đều về Cài đặt.
+> - "Tiếp tục với Google" mở hộp chọn tài khoản của hệ thống (Credential Manager, kiểu "Sign in
+>   with Google"); app không thấy mật khẩu, chỉ nhận một ID token rồi đưa cho Firebase Auth. Nút
+>   dùng logo "G" bốn màu chuẩn (`ic_google_logo.xml`) thay chữ "G" tạm của design.
+> - Đóng hộp chọn tài khoản: ở lại màn, không báo gì. Đăng nhập xong: báo "Đã đăng nhập bằng
+>   <email>" rồi về Cài đặt. Lỗi (mất mạng, máy chưa có tài khoản Google, lỗi khác): báo bằng
+>   thông báo ngắn, ở lại màn.
+> - Firebase tự nhớ phiên đăng nhập; mở lại app vẫn còn đăng nhập. Đăng nhập KHÔNG đụng tới dữ
+>   liệu trên máy (chưa gán `userId` — việc đó thuộc phần đồng bộ).
+> - Bản build không có `google-services.json` vẫn biên dịch được: web client ID được tìm theo tên
+>   lúc chạy, thiếu thì bấm nút sẽ báo "Đăng nhập Google chưa được bật trong bản build này."
+> - Màn email / mật khẩu cũ (`feature/auth/presentation/login`) và các chuỗi `login_*` đã xoá.
+>   README còn nhắc `LoginScreen` / `LoginRoute` làm ví dụ — sửa khi viết lại README.
+> - Đã kiểm chứng trên emulator (Pixel 8a): màn sáng / tối, bấm nút ra hộp chọn tài khoản, đóng
+>   hộp thì im lặng, "Để sau" về Cài đặt; Thi tự chọn tài khoản và đăng nhập thật thành công
+>   (9/10/2026, tài khoản hiện trong Firebase Console → Authentication). CHƯA kiểm chứng: các
+>   nhánh lỗi (mới qua unit test).
+>
+> **Cài đặt khi đã đăng nhập — cách hoạt động (Thi chốt 9/10/2026) và những chỗ khác design:**
+> - KHÔNG dựng lại màn theo artboard `SettingsAccount` (artboard gom Giao diện / Ngôn ngữ / Nhắc
+>   ôn thành một danh sách gọn). Giữ bố cục Cài đặt hiện có, chỉ đổi hai chỗ khi đã đăng nhập:
+>   (1) ở mục "Đồng bộ", thẻ tài khoản thế chỗ dòng "Đăng nhập Google"; (2) thêm mục "Tài
+>   khoản" ở cuối màn với dòng "Đăng xuất" và câu "Đăng xuất không xoá thẻ đang có trên máy này."
+> - Thẻ tài khoản: ô tròn mang chữ cái đầu của tên (không tải ảnh đại diện Google), tên, email.
+>   Tài khoản không có tên thì email lên làm dòng chính. Hàng dưới của design ("Đã đồng bộ · 2
+>   phút trước" + "Đồng bộ ngay") tạm thay bằng "Đồng bộ đám mây · Sắp có" cho tới khi làm đồng bộ.
+> - Dòng "Xoá tài khoản" và "Thống kê ôn tập" của artboard CHƯA hiện (chưa làm).
+> - "Đăng xuất" hỏi lại ("Đăng xuất?" — Huỷ / Đăng xuất). Xác nhận thì đăng xuất khỏi Firebase,
+>   báo Credential Manager quên tài khoản vừa dùng (lần sau được chọn lại tài khoản), báo "Đã
+>   đăng xuất." và ở lại Cài đặt; dữ liệu trên máy giữ nguyên.
+> - Màn Cài đặt nghe "ai đang đăng nhập" (`ObserveAuthUserUseCase`), nên đăng nhập / đăng xuất
+>   xong là giao diện đổi ngay, và cài lại app (không xoá dữ liệu) vẫn còn đăng nhập.
+> - Đã kiểm chứng trên emulator: sau khi Thi đăng nhập, thẻ tài khoản hiện đúng tên + email,
+>   sáng và tối; cài đè bản mới vẫn còn đăng nhập; bấm "Đăng xuất" ra hộp hỏi lại, Huỷ thì giữ
+>   nguyên. CHƯA kiểm chứng: bấm "Đăng xuất" thật rồi đăng nhập lại (Thi tự bấm; mới qua unit test).
 
 **Thi**
 - [ ] Đặt Firestore Security Rules ([`docs_tld.md`](docs_tld.md) Mục 7.2)
@@ -510,8 +555,18 @@ thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17), xem ảnh
 Hai việc dọn dẹp cuối (#22) cũng vậy — bước 4 xong.
 
 Đang làm **bước 5 — Cài đặt, nhắc ôn, widget**. Màn Cài đặt + màn Ngôn ngữ (nhánh
-`feat/settings`) đã vào `dev` (#23). Thông báo nhắc ôn hằng ngày (nhánh `feat/reminder`) đã code
-xong, chờ Thi xem và merge. Artboard: xem bảng ở Mục 6.3.
+`feat/settings`) đã vào `dev` (#23). Thông báo nhắc ôn hằng ngày (nhánh `feat/reminder`) đã vào
+`dev` (#24). Artboard: xem bảng ở Mục 6.3.
+
+Đang làm **bước 6 — chỉ phần đăng nhập Google** trên nhánh `feat/google-sign-in` (9/10/2026):
+màn Đăng nhập Google và Cài đặt khi đã đăng nhập (thẻ tài khoản, Đăng xuất) đã code xong, chưa
+commit — chờ Thi thử Đăng xuất rồi commit / tạo pull request. Việc kế tiếp: nạp 4 bộ thẻ mẫu và
+viết README.
+
+**Emulator đổi sang Pixel 8a API 37.1 (9/10/2026):** dữ liệu trắng, chưa có bộ thẻ nào, chưa có
+ảnh `ontap_demo_note.jpg`, đã thêm một tài khoản Google. Ngôn ngữ riêng của app đã đặt `vi`.
+Debug token App Check của máy ảo này là token mới — phải đăng ký trên Firebase Console thì "Tạo
+thẻ bằng AI" mới chạy (đăng nhập Google không cần, vì Auth không Enforce App Check).
 
 **Thi chốt tối 8/10/2026 — để SAU khi nộp:** widget (Glance), và việc soát giao diện trên máy
 nhỏ / tablet / xoay ngang / cỡ chữ lớn. Việc còn lại trước khi nộp, theo thứ tự: đăng nhập

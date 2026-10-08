@@ -22,6 +22,12 @@ sealed class AppException(open val userMessage: String? = null) : Exception() {
         override val cause: Throwable? = null,
     ) : AppException()
 
+    /** Lỗi khi đăng nhập / đăng xuất tài khoản Google. */
+    data class AuthException(
+        val kind: AuthErrorKind,
+        override val cause: Throwable? = null,
+    ) : AppException()
+
     /** Lỗi nghiệp vụ có định nghĩa rõ (validate, trạng thái không hợp lệ…). Feature tự tạo class con. */
     abstract class CustomException(override val userMessage: String? = null) : AppException(userMessage)
 
@@ -45,3 +51,10 @@ enum class AiErrorKind {
 }
 
 enum class OcrErrorKind { NO_TEXT_FOUND, RECOGNITION_FAILED }
+
+enum class AuthErrorKind {
+    NOT_CONFIGURED,     // bản build không có google-services.json nên không có Firebase
+    NETWORK,            // mất mạng lúc đăng nhập
+    NO_GOOGLE_ACCOUNT,  // máy chưa có tài khoản Google nào để chọn
+    UNKNOWN,
+}

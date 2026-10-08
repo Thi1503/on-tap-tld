@@ -13,11 +13,17 @@ import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.SnackBarType
 import com.ledinhthi.ontaptld.core.presentation.text.StringProvider
+import com.ledinhthi.ontaptld.core.exception.AuthErrorKind
+import com.ledinhthi.ontaptld.feature.auth.domain.AuthRepository
+import com.ledinhthi.ontaptld.feature.auth.domain.model.AuthUser
+import com.ledinhthi.ontaptld.feature.auth.domain.usecase.ObserveAuthUserUseCase
+import com.ledinhthi.ontaptld.feature.auth.domain.usecase.SignOutUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.model.AiQuota
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.settings.domain.DeleteAllLocalDataUseCase
 import com.ledinhthi.ontaptld.feature.settings.presentation.language.LanguageViewModel
 import com.ledinhthi.ontaptld.feature.settings.presentation.settings.SettingsViewModel
+import com.ledinhthi.ontaptld.navigation.GoogleSignInRoute
 import com.ledinhthi.ontaptld.navigation.LanguageRoute
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -49,6 +55,17 @@ class SettingsViewModelTest {
     private val prefs = mockk<AppPreferences>(relaxed = true)
     private val observeAiQuota = mockk<ObserveAiQuotaUseCase>()
     private val deleteAllLocalData = mockk<DeleteAllLocalDataUseCase>()
+
+    // Kho tài khoản giả: `userFlow` đóng vai "ai đang đăng nhập", đăng xuất thì nó về null —
+    // giống hệt cách Firebase báo lại cho app.
+    private val userFlow = MutableStateFlow<AuthUser?>(null)
+    private val authRepository = mockk<AuthRepository> {
+        every { currentUser } returns userFlow
+        coEvery { signOut() } coAnswers { userFlow.value = null }
+    }
+    private val observeAuthUser = ObserveAuthUserUseCase(authRepository)
+    private val signOut = SignOutUseCase(authRepository)
+    private val signedInUser = AuthUser(uid = "u1", displayName = "Minh Anh", email = "minhanh@example.com")
     private val navigator = mockk<AppNavigator>(relaxed = true)
     private val exceptionHandler = mockk<GlobalExceptionHandler>(relaxed = true)
     private val strings = mockk<StringProvider>(relaxed = true)
@@ -65,7 +82,7 @@ class SettingsViewModelTest {
             reminderFlow.value = reminderFlow.value.copy(minuteOfDay = firstArg<Int>() * 60 + secondArg<Int>())
         }
         every { observeAiQuota.invoke() } returns flowOf(AiQuota(remaining = 8, max = 10))
-        return SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData).apply { isTestMode = true }
+        return SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut).apply { isTestMode = true }
     }
 
     @Test
@@ -89,7 +106,7 @@ class SettingsViewModelTest {
         every { prefs.themeMode } returns themeFlow
         every { prefs.reminder } returns reminderFlow
         every { observeAiQuota.invoke() } returns flow { } // dòng dữ liệu không phát gì
-        val vm = SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData)
+        val vm = SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut)
         advanceUntilIdle()
 
         assertNull(vm.uiState.value.aiQuota)
@@ -129,7 +146,7 @@ class SettingsViewModelTest {
         every { prefs.reminder } returns reminderFlow
         every { observeAiQuota.invoke() } returns flowOf(AiQuota(remaining = 10, max = 10))
 
-        val vm = SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData).apply { isTestMode = true }
+        val vm = SettingsViewModel(toolbox, prefs, observeAiQuota, deleteAllLocalData, observeAuthUser, signOut).apply { isTestMode = true }
         advanceUntilIdle()
 
         assertEquals(ThemeMode.SYSTEM, vm.uiState.value.themeMode)
@@ -141,6 +158,57 @@ class SettingsViewModelTest {
         viewModel().onLanguageClick()
 
         verify { navigator.to(LanguageRoute) }
+    }
+
+    @Test
+    fun `bam Dang nhap Google - mo man dang nhap`() = runTest {
+        viewModel().onGoogleSignInClick()
+
+        verify { navigator.to(GoogleSignInRoute) }
+    }
+
+    @Test
+    fun `chua dang nhap thi khong co tai khoan - dang nhap xong the tai khoan hien ngay`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertNull(vm.uiState.value.account)
+
+        userFlow.value = signedInUser // người dùng vừa đăng nhập ở màn Đăng nhập Google
+        advanceUntilIdle()
+
+        assertEquals(signedInUser, vm.uiState.value.account)
+    }
+
+    @Test
+    fun `xac nhan dang xuat - dang xuat, bao thanh cong, man tro ve trang thai chua dang nhap`() = runTest {
+        userFlow.value = signedInUser
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onSignOutConfirmed()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { authRepository.signOut() }
+        verify { navigator.showSnackBar(any(), SnackBarType.SUCCESS) }
+        assertNull(vm.uiState.value.account)
+        // Đăng xuất chỉ rời tài khoản, không đụng tới dữ liệu trên máy.
+        coVerify(exactly = 0) { deleteAllLocalData.invoke() }
+        assertFalse(vm.uiState.value.status.isLoadingOverlay)
+    }
+
+    @Test
+    fun `dang xuat loi - de bo xu ly loi chung bao, van con dang nhap`() = runTest {
+        userFlow.value = signedInUser
+        coEvery { authRepository.signOut() } throws AppException.AuthException(AuthErrorKind.UNKNOWN)
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.onSignOutConfirmed()
+        advanceUntilIdle()
+
+        verify { exceptionHandler.handle(any()) }
+        verify(exactly = 0) { navigator.showSnackBar(any(), SnackBarType.SUCCESS) }
+        assertEquals(signedInUser, vm.uiState.value.account)
     }
 
     @Test
