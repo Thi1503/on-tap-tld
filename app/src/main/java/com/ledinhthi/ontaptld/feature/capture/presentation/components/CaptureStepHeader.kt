@@ -39,6 +39,8 @@ fun CaptureStepHeader(
     containerColor: Color = appColors().appBarBackground,
     /** Số vạch được tô. Mặc định bằng [step]; nhỏ hơn khi bước đang đứng còn dang dở. */
     filledSteps: Int = step,
+    /** Nếu có, hiện thay cho chữ "Bước x/3" ở góc phải (vd nút báo cáo ở màn duyệt thẻ). */
+    action: (@Composable () -> Unit)? = null,
 ) {
     val colors = appColors()
     Column(modifier.fillMaxWidth().background(containerColor)) {
@@ -49,12 +51,16 @@ fun CaptureStepHeader(
             showDivider = false,
             containerColor = containerColor,
         ) {
-            Text(
-                text = stringResource(R.string.capture_step, step, CaptureFlowSteps),
-                modifier = Modifier.padding(end = AppDimens.paddingVerySmall),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.textSecondary,
-            )
+            if (action != null) {
+                action()
+            } else {
+                Text(
+                    text = stringResource(R.string.capture_step, step, CaptureFlowSteps),
+                    modifier = Modifier.padding(end = AppDimens.paddingVerySmall),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.textSecondary,
+                )
+            }
         }
         Row(
             modifier = Modifier

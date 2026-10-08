@@ -212,6 +212,32 @@
     <string name="ai_generating_headline">AI đang đọc ghi chú của bạn</string>
     <string name="ai_generating_message">Giữ kết nối mạng trong lúc chờ. Bạn sẽ được duyệt từng thẻ trước khi lưu.</string>
     <string name="ai_suggestions_title">Duyệt thẻ đề xuất</string>
+    <!-- %1$d = số thẻ đang chọn, %2$d = tổng số thẻ trong danh sách -->
+    <string name="ai_suggestions_selected_count">Đã chọn %1$d / %2$d thẻ</string>
+    <string name="ai_suggestions_unselected">Bỏ chọn · sẽ không lưu</string>
+    <string name="ai_suggestions_added_by_you">Thẻ bạn tự thêm</string>
+    <!-- %d = thứ tự của thẻ trong danh sách -->
+    <string name="ai_suggestions_edit_card">Sửa thẻ %d</string>
+    <string name="ai_suggestions_delete_card">Xoá thẻ %d</string>
+    <string name="ai_suggestions_disclaimer">Thẻ do AI tạo có thể chưa chính xác — hãy đọc lại trước khi lưu.</string>
+    <!-- %1$d = số thẻ sẽ lưu, %2$s = tên bộ thẻ -->
+    <plurals name="ai_suggestions_save">
+        <item quantity="other">Lưu %1$d thẻ vào %2$s</item>
+    </plurals>
+    <!-- %1$d = số thẻ vừa lưu -->
+    <string name="ai_suggestions_saved">Đã lưu %1$d thẻ.</string>
+    <string name="ai_suggestions_empty_title">Không còn thẻ nào</string>
+    <string name="ai_suggestions_empty_message">Bạn đã xoá hết thẻ đề xuất. Bấm “Thêm thẻ” để tự gõ, hoặc quay lại để tạo thẻ lần nữa.</string>
+    <string name="ai_suggestions_delete_title">Xoá thẻ này?</string>
+    <string name="ai_suggestions_delete_message">Thẻ sẽ bị bỏ khỏi danh sách đề xuất và không được lưu.</string>
+    <string name="ai_suggestions_leave_title">Bỏ các thẻ vừa tạo?</string>
+    <string name="ai_suggestions_leave_message">Nếu thoát, các thẻ này sẽ mất và lượt AI đã dùng không được hoàn lại.</string>
+    <string name="ai_report_button">Báo cáo nội dung AI</string>
+    <string name="ai_report_email_subject">Báo cáo nội dung AI — On Tap TLD</string>
+    <string name="ai_report_email_intro">Mô tả giúp mình thẻ nào có vấn đề và vấn đề là gì:\n\n\n--- Các thẻ AI vừa tạo ---</string>
+    <string name="ai_report_no_email_app">Máy chưa có app email để gửi báo cáo.</string>
+    <!-- Nơi nhận báo cáo nội dung AI và các liên hệ hỗ trợ khác -->
+    <string name="support_email" translatable="false">thile15032003@gmail.com</string>
     <!-- %d = số thứ tự dòng trong ghi chú -->
     <string name="ai_suggestions_source_line">Nguồn: dòng %d trong ảnh</string>
     <!-- Dòng cuối trong danh sách chọn bộ thẻ -->

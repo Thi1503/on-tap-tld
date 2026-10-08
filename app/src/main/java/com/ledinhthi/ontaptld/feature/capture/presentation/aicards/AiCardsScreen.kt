@@ -1,38 +1,36 @@
 package com.ledinhthi.ontaptld.feature.capture.presentation.aicards
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
-import com.ledinhthi.ontaptld.core.presentation.components.AppCard
-import com.ledinhthi.ontaptld.core.presentation.theme.AppDimens
+import com.ledinhthi.ontaptld.core.presentation.components.ConfirmDialog
+import com.ledinhthi.ontaptld.core.presentation.components.LoadingOverlay
+import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.theme.OnTapTldTheme
-import com.ledinhthi.ontaptld.core.presentation.theme.appColors
-import com.ledinhthi.ontaptld.feature.capture.domain.model.SuggestedCard
+import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.CardEditorSheet
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.GeneratingContent
-import com.ledinhthi.ontaptld.feature.capture.presentation.components.CaptureStepHeader
+import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.components.SuggestionsContent
+
+/** Giá trị đặc biệt của "đang sửa thẻ nào": không sửa thẻ có sẵn mà đang gõ thẻ mới. */
+private const val NewCardId = -1
 
 /**
  * Bước 3/3 của luồng tạo thẻ bằng AI (route `AiCardsRoute`). Một route, nhiều chặng: hàm này
- * chỉ việc nhìn `state.phase` rồi vẽ đúng nội dung của chặng đó.
+ * nhìn `state.phase` rồi vẽ đúng nội dung của chặng đó.
  */
 @Composable
 fun AiCardsScreen(viewModel: AiCardsViewModel = hiltViewModel()) {
@@ -46,68 +44,144 @@ fun AiCardsScreen(viewModel: AiCardsViewModel = hiltViewModel()) {
             GeneratingContent(onCancel = viewModel::onCancel)
         }
 
-        AiCardsPhase.Suggestions -> SuggestionsPreviewContent(cards = state.cards, onBack = viewModel::onBack)
+        AiCardsPhase.Suggestions -> SuggestionsPhase(state = state, viewModel = viewModel)
+    }
+}
+
+/** Chặng duyệt thẻ, kèm các bảng / hộp thoại của nó: sửa thẻ, hỏi xoá thẻ, hỏi rời màn. */
+@Composable
+private fun SuggestionsPhase(state: AiCardsState, viewModel: AiCardsViewModel) {
+    val context = LocalContext.current
+    val reportSubject = stringResource(R.string.ai_report_email_subject)
+    val reportIntro = stringResource(R.string.ai_report_email_intro)
+    val supportEmail = stringResource(R.string.support_email)
+
+    // Ba "câu hỏi đang mở" của màn, đều là state thuần giao diện. null = không có gì đang mở.
+    var editingId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var deletingId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var askLeave by rememberSaveable { mutableStateOf(false) }
+
+    // Rời màn là mất các thẻ AI vừa soạn (và lượt AI đã dùng), nên luôn hỏi lại trước.
+    BackHandler { askLeave = true }
+
+    ObserveEffects(viewModel.effect) { effect ->
+        when (effect) {
+            is AiCardsEffect.ReportAiContent -> {
+                val opened = context.openEmailComposer(
+                    to = supportEmail,
+                    subject = reportSubject,
+                    body = "$reportIntro\n\n${effect.cardsText}",
+                )
+                if (!opened) viewModel.onReportUnavailable()
+            }
+        }
+    }
+
+    LoadingOverlay(isLoading = state.status.isLoadingOverlay) {
+        SuggestionsContent(
+            state = state,
+            onBack = { askLeave = true },
+            onReportClick = viewModel::onReportClick,
+            onAddClick = { editingId = NewCardId },
+            onToggle = viewModel::onToggleSelected,
+            onEditClick = { editingId = it },
+            onDeleteClick = { deletingId = it },
+            onSave = viewModel::onSave,
+        )
+    }
+
+    editingId?.let { id ->
+        val item = state.items.firstOrNull { it.id == id }
+        CardEditorSheet(
+            isNew = id == NewCardId,
+            initialQuestion = item?.question.orEmpty(),
+            initialAnswer = item?.answer.orEmpty(),
+            onDismiss = { editingId = null },
+            onConfirm = { question, answer ->
+                editingId = null
+                if (id == NewCardId) viewModel.onCardAdded(question, answer) else viewModel.onCardEdited(id, question, answer)
+            },
+        )
+    }
+
+    deletingId?.let { id ->
+        ConfirmDialog(
+            title = stringResource(R.string.ai_suggestions_delete_title),
+            message = stringResource(R.string.ai_suggestions_delete_message),
+            confirmText = stringResource(R.string.common_delete),
+            destructive = true,
+            onConfirm = {
+                deletingId = null
+                viewModel.onDeleteCard(id)
+            },
+            onDismiss = { deletingId = null },
+        )
+    }
+
+    if (askLeave) {
+        ConfirmDialog(
+            title = stringResource(R.string.ai_suggestions_leave_title),
+            message = stringResource(R.string.ai_suggestions_leave_message),
+            confirmText = stringResource(R.string.ocr_review_discard_confirm),
+            destructive = true,
+            onConfirm = {
+                askLeave = false
+                viewModel.onBack()
+            },
+            onDismiss = { askLeave = false },
+        )
     }
 }
 
 /**
- * TẠM: chỉ liệt kê thẻ AI vừa soạn để kiểm tra kết quả gọi Gemini. Màn "Duyệt thẻ đề xuất" thật
- * (chọn / sửa / xoá / thêm / lưu) sẽ thay hàm này ở phần việc kế tiếp.
+ * Mở app email của máy với thư đã điền sẵn người nhận, tiêu đề và nội dung; người dùng tự bấm
+ * Gửi. Trả về false nếu máy không có app email nào.
  */
-@Composable
-private fun SuggestionsPreviewContent(cards: List<SuggestedCard>, onBack: () -> Unit) {
-    val colors = appColors()
-    Column(Modifier.fillMaxSize().background(colors.scaffoldBackground)) {
-        CaptureStepHeader(
-            title = stringResource(R.string.ai_suggestions_title),
-            step = 3,
-            onNavigationClick = onBack,
-        )
-        HorizontalDivider(color = colors.cardBorder)
-        // LazyColumn = danh sách cuộn chỉ dựng những dòng đang nằm trong màn hình.
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(AppDimens.defaultPadding),
-            verticalArrangement = Arrangement.spacedBy(AppDimens.padding10),
-        ) {
-            items(cards) { card ->
-                AppCard(Modifier.fillMaxWidth()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(AppDimens.paddingSmallest)) {
-                        Text(
-                            text = card.question,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.textPrimary,
-                        )
-                        Text(
-                            text = card.answer,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.textSecondary,
-                        )
-                        if (card.sourceLine != null) {
-                            Text(
-                                text = stringResource(R.string.ai_suggestions_source_line, card.sourceLine),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.textSecondary,
-                            )
-                        }
-                    }
-                }
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.common_coming_soon),
-                    modifier = Modifier.padding(top = AppDimens.paddingVerySmall),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.textSecondary,
-                )
-            }
-        }
+private fun Context.openEmailComposer(to: String, subject: String, body: String): Boolean {
+    // `mailto:` + ACTION_SENDTO: chỉ các app EMAIL nhận lời mời này (không lẫn app nhắn tin, mạng xã hội).
+    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, body)
+    }
+    return try {
+        startActivity(intent)
+        true
+    } catch (e: ActivityNotFoundException) {
+        false
     }
 }
 
 // ---------------------------------------------------------------------------------------
 // Preview
 // ---------------------------------------------------------------------------------------
+
+private val previewState = AiCardsState(
+    phase = AiCardsPhase.Suggestions,
+    deckName = "Sinh học 12",
+    items = listOf(
+        SuggestionItem(0, "Nhân đôi ADN diễn ra ở pha nào của chu kì tế bào?", "Pha S của kì trung gian.", sourceLine = 1),
+        SuggestionItem(1, "Hai nguyên tắc của quá trình nhân đôi ADN là gì?", "Nguyên tắc bổ sung (A–T, G–X) và nguyên tắc bán bảo toàn.", sourceLine = 2),
+        SuggestionItem(2, "ADN pôlimeraza tổng hợp mạch mới theo chiều nào?", "Chiều 5'→3'.", sourceLine = 3, selected = false),
+        SuggestionItem(3, "Đoạn Okazaki là gì?", "Các đoạn ADN ngắn được tổng hợp gián đoạn trên mạch chậm.", sourceLine = 4),
+    ),
+)
+
+@Composable
+private fun SuggestionsPreviewHost(state: AiCardsState, themeMode: ThemeMode = ThemeMode.LIGHT) {
+    OnTapTldTheme(themeMode = themeMode) {
+        SuggestionsContent(
+            state = state,
+            onBack = {},
+            onReportClick = {},
+            onAddClick = {},
+            onToggle = {},
+            onEditClick = {},
+            onDeleteClick = {},
+            onSave = {},
+        )
+    }
+}
 
 @Preview(name = "Đang tạo thẻ", widthDp = 390, heightDp = 844)
 @Composable
@@ -119,14 +193,14 @@ private fun GeneratingPreview() =
 private fun GeneratingDarkPreview() =
     OnTapTldTheme(themeMode = ThemeMode.DARK) { GeneratingContent(onCancel = {}) }
 
-@Preview(name = "Thẻ đề xuất (tạm)", widthDp = 390, heightDp = 844)
+@Preview(name = "Duyệt thẻ đề xuất", widthDp = 390, heightDp = 844)
 @Composable
-private fun SuggestionsPreview() = OnTapTldTheme(themeMode = ThemeMode.LIGHT) {
-    SuggestionsPreviewContent(
-        cards = listOf(
-            SuggestedCard("Nhân đôi ADN diễn ra ở pha nào của chu kì tế bào?", "Pha S của kì trung gian.", 1),
-            SuggestedCard("Đoạn Okazaki là gì?", "Các đoạn ADN ngắn được tổng hợp gián đoạn trên mạch chậm.", 4),
-        ),
-        onBack = {},
-    )
-}
+private fun SuggestionsPreview() = SuggestionsPreviewHost(previewState)
+
+@Preview(name = "Duyệt thẻ đề xuất — Dark", widthDp = 390, heightDp = 844)
+@Composable
+private fun SuggestionsDarkPreview() = SuggestionsPreviewHost(previewState, ThemeMode.DARK)
+
+@Preview(name = "Duyệt thẻ đề xuất — đã xoá hết", widthDp = 390, heightDp = 844)
+@Composable
+private fun SuggestionsEmptyPreview() = SuggestionsPreviewHost(previewState.copy(items = emptyList()))

@@ -18,4 +18,13 @@ interface CaptureImageRepository {
 
     /** Cắt ảnh [sourcePath] theo khung [crop], ghi ra file mới và trả về đường dẫn file đó. */
     suspend fun cropImage(sourcePath: String, crop: CropRect): String
+
+    /**
+     * Chép ảnh tạm [tempPath] sang chỗ lưu lâu dài của ghi chú [noteId] (thư mục riêng của app,
+     * hệ thống không tự xoá) và trả về đường dẫn mới. Gọi khi người dùng lưu thẻ.
+     */
+    suspend fun keepNoteImage(tempPath: String, noteId: String): String
+
+    /** Xoá ảnh ghi chú đã lưu lâu dài — dùng để dọn dẹp khi việc lưu thẻ hỏng giữa chừng. */
+    suspend fun deleteNoteImage(path: String)
 }

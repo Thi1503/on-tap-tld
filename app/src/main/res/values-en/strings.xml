@@ -212,6 +212,27 @@
     <string name="ai_generating_headline">AI is reading your notes</string>
     <string name="ai_generating_message">Stay connected while you wait. You will review every card before it is saved.</string>
     <string name="ai_suggestions_title">Review suggested cards</string>
+    <string name="ai_suggestions_selected_count">%1$d of %2$d cards selected</string>
+    <string name="ai_suggestions_unselected">Not selected · will not be saved</string>
+    <string name="ai_suggestions_added_by_you">Added by you</string>
+    <string name="ai_suggestions_edit_card">Edit card %d</string>
+    <string name="ai_suggestions_delete_card">Delete card %d</string>
+    <string name="ai_suggestions_disclaimer">AI-made cards can be wrong — read them again before saving.</string>
+    <plurals name="ai_suggestions_save">
+        <item quantity="one">Save %1$d card to %2$s</item>
+        <item quantity="other">Save %1$d cards to %2$s</item>
+    </plurals>
+    <string name="ai_suggestions_saved">Cards saved: %1$d.</string>
+    <string name="ai_suggestions_empty_title">No cards left</string>
+    <string name="ai_suggestions_empty_message">You removed every suggested card. Tap “Add card” to write your own, or go back to generate again.</string>
+    <string name="ai_suggestions_delete_title">Delete this card?</string>
+    <string name="ai_suggestions_delete_message">The card will be removed from the suggestions and will not be saved.</string>
+    <string name="ai_suggestions_leave_title">Discard these cards?</string>
+    <string name="ai_suggestions_leave_message">If you leave, these cards are lost and the AI generation you used is not refunded.</string>
+    <string name="ai_report_button">Report AI content</string>
+    <string name="ai_report_email_subject">AI content report — On Tap TLD</string>
+    <string name="ai_report_email_intro">Please describe which card has a problem and what the problem is:\n\n\n--- AI cards just generated ---</string>
+    <string name="ai_report_no_email_app">No email app is installed to send the report.</string>
     <string name="ai_suggestions_source_line">Source: line %d in the photo</string>
     <string name="deck_selector_new_deck">New deck</string>
 
