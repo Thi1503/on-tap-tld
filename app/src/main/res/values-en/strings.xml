@@ -105,6 +105,27 @@
     <string name="deck_detail_delete_deck_message">All cards in this deck will be deleted too. This can\'t be undone.</string>
     <string name="deck_detail_deck_deleted">Deck deleted.</string>
 
+    <!-- manual_card -->
+    <string name="manual_card_title_add">Add card</string>
+    <string name="manual_card_title_edit">Edit card</string>
+    <string name="manual_card_deck_label">Deck</string>
+    <string name="manual_card_question_label">Question</string>
+    <string name="manual_card_answer_label">Answer</string>
+    <string name="manual_card_keep_adding_title">Add another after saving</string>
+    <string name="manual_card_keep_adding_subtitle">Stay on this screen to enter several cards in a row</string>
+    <string name="manual_card_new_card_note">New cards are ready to review today.</string>
+    <plurals name="manual_card_saved_count">
+        <item quantity="one">%d card saved. Enter the next one.</item>
+        <item quantity="other">%d cards saved. Enter the next one.</item>
+    </plurals>
+    <string name="manual_card_save">Save card</string>
+    <string name="manual_card_save_changes">Save changes</string>
+    <string name="manual_card_added">Card added.</string>
+    <string name="manual_card_updated">Changes saved.</string>
+    <string name="manual_card_discard_title">Discard unsaved content?</string>
+    <string name="manual_card_discard_message">If you leave now, what you just entered won\'t be saved.</string>
+    <string name="manual_card_discard_confirm">Leave</string>
+
     <!-- create_deck -->
     <string name="create_deck_title">New deck</string>
     <string name="create_deck_name_label">Deck name</string>

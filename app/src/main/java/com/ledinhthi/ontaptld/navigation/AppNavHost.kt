@@ -1,5 +1,6 @@
 package com.ledinhthi.ontaptld.navigation
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
@@ -56,7 +57,12 @@ fun AppNavHost(navigator: AppNavigator) {
         NavHost(
             navController = navController,
             startDestination = SplashRoute,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                // Báo cho các màn bên trong biết phần thanh hệ thống đã được chừa ở đây rồi. Nhờ
+                // vậy màn nào dùng `imePadding()` (né bàn phím) chỉ cộng thêm đúng phần chênh,
+                // không chừa thanh điều hướng lần thứ hai.
+                .consumeWindowInsets(innerPadding),
         ) {
             composable<SplashRoute> { SplashScreen() }
             // Màn Login email/mật khẩu cũ đã gỡ khỏi luồng — đăng nhập Google (tuỳ chọn, từ

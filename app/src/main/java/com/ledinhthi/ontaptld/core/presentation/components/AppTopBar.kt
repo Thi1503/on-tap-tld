@@ -98,6 +98,7 @@ fun AppTopBar(
             )
             actions()
         }
-        if (showDivider) HorizontalDivider(color = appColors().divider)
+        // Cùng màu với viền thẻ như bản thiết kế: nhìn thấy ở light, chìm vào nền thanh ở dark.
+        if (showDivider) HorizontalDivider(color = appColors().cardBorder)
     }
 }
