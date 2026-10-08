@@ -22,7 +22,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.presentation.components.ObserveEffects
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppDialog
@@ -30,7 +29,7 @@ import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
 import com.ledinhthi.ontaptld.core.presentation.theme.DarkAppExtendedColors
 import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CaptureScreen
-import com.ledinhthi.ontaptld.feature.capture.presentation.ocrreview.OcrReviewPlaceholderScreen
+import com.ledinhthi.ontaptld.feature.capture.presentation.ocrreview.OcrReviewScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.decklist.DeckListScreen
 import com.ledinhthi.ontaptld.feature.deck.presentation.manualcard.ManualCardScreen
@@ -100,13 +99,7 @@ fun AppNavHost(navigator: AppNavigator) {
             composable<SettingsRoute> { SettingsScreen() }
             composable<ReviewRoute> { ReviewScreen() }
             composable<CaptureRoute> { CaptureScreen() }
-            // TẠM: màn Kiểm tra văn bản (bước 2/3) chưa làm — hiện ảnh đã cắt để kiểm tra khung cắt.
-            composable<OcrReviewRoute> { entry ->
-                OcrReviewPlaceholderScreen(
-                    imagePath = entry.toRoute<OcrReviewRoute>().imagePath,
-                    onBack = navigator::back,
-                )
-            }
+            composable<OcrReviewRoute> { OcrReviewScreen() }
         }
     }
 

@@ -138,12 +138,13 @@ Xong ngày 8/10/2026, đã vào `dev` qua pull request #10 (nhánh `feat/review`
 
 ### Bước 4 — Chụp ảnh + AI *(cần bước 0)*
 
-Màn Chụp ghi chú (bước 1/3 của luồng) code xong ngày 8/10/2026 trên nhánh `feat/capture` (chưa
-commit) — chờ Thi xem và merge.
+Màn Chụp ghi chú (bước 1/3 của luồng) xong ngày 8/10/2026, đã vào `dev` qua pull request #12
+(nhánh `feat/capture`). Màn Kiểm tra văn bản (bước 2/3) code xong cùng ngày trên nhánh
+`feat/ocr-review` (chưa commit) — chờ Thi xem và merge.
 
 **Claude**
 - [x] CameraX + crop vùng chữ
-- [ ] OCR bằng ML Kit, màn sửa văn bản
+- [x] OCR bằng ML Kit, màn sửa văn bản
 - [ ] Gọi Gemini qua Firebase AI Logic, màn "đang tạo thẻ"
 - [ ] Màn duyệt thẻ AI đề xuất (chọn / sửa / xoá / thêm, nút báo cáo nội dung AI)
 - [ ] Giới hạn lượt AI mỗi ngày; màn lỗi mạng và màn hết lượt
@@ -165,8 +166,29 @@ commit) — chờ Thi xem và merge.
 > - Ảnh của luồng chỉ nằm trong `cacheDir/capture/` (xoá khi chụp ảnh mới); ảnh đã cắt có cạnh
 >   dài tối đa 2560 px. Việc chuyển ảnh sang chỗ lưu lâu dài làm ở bước lưu thẻ AI.
 > - Mở từ Chi tiết bộ thẻ thì `deckId` đi theo route để bước 2 chọn sẵn bộ đó.
-> - TẠM: bấm ✓ đang mở `OcrReviewPlaceholderScreen` (chỉ hiện ảnh đã cắt) — sẽ được thay bằng
->   màn Kiểm tra văn bản thật ở phần việc kế tiếp.
+>
+> **Màn Kiểm tra văn bản — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - OCR dùng ML Kit Text Recognition bản GÓI KÈM APP (Thi chọn): chạy không cần mạng. Đổi lại
+>   thư viện gốc nặng khoảng 11 MB cho mỗi kiến trúc CPU — APK debug (gộp cả 4 kiến trúc) tăng từ
+>   18 lên 61 MB; bản phát hành dạng App Bundle chỉ tải phần của đúng một kiến trúc.
+> - Các khối chữ được xếp lại theo vị trí trên ảnh (trên xuống, trái sang phải) trước khi ghép
+>   thành văn bản. Chưa giữ toạ độ từng dòng — sẽ thêm khi làm phần tô sáng ảnh nguồn.
+> - Ô văn bản cao cố định 272dp, dài thì cuộn bên trong ô; đang nhận dạng thì ô tạm khoá.
+> - Không nhận ra chữ / bộ nhận dạng lỗi: ở lại màn, dòng nhắc cam đổi nội dung, cho tự gõ; nút
+>   "Tạo thẻ bằng AI" mờ cho tới khi có chữ và có bộ thẻ.
+> - Ô "Lưu vào bộ thẻ": mở từ Chi tiết bộ thẻ thì chọn sẵn bộ đó, mở từ Home thì chọn bộ dùng
+>   gần nhất. Danh sách có dòng cuối "Bộ thẻ mới" mở bảng tạo bộ thẻ; tạo xong tự chọn bộ đó.
+> - Nút ← / Back: về màn chụp ở chặng chỉnh khung (ảnh cũ còn nguyên). "Chụp lại": về camera,
+>   bỏ ảnh cũ (`CaptureFlowEvents` nhắn màn chụp). Đã sửa văn bản mà rời màn bằng một trong hai
+>   lối thì hỏi "Bỏ phần văn bản đã sửa?" (Huỷ / Thoát hoặc Huỷ / Chụp lại).
+> - Dòng "Còn x/N lượt" đọc số thật từ `AiQuotaGuard.MAX_CALLS_PER_DAY` (nguồn duy nhất của con
+>   số này). Thi chốt 8/10/2026: N đặt theo hạn mức miễn phí thật. Hạn mức đó tính cho CẢ
+>   project (mọi người dùng chung) và chỉ xem được ở AI Studio → Rate limits. Bảng Thi gửi ngày
+>   8/10/2026 (gói Free): các model **Flash** (2.5 / 3 / 3.5 / 3.6 / 3.7 / 3.8) chỉ 5 lượt/phút,
+>   **20 lượt/ngày**; **Flash-Lite 3.1 và 3.5** được 15 lượt/phút, **500 lượt/ngày**. Vì vậy app
+>   sẽ dùng dòng Flash-Lite, và N = **10 lượt mỗi máy mỗi ngày** (khoảng 50 máy dùng hết lượt
+>   cùng ngày mới chạm trần). Đã đối chiếu đúng project `on-tap-tld` trong AI Studio.
+> - TẠM: nút "Tạo thẻ bằng AI" báo "sắp có" — phần gọi Gemini làm ở phần việc kế tiếp.
 
 **Thi**
 - [ ] Thử trên máy thật với vở viết tay và chữ in có dấu
@@ -267,10 +289,11 @@ cách kiểm tra giao diện. Tiến độ xem checkbox ở Mục 2.
 
 Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 
-Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn đầu (Chụp ghi chú, nhánh
-`feat/capture`) đã code xong, chờ Thi xem và merge. Thứ tự còn lại: OCR (ML Kit) + màn Kiểm tra
-văn bản → gọi Gemini + màn "đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng / hết
-lượt → xem ảnh nguồn (kèm phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở Mục 6.3.
+Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
+request #12). Màn Kiểm tra văn bản (nhánh `feat/ocr-review`) đã code xong, chờ Thi xem và merge.
+Thứ tự còn lại: gọi Gemini + màn "đang tạo thẻ" → màn duyệt thẻ AI → giới hạn lượt, màn lỗi mạng
+/ hết lượt → xem ảnh nguồn (kèm phần còn thiếu ở mặt đáp án của màn ôn). Artboard: xem bảng ở
+Mục 6.3.
 
 Chụp và OCR chạy hoàn toàn trên máy. Từ màn gọi Gemini trở đi mới cần Firebase thật; debug token
 App Check của emulator Pixel 7a và máy OPPO CPH1911 đã đăng ký ngày 8/10/2026, nhưng CHƯA được
