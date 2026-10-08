@@ -346,7 +346,7 @@ lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-
 - Khi quay lại phần phát hành: bản có đăng nhập bắt buộc phải có chức năng xoá tài khoản, trang web hướng dẫn xoá tài khoản và Data Safety khai dữ liệu tài khoản.
 
 - Home, thẻ "Cần ôn hôm nay": chú giải dùng tên thật của bộ thẻ nên tên dài bị cắt bằng "…" (design dùng tên ngắn). Chờ Thi quyết: giữ một dòng hay cho xuống hai dòng.
-- Icon ứng dụng vẫn là robot Android mặc định. Trên Android 12+ hệ thống tự hiện icon này vài giây lúc khởi động nguội, TRƯỚC màn Splash của app, nên người dùng thấy robot xanh rồi mới tới logo "TLD". Cần bộ icon launcher riêng (và có thể đặt nó làm icon màn chào hệ thống) — chờ Thi quyết làm lúc nào.
+- Icon ứng dụng: ĐÃ LÀM ngày 8/10/2026 (nhánh `feat/launcher-icon`) — nền cam `#F24E1E`, chữ "TLD" trắng. Ba chữ cái được vẽ lại thành hình trong `drawable/ic_launcher_foreground.xml` (vector drawable không chứa được chữ; dáng gần với Nunito Sans ExtraBold nhưng không phải lấy từ font). Android 8+ dùng icon adaptive; Android 7.x dùng bộ PNG trong `mipmap-*dpi` (sinh từ cùng hình đó). Màn chào của hệ thống trên Android 12+ (`values-v31/themes.xml`) hiện đúng ô logo 96dp của màn Splash thay cho icon bị cắt tròn; logo ở màn Splash của app nằm cao hơn khoảng 40dp vì còn tên app bên dưới, nên lúc nối hai màn logo nhích lên một chút. Tên dưới icon vẫn là `app_name` = "OnTapTLD" (viết liền) — chờ Thi quyết có đổi thành "On Tap TLD" không.
 - Chi tiết bộ thẻ: menu ⋮ có thêm "Đổi tên / đổi màu bộ thẻ" không. Sửa thẻ: có cho chuyển thẻ sang bộ khác không (hiện ô Bộ thẻ bị khoá). Dải thanh trạng thái / dải dưới thanh đáy có cho trùng màu top bar / thanh đáy không.
 
 ### Ký phát hành — CHƯA LÀM (tại ngày chốt)
@@ -383,9 +383,9 @@ sửa khi app bị tắt dưới nền). Artboard: xem bảng ở Mục 6.3.
 
 **Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
 làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
-Firestore và xoá tài khoản để sau khi nộp. Thứ tự: hoạt ảnh lật thẻ (nhánh `feat/flip-animation`,
-code xong, chờ Thi xem và merge) → icon launcher → phần còn lại của bước 4 → bước 5 → đăng nhập
-Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình, nên trước khi quay
+Firestore và xoá tài khoản để sau khi nộp. Thứ tự: hoạt ảnh lật thẻ (đã vào `dev`, pull request
+#18) → icon launcher (nhánh `feat/launcher-icon`, làm xong, chờ Thi xem và merge) → phần còn lại
+của bước 4 → bước 5 → đăng nhập Google. Tin tuyển dụng nêu rõ animation và giao diện cho nhiều cỡ màn hình, nên trước khi quay
 demo cần soát app trên máy nhỏ / tablet / xoay ngang / cỡ chữ lớn.
 
 Chụp và OCR chạy hoàn toàn trên máy; gọi Gemini cần mạng và App Check. Debug token của emulator
