@@ -1,5 +1,6 @@
 package com.ledinhthi.ontaptld.feature.capture.presentation.aicards
 
+import com.ledinhthi.ontaptld.core.exception.AiErrorKind
 import com.ledinhthi.ontaptld.core.presentation.mvi.UiEffect
 import com.ledinhthi.ontaptld.core.presentation.mvi.UiState
 import com.ledinhthi.ontaptld.core.presentation.mvi.UiStatus
@@ -15,6 +16,12 @@ enum class AiCardsPhase {
 
     /** Đã có thẻ đề xuất để duyệt. */
     Suggestions,
+
+    /** Lần gọi AI không ra thẻ (mất mạng, AI quá tải…): báo lý do, cho thử lại hoặc tự gõ thẻ. */
+    Failed,
+
+    /** Hôm nay đã dùng hết lượt AI — app chặn ngay, không gọi mạng. */
+    QuotaExceeded,
 }
 
 /**
@@ -43,6 +50,10 @@ data class AiCardsState(
     val items: List<SuggestionItem> = emptyList(),
     /** Tên bộ thẻ sẽ nhận thẻ — để ghi lên nút Lưu. Rỗng khi chưa tải xong. */
     val deckName: String = "",
+    /** Lý do lần gọi AI gần nhất thất bại — chỉ có ý nghĩa ở chặng [AiCardsPhase.Failed]. */
+    val failure: AiErrorKind? = null,
+    /** Số lượt AI mỗi ngày, để màn hết lượt ghi "10/10". 0 khi chưa đọc xong. */
+    val quotaMax: Int = 0,
 ) : UiState {
     val selectedCount: Int get() = items.count { it.selected }
 
