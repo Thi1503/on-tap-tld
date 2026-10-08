@@ -130,6 +130,46 @@
     <string name="manual_card_discard_message">Nếu thoát bây giờ, những gì bạn vừa nhập sẽ không được lưu.</string>
     <string name="manual_card_discard_confirm">Thoát</string>
 
+    <!-- review — feature/review/presentation (phiên ôn tập) -->
+    <string name="review_exit">Thoát phiên ôn</string>
+    <!-- %1$d = thẻ thứ mấy, %2$d = tổng số thẻ của lượt -->
+    <string name="review_progress">%1$d/%2$d</string>
+    <string name="review_question_label">Câu hỏi</string>
+    <string name="review_answer_label">Đáp án</string>
+    <string name="review_tap_to_flip">Chạm vào thẻ để lật</string>
+    <string name="review_show_answer">Hiện đáp án</string>
+    <string name="review_edit_card">Sửa thẻ này</string>
+    <string name="review_grade_prompt">Bạn nhớ thẻ này thế nào?</string>
+    <string name="review_grade_forgot">Quên</string>
+    <string name="review_grade_forgot_desc">Không nhớ</string>
+    <string name="review_grade_hard">Khó</string>
+    <string name="review_grade_hard_desc">Chật vật</string>
+    <string name="review_grade_easy">Dễ</string>
+    <string name="review_grade_easy_desc">Nhớ được</string>
+    <string name="review_grade_very_easy">Rất dễ</string>
+    <string name="review_grade_very_easy_desc">Nhớ ngay</string>
+    <string name="review_done_title">Xong phiên ôn hôm nay</string>
+    <!-- %1$s = "24 thẻ", %2$s = "3 bộ thẻ" -->
+    <string name="review_done_summary">Bạn đã ôn %1$s trong %2$s.</string>
+    <plurals name="review_deck_count">
+        <item quantity="other">%d bộ thẻ</item>
+    </plurals>
+    <string name="review_retention_title">Mức độ ghi nhớ</string>
+    <string name="review_schedule_title">Lịch ôn tiếp theo</string>
+    <string name="review_schedule_tomorrow">Ngày mai</string>
+    <plurals name="review_schedule_in_days">
+        <item quantity="other">Sau %d ngày</item>
+    </plurals>
+    <string name="review_schedule_within_two_weeks">Trong 2 tuần tới</string>
+    <string name="review_schedule_two_weeks_plus">Từ 2 tuần trở lên</string>
+    <string name="review_go_home">Về trang chủ</string>
+    <plurals name="review_again_forgotten">
+        <item quantity="other">Ôn lại %d thẻ đã quên</item>
+    </plurals>
+    <string name="review_empty_title">Không có thẻ nào cần ôn</string>
+    <string name="review_empty_message">Bạn đã ôn hết thẻ đến hạn hôm nay. Quay lại vào ngày mai nhé.</string>
+    <string name="review_error_title">Không tải được thẻ cần ôn</string>
+
     <!-- create_deck — bottom sheet tạo bộ thẻ -->
     <string name="create_deck_title">Tạo bộ thẻ mới</string>
     <string name="create_deck_name_label">Tên bộ thẻ</string>

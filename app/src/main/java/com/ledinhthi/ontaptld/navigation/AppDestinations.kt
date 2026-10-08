@@ -19,10 +19,11 @@ data class DeckDetailRoute(val deckId: String)
 data class ManualCardRoute(val deckId: String, val cardId: String? = null)
 
 @Serializable
-data object CaptureRoute // feature/capture — Sprint 1 tuần 2
+data object CaptureRoute // feature/capture — bước 4
 
+/** [deckId] = null: ôn mọi thẻ đến hạn; có giá trị: chỉ ôn thẻ của bộ đó. */
 @Serializable
-data class ReviewRoute(val deckId: String? = null) // feature/review — Sprint 1 tuần 3
+data class ReviewRoute(val deckId: String? = null)
 
 @Serializable
 data object SettingsRoute

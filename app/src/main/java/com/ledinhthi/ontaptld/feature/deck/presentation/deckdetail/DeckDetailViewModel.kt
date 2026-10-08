@@ -13,6 +13,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveFlashcardsUseCase
 import com.ledinhthi.ontaptld.navigation.DeckDetailRoute
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
+import com.ledinhthi.ontaptld.navigation.ReviewRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
@@ -96,8 +97,10 @@ class DeckDetailViewModel @Inject constructor(
         }
     }
 
-    // Ôn tập và chụp ghi chú thuộc bước 3 và 4 của docs/KE_HOACH_PHAT_TRIEN.md.
-    fun onReviewClick() = showComingSoon()
+    /** "Ôn N thẻ": chỉ ôn các thẻ đến hạn của bộ này. */
+    fun onReviewClick() = navigator.to(ReviewRoute(deckId))
+
+    // Chụp ghi chú thuộc bước 4 của docs/KE_HOACH_PHAT_TRIEN.md.
     fun onCaptureClick() = showComingSoon()
 
     private fun showComingSoon() =

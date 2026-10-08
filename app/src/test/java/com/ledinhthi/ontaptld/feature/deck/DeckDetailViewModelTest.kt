@@ -17,6 +17,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveFlashcardsUseCa
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.CardFilter
 import com.ledinhthi.ontaptld.feature.deck.presentation.deckdetail.DeckDetailViewModel
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
+import com.ledinhthi.ontaptld.navigation.ReviewRoute
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -166,6 +167,16 @@ class DeckDetailViewModelTest {
 
         verify { navigator.to(ManualCardRoute(DECK_ID)) }
         verify { navigator.to(ManualCardRoute(DECK_ID, cardId = "c")) }
+    }
+
+    @Test
+    fun `bam On N the - mo phien on chi cua bo nay`() = runTest {
+        givenLoaded()
+        val vm = viewModel()
+
+        vm.onReviewClick()
+
+        verify { navigator.to(ReviewRoute(DECK_ID)) }
     }
 
     @Test

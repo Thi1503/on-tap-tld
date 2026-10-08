@@ -130,6 +130,47 @@
     <string name="manual_card_discard_message">If you leave now, what you just entered won\'t be saved.</string>
     <string name="manual_card_discard_confirm">Leave</string>
 
+    <!-- review -->
+    <string name="review_exit">Exit review</string>
+    <string name="review_progress">%1$d/%2$d</string>
+    <string name="review_question_label">Question</string>
+    <string name="review_answer_label">Answer</string>
+    <string name="review_tap_to_flip">Tap the card to flip</string>
+    <string name="review_show_answer">Show answer</string>
+    <string name="review_edit_card">Edit this card</string>
+    <string name="review_grade_prompt">How well did you remember this?</string>
+    <string name="review_grade_forgot">Forgot</string>
+    <string name="review_grade_forgot_desc">No recall</string>
+    <string name="review_grade_hard">Hard</string>
+    <string name="review_grade_hard_desc">Struggled</string>
+    <string name="review_grade_easy">Good</string>
+    <string name="review_grade_easy_desc">Recalled</string>
+    <string name="review_grade_very_easy">Easy</string>
+    <string name="review_grade_very_easy_desc">Instant</string>
+    <string name="review_done_title">Today\'s review is done</string>
+    <string name="review_done_summary">You reviewed %1$s in %2$s.</string>
+    <plurals name="review_deck_count">
+        <item quantity="one">%d deck</item>
+        <item quantity="other">%d decks</item>
+    </plurals>
+    <string name="review_retention_title">How well you remembered</string>
+    <string name="review_schedule_title">Next reviews</string>
+    <string name="review_schedule_tomorrow">Tomorrow</string>
+    <plurals name="review_schedule_in_days">
+        <item quantity="one">In %d day</item>
+        <item quantity="other">In %d days</item>
+    </plurals>
+    <string name="review_schedule_within_two_weeks">Within 2 weeks</string>
+    <string name="review_schedule_two_weeks_plus">2 weeks or later</string>
+    <string name="review_go_home">Back to home</string>
+    <plurals name="review_again_forgotten">
+        <item quantity="one">Review %d forgotten card again</item>
+        <item quantity="other">Review %d forgotten cards again</item>
+    </plurals>
+    <string name="review_empty_title">No cards to review</string>
+    <string name="review_empty_message">You\'ve reviewed everything due today. Come back tomorrow.</string>
+    <string name="review_error_title">Couldn\'t load cards to review</string>
+
     <!-- create_deck -->
     <string name="create_deck_title">New deck</string>
     <string name="create_deck_name_label">Deck name</string>
