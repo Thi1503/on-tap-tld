@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
 
@@ -41,6 +42,10 @@ private val DarkColorScheme = with(DarkAppExtendedColors) {
         onBackground = textPrimary,
         surface = cardBackground,
         onSurface = textPrimary,
+        // Material tự pha thêm màu `surfaceTint` (mặc định là màu cam chính) vào nền của các
+        // bề mặt "nổi" như hộp chọn giờ, khiến chúng ám nâu. Đặt nó trùng màu nền thẻ = tắt
+        // việc pha màu đó: mọi bề mặt giữ đúng màu trong bản thiết kế.
+        surfaceTint = cardBackground,
         surfaceVariant = neutralSoft,
         onSurfaceVariant = textSecondary,
         surfaceContainerLowest = scaffoldBackground,
@@ -72,6 +77,7 @@ private val LightColorScheme = with(LightAppExtendedColors) {
         onBackground = textPrimary,
         surface = cardBackground,
         onSurface = textPrimary,
+        surfaceTint = cardBackground, // xem ghi chú ở DarkColorScheme
         surfaceVariant = neutralSoft,
         onSurfaceVariant = textSecondary,
         surfaceContainerLowest = cardBackground,
@@ -88,6 +94,13 @@ private val LightColorScheme = with(LightAppExtendedColors) {
         scrim = AppPalette.Black,
     )
 }
+
+/**
+ * App đang hiển thị ở giao diện tối hay sáng — theo lựa chọn trong Cài đặt, có thể KHÁC với
+ * chế độ của máy. Đọc bằng `LocalIsDarkTheme.current` ở những nơi cần biết điều này mà không
+ * suy ra được từ màu (vd chọn màu icon cho thanh trạng thái).
+ */
+val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
 @Composable
 fun OnTapTldTheme(
@@ -114,7 +127,7 @@ fun OnTapTldTheme(
         else -> LightColorScheme
     }
 
-    CompositionLocalProvider(LocalAppColors provides extendedColors) {
+    CompositionLocalProvider(LocalAppColors provides extendedColors, LocalIsDarkTheme provides darkTheme) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

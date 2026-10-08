@@ -108,6 +108,8 @@ class CaptureImageRepositoryImpl @Inject constructor(
         File(path).delete()
     }
 
+    override suspend fun clearTempImages(): Unit = withContext(io) { clearDirectory() }
+
     private fun newFile(prefix: String): File {
         directory.mkdirs()
         return File(directory, "$prefix-${ids.newId()}.jpg")

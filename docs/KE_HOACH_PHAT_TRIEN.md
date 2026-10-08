@@ -150,8 +150,8 @@ vào `dev` qua pull request #14 (nhánh `feat/ai-generate`). Màn Duyệt thẻ 
 cùng ngày, đã vào `dev` qua pull request #15 (nhánh `feat/ai-suggestions`). Màn lỗi AI + màn hết
 lượt xong cùng ngày, đã vào `dev` qua pull request #17 (nhánh `feat/ai-error-quota`). Xem ảnh
 nguồn của thẻ AI xong cùng ngày, đã vào `dev` qua pull request #21 (nhánh `feat/source-image`).
-Hai việc dọn dẹp cuối của bước 4 code xong tối 8/10/2026 trên nhánh `feat/note-cleanup` (chưa
-commit), đã chạy thử trên emulator — chờ Thi xem và merge.
+Hai việc dọn dẹp cuối của bước 4 xong tối 8/10/2026, đã vào `dev` qua pull request #22 (nhánh
+`feat/note-cleanup`). Phần việc của Claude ở bước 4 đến đây là hết.
 
 **Claude**
 - [x] CameraX + crop vùng chữ
@@ -339,10 +339,51 @@ commit), đã chạy thử trên emulator — chờ Thi xem và merge.
 
 ### Bước 5 — Cài đặt, nhắc ôn, widget
 
+Màn Cài đặt + màn Ngôn ngữ code xong tối 8/10/2026 trên nhánh `feat/settings` (chưa commit), đã
+chạy thử trên emulator — chờ Thi xem và merge. Tiếp theo: thông báo nhắc ôn, rồi widget.
+
 **Claude**
-- [ ] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu
+- [x] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu, chọn ngôn ngữ
 - [ ] Thông báo nhắc ôn hằng ngày (WorkManager)
 - [ ] Widget (Glance): tổng quan 4×2, số thẻ 2×2, ôn nhanh 4×2
+
+> **Màn Cài đặt và màn Ngôn ngữ — cách hoạt động (Thi chốt 8/10/2026) và những chỗ design không vẽ:**
+> - Bố cục theo artboard `Settings`, thêm một mục **Ngôn ngữ** (Thi chọn: mục riêng, nằm giữa
+>   Giao diện và Nhắc ôn tập) với dòng "Ngôn ngữ giao diện · Tiếng Việt ›" mở màn Ngôn ngữ theo
+>   artboard `Language`. Màn Cài đặt cuộn được (máy thấp, cỡ chữ lớn).
+> - Giao diện: chọn là đổi ngay, không dựng lại màn. Icon thanh trạng thái / thanh điều hướng
+>   đổi màu theo giao diện của APP (`AppSystemBars`), không theo chế độ của máy. Giao diện đã
+>   lưu được đọc trước khung hình đầu tiên nên mở app không bị loé. CÒN THIẾU: màn chào của HỆ
+>   THỐNG lúc mở app (trước khi app kịp vẽ) vẫn theo chế độ của máy.
+> - Ngôn ngữ: chọn là áp dụng ngay, không có nút Lưu; người dùng ở lại màn Ngôn ngữ. Dùng
+>   `AppCompatDelegate.setApplicationLocales` (thêm thư viện AppCompat, `MainActivity` kế thừa
+>   `AppCompatActivity`, theme gốc đổi sang `Theme.AppCompat.DayNight.NoActionBar`), chạy từ
+>   Android 7; Android 13+ còn hiện app trong mục "Ngôn ngữ ứng dụng" của máy
+>   (`res/xml/locales_config.xml`). Chưa chọn gì thì app theo ngôn ngữ của máy: máy tiếng Anh
+>   → tiếng Anh, còn lại → tiếng Việt. Chuỗi phát từ ViewModel (`StringProvider`) cũng theo ngôn
+>   ngữ đã chọn. Màn biết "đang nói tiếng gì" nhờ chuỗi `app_language_tag` (vi / en).
+> - Nhắc ôn: mặc định TẮT (thông báo là thứ người dùng tự chọn nhận), giờ gợi ý 20:00. Tắt thì
+>   dòng "Giờ nhắc" mờ và không bấm được. Bấm "Giờ nhắc" mở đồng hồ chọn giờ của Material, kiểu
+>   12 / 24 giờ theo máy. Màn này MỚI CHỈ LƯU cài đặt (`AppPreferences.reminder`); việc xin quyền
+>   thông báo và hẹn giờ bằng WorkManager làm ở phần kế tiếp.
+> - Lượt AI: "đã dùng / tổng" đọc từ cùng bộ đếm với màn Kiểm tra văn bản.
+> - Đăng nhập Google: chỉ là dòng giới thiệu kèm nhãn "Sắp có", chưa bấm được (bước 6).
+> - "Chính sách quyền riêng tư": tạm báo "Tính năng này sắp có." (Thi chọn). "Giới thiệu On Tap
+>   TLD": chỉ hiện số phiên bản, không bấm được (Thi chọn). `versionName` đổi thành `1.0.0` cho
+>   khớp design.
+> - "Xoá toàn bộ dữ liệu trên máy" (Thi chọn phạm vi): hỏi lại, rồi xoá HẲN (không phải đánh dấu
+>   xoá) mọi bộ thẻ, thẻ, ghi chú, lịch sử ôn, hàng đợi đồng bộ, ảnh ghi chú và ảnh tạm của luồng
+>   chụp. GIỮ giao diện, ngôn ngữ, cài đặt nhắc ôn và bộ đếm lượt AI. Xong thì báo "Đã xoá toàn
+>   bộ dữ liệu." và ở lại màn Cài đặt.
+> - Tắt việc Material tự pha màu cam vào nền các bề mặt "nổi" (`surfaceTint`): hộp chọn giờ bị
+>   ám nâu ở giao diện tối. Từ nay hộp thoại, menu giữ đúng màu nền thẻ.
+> - Đã kiểm chứng trên emulator: đổi Việt ⇄ Anh, giao diện Tối khi máy đang sáng (icon thanh
+>   trạng thái trắng), bật nhắc + đổi giờ + mở lại app còn nguyên, snackbar "sắp có", hộp thoại
+>   xoá (chỉ bấm Huỷ vì emulator đang có bộ thẻ của Thi). Việc xoá thật mới qua test
+>   `DeleteAllLocalDataTest` (database trong bộ nhớ) — Thi tự bấm thử khi tiện.
+> - Lưu ý khi lên bản này: lần chạy đầu, AppCompat đồng bộ kho ngôn ngữ của nó với hệ thống và
+>   XOÁ lựa chọn ngôn ngữ đặt bằng `adb shell cmd locale set-app-locales` trước đó (app về theo
+>   máy). Chỉ xảy ra một lần; người dùng thật chưa từng có lựa chọn nào nên không bị ảnh hưởng.
 
 **Thi**
 - [ ] Thử thông báo và widget trên launcher thật
@@ -365,7 +406,7 @@ commit), đã chạy thử trên emulator — chờ Thi xem và merge.
 **Claude**
 - [ ] Màn thống kê: chuỗi ngày ôn, số thẻ ôn mỗi ngày, tỉ lệ nhớ
 - [ ] Ba màn onboarding
-- [ ] Chọn ngôn ngữ, bản dịch tiếng Anh
+- [ ] Chọn ngôn ngữ, bản dịch tiếng Anh (màn chọn ngôn ngữ đã làm ở bước 5; còn soát bản dịch)
 
 **Thi**
 - [ ] Soát bản dịch, chạy thử
@@ -435,8 +476,12 @@ Bước 2 và bước 3 đã xong và nằm trong `dev` (pull request #7–#10).
 Đang làm **bước 4 — Chụp ảnh + AI**, mỗi màn một nhánh. Màn Chụp ghi chú đã vào `dev` (pull
 request #12), màn Kiểm tra văn bản (#13), phần gọi Gemini + màn "Đang tạo thẻ" (#14) và màn duyệt
 thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17), xem ảnh nguồn của thẻ AI (#21) cũng vậy.
-Hai việc dọn dẹp cuối (nhánh `feat/note-cleanup`) đã code xong, chờ Thi xem và merge; sau đó là
-**bước 5 — Cài đặt, nhắc ôn, widget**. Artboard: xem bảng ở Mục 6.3.
+Hai việc dọn dẹp cuối (#22) cũng vậy — bước 4 xong.
+
+Đang làm **bước 5 — Cài đặt, nhắc ôn, widget**. Màn Cài đặt + màn Ngôn ngữ (nhánh
+`feat/settings`) đã code xong, chờ Thi xem và merge. Kế tiếp: thông báo nhắc ôn hằng ngày
+(WorkManager, xin quyền thông báo khi bật công tắc), rồi widget (Glance). Artboard: xem bảng ở
+Mục 6.3.
 
 **Phạm vi trước khi nộp hồ sơ Fresher Android (Braly, hạn 15/10/2026 — Thi chốt 8/10/2026):**
 làm tới hết đăng nhập Google ở bước 6 (đăng nhập + màn Cài đặt khi đã đăng nhập); đồng bộ
@@ -508,8 +553,10 @@ thái / bàn phím của hệ thống, và các nút thuộc bước chưa làm 
 - Camera của emulator không có chữ. Để thử OCR / ảnh nguồn, thư viện ảnh của emulator có sẵn
   `Pictures/ontap_demo_note.jpg` (một trang ghi chú chữ in, Claude tạo ngày 8/10/2026): vào màn
   chụp, bấm "Thư viện" rồi chọn ảnh này.
-- App trên emulator đang được đặt ngôn ngữ riêng là tiếng Việt
-  (`adb shell cmd locale set-app-locales com.ledinhthi.ontaptld --locales vi-VN`).
+- App trên emulator đang được đặt ngôn ngữ riêng là tiếng Việt (máy ảo để tiếng Anh). Đổi
+  bằng màn Cài đặt → Ngôn ngữ của app, hoặc
+  `adb shell cmd locale set-app-locales com.ledinhthi.ontaptld --locales vi`; xem bằng
+  `… get-app-locales …`.
 - Xem dark theme: `adb shell cmd uimode night yes`, chụp xong trả lại `night no`.
 - **Đừng xoá dữ liệu app** (`pm clear`, gỡ cài đặt): sẽ mất debug token App Check mà Thi đã đăng
   ký trên Firebase Console, phải lấy token mới trong Logcat và đăng ký lại.

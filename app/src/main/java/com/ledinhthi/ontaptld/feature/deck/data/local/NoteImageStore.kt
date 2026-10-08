@@ -44,6 +44,11 @@ class NoteImageStore @Inject constructor(
         }
     }
 
+    /** Xoá mọi ảnh ghi chú — dùng cho "Xoá toàn bộ dữ liệu trên máy" ở màn Cài đặt. */
+    suspend fun deleteAll(): Unit = withContext(io) {
+        directory.listFiles().orEmpty().forEach { it.delete() }
+    }
+
     companion object {
         /** Tên thư mục con trong `filesDir` chứa ảnh ghi chú. */
         const val DIRECTORY = "notes"

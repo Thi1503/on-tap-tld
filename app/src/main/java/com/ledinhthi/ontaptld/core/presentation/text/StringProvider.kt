@@ -2,6 +2,7 @@ package com.ledinhthi.ontaptld.core.presentation.text
 
 import android.content.Context
 import androidx.annotation.StringRes
+import com.ledinhthi.ontaptld.core.presentation.language.withAppLanguage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,6 +22,9 @@ class AndroidStringProvider @Inject constructor(
 ) : StringProvider {
     // `vararg args` nhận số lượng tham số tuỳ ý (để điền vào %1$s, %2$d… trong chuỗi);
     // dấu `*` trước `args` "trải" mảng đó ra thành từng tham số khi gọi tiếp hàm khác.
-    override fun get(id: Int, vararg args: Any): String =
-        if (args.isEmpty()) context.getString(id) else context.getString(id, *args)
+    override fun get(id: Int, vararg args: Any): String {
+        // Lấy chuỗi theo ngôn ngữ người dùng chọn trong Cài đặt, không phải ngôn ngữ của máy.
+        val localized = context.withAppLanguage()
+        return if (args.isEmpty()) localized.getString(id) else localized.getString(id, *args)
+    }
 }
