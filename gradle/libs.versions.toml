@@ -29,6 +29,7 @@ work = "2.11.0"                   # bước 5: hẹn giờ nhắc ôn hằng ng�
 mlkitTextRecognition = "16.0.1"  # nhận dạng chữ Latin (đủ cho tiếng Việt có dấu)
 credentials = "1.5.0"             # bước 6: Credential Manager — hộp chọn tài khoản Google của hệ thống
 googleid = "1.1.1"                # đọc "ID token" Google mà Credential Manager trả về
+guava = "32.1.3-android"          # đúng bản Firestore đã kéo theo — xem ghi chú ở app/build.gradle.kts
 # test
 turbine = "1.2.1"
 mockk = "1.14.2"
@@ -77,6 +78,8 @@ firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "fireb
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }  # Firebase AI Logic: gọi Gemini
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }  # tài khoản người dùng
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }  # đồng bộ đám mây
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 
 # Đăng nhập Google (bước 6): Credential Manager hỏi người dùng chọn tài khoản, Firebase Auth nhận kết quả
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }

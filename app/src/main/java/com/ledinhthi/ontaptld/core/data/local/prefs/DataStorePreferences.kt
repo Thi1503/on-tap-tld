@@ -1,6 +1,7 @@
 package com.ledinhthi.ontaptld.core.data.local.prefs
 
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -8,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +27,7 @@ class DataStorePreferences @Inject constructor(
         val REMINDER_ENABLED = booleanPreferencesKey("reminder_enabled")
         val REMINDER_MINUTE = intPreferencesKey("reminder_minute_of_day")
         val LANGUAGE_TAG = stringPreferencesKey("language_tag")
+        val SYNC_OWNER = stringPreferencesKey("sync_owner_uid")
     }
 
     override val themeMode: Flow<ThemeMode> = dataStore.data.map { p ->
@@ -75,5 +78,38 @@ class DataStorePreferences @Inject constructor(
 
     override suspend fun setLastSyncAt(millis: Long) {
         dataStore.edit { it[Keys.LAST_SYNC] = millis }
+    }
+
+    override suspend fun getSyncOwnerUid(): String? = dataStore.data.first()[Keys.SYNC_OWNER]
+
+    override suspend fun getSyncCursor(collection: String): Long =
+        dataStore.data.first()[cursorKey(collection)] ?: 0L
+
+    override suspend fun setSyncCursor(collection: String, cursor: Long) {
+        dataStore.edit { it[cursorKey(collection)] = cursor }
+    }
+
+    override suspend fun startSyncFor(uid: String) {
+        dataStore.edit { p ->
+            p.clearSync()
+            p[Keys.SYNC_OWNER] = uid
+        }
+    }
+
+    override suspend fun clearSyncState() {
+        dataStore.edit { it.clearSync() }
+    }
+
+    private fun cursorKey(collection: String) = longPreferencesKey(SYNC_CURSOR_PREFIX + collection)
+
+    /** Xoá mọi khoá liên quan tới đồng bộ. Các khoá mốc kéo có tên động nên phải dò theo tiền tố. */
+    private fun MutablePreferences.clearSync() {
+        remove(Keys.SYNC_OWNER)
+        remove(Keys.LAST_SYNC)
+        asMap().keys.filter { it.name.startsWith(SYNC_CURSOR_PREFIX) }.forEach { remove(it) }
+    }
+
+    private companion object {
+        const val SYNC_CURSOR_PREFIX = "sync_cursor_"
     }
 }

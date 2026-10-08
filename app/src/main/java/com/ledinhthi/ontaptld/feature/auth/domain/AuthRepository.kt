@@ -11,6 +11,9 @@ interface AuthRepository {
     /** Người đang đăng nhập, `null` khi chưa đăng nhập. Phát lại mỗi lần đăng nhập / đăng xuất. */
     val currentUser: Flow<AuthUser?>
 
+    /** Mã định danh của người đang đăng nhập, đọc ngay tại thời điểm gọi; `null` = chưa đăng nhập. */
+    val currentUserId: String?
+
     /**
      * Đăng nhập bằng "ID token" mà Google cấp sau khi người dùng chọn tài khoản.
      * Lỗi thì ném `AppException.AuthException`.

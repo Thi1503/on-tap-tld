@@ -2,6 +2,8 @@ package com.ledinhthi.ontaptld.feature.deck
 
 import android.content.Context
 import com.ledinhthi.ontaptld.core.domain.util.Clock
+import com.ledinhthi.ontaptld.core.sync.SyncEntityType
+import com.ledinhthi.ontaptld.core.sync.SyncQueueRecorder
 import com.ledinhthi.ontaptld.feature.deck.data.local.DeckDao
 import com.ledinhthi.ontaptld.feature.deck.data.local.FlashcardDao
 import com.ledinhthi.ontaptld.feature.deck.data.local.NoteDao
@@ -39,6 +41,8 @@ class NoteCleanupTest {
     private val deckDao = mockk<DeckDao>()
     private val cardDao = mockk<FlashcardDao>()
     private val noteDao = mockk<NoteDao>(relaxed = true)
+    // Bộ ghi lệnh đồng bộ: ở đây chỉ cần nó "có mặt"; việc nó ghi gì có test riêng bên dưới.
+    private val sync = mockk<SyncQueueRecorder>(relaxed = true)
 
     private lateinit var notesDirectory: File
     private lateinit var images: NoteImageStore
@@ -67,7 +71,7 @@ class NoteCleanupTest {
         val otherDeck = image("n3.jpg")
         coEvery { deckDao.softDeleteWithContents("d1", now) } returns listOf(first.path, second.path)
 
-        DeckRepositoryImpl(deckDao, mockk(), clock, images).delete("d1")
+        DeckRepositoryImpl(deckDao, mockk(), clock, images, sync).delete("d1")
 
         assertFalse(first.exists())
         assertFalse(second.exists())
@@ -79,7 +83,7 @@ class NoteCleanupTest {
         val kept = image("n1.jpg")
         coEvery { deckDao.softDeleteWithContents(any(), any()) } throws IllegalStateException("db")
 
-        val result = runCatching { DeckRepositoryImpl(deckDao, mockk(), clock, images).delete("d1") }
+        val result = runCatching { DeckRepositoryImpl(deckDao, mockk(), clock, images, sync).delete("d1") }
 
         assertTrue(result.isFailure)
         assertTrue(kept.exists())
@@ -88,7 +92,7 @@ class NoteCleanupTest {
     @Test
     fun `xoa the - chi xoa anh khi ghi chu khong con the nao dung`() = runTest {
         val shared = image("n1.jpg")
-        val repository = FlashcardRepositoryImpl(cardDao, mockk(), clock, images)
+        val repository = FlashcardRepositoryImpl(cardDao, mockk(), clock, images, sync)
 
         // Ghi chú còn thẻ khác dùng: database không trả về ảnh nào cần xoá.
         coEvery { cardDao.softDeleteAndReleaseNote("c1", now) } returns null
@@ -107,7 +111,7 @@ class NoteCleanupTest {
         val orphan = image("orphan.jpg")
         coEvery { noteDao.liveImagePaths() } returns listOf(live.path)
 
-        NoteRepositoryImpl(noteDao, mockk(), clock, images).cleanUpOrphans()
+        NoteRepositoryImpl(noteDao, mockk(), clock, images, sync).cleanUpOrphans()
 
         assertTrue(live.exists())
         assertFalse(orphan.exists())
@@ -121,7 +125,7 @@ class NoteCleanupTest {
         val justSaved = image("new.jpg", ageMillis = 5_000)
         coEvery { noteDao.liveImagePaths() } returns emptyList()
 
-        NoteRepositoryImpl(noteDao, mockk(), clock, images).cleanUpOrphans()
+        NoteRepositoryImpl(noteDao, mockk(), clock, images, sync).cleanUpOrphans()
 
         assertTrue(justSaved.exists())
     }
@@ -131,7 +135,7 @@ class NoteCleanupTest {
         val live = image("live.jpg")
         coEvery { noteDao.liveImagePaths() } returns listOf("/data/user/0/app/files/notes/live.jpg")
 
-        NoteRepositoryImpl(noteDao, mockk(), clock, images).cleanUpOrphans()
+        NoteRepositoryImpl(noteDao, mockk(), clock, images, sync).cleanUpOrphans()
 
         assertTrue(live.exists())
     }
@@ -141,7 +145,7 @@ class NoteCleanupTest {
         notesDirectory.deleteRecursively()
         coEvery { noteDao.liveImagePaths() } returns emptyList()
 
-        NoteRepositoryImpl(noteDao, mockk(), clock, images).cleanUpOrphans()
+        NoteRepositoryImpl(noteDao, mockk(), clock, images, sync).cleanUpOrphans()
 
         assertEquals(0, images.deleteUnreferenced(emptyList(), now))
     }

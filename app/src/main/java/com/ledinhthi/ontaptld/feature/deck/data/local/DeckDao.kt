@@ -14,16 +14,16 @@ interface DeckDao : BaseDao<DeckEntity> {
     @Query("SELECT * FROM decks WHERE id = :id AND isDeleted = 0")
     fun observeById(id: String): Flow<DeckEntity?>
 
-    @Query("UPDATE decks SET isDeleted = 1, updatedAt = :now WHERE id = :id")
+    @Query("UPDATE decks SET isDeleted = 1, synced = 0, updatedAt = :now WHERE id = :id")
     suspend fun softDelete(id: String, now: Long)
 
-    @Query("UPDATE flashcards SET isDeleted = 1, updatedAt = :now WHERE deckId = :deckId AND isDeleted = 0")
+    @Query("UPDATE flashcards SET isDeleted = 1, synced = 0, updatedAt = :now WHERE deckId = :deckId AND isDeleted = 0")
     suspend fun softDeleteCardsOf(deckId: String, now: Long)
 
     @Query("SELECT imagePath FROM notes WHERE deckId = :deckId AND isDeleted = 0")
     suspend fun noteImagePathsOf(deckId: String): List<String>
 
-    @Query("UPDATE notes SET isDeleted = 1, updatedAt = :now WHERE deckId = :deckId AND isDeleted = 0")
+    @Query("UPDATE notes SET isDeleted = 1, synced = 0, updatedAt = :now WHERE deckId = :deckId AND isDeleted = 0")
     suspend fun softDeleteNotesOf(deckId: String, now: Long)
 
     /**

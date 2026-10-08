@@ -301,9 +301,9 @@
     <string name="error_ai_unavailable">Dịch vụ AI tạm thời không dùng được.</string>
 
     <!-- auth — đăng nhập Google (feature/auth), mở từ màn Cài đặt -->
-    <string name="auth_title">Đăng nhập bằng Google</string>
-    <string name="auth_subtitle">Không bắt buộc — app vẫn chạy đầy đủ khi không đăng nhập. Đồng bộ thẻ giữa các thiết bị sẽ có ở bản cập nhật sau.</string>
-    <string name="auth_point_local">Thẻ và tiến độ ôn tập vẫn lưu trên máy này</string>
+    <string name="auth_title">Đồng bộ thẻ của bạn</string>
+    <string name="auth_subtitle">Đăng nhập để dùng trên nhiều thiết bị. Không bắt buộc — app vẫn chạy đầy đủ khi không đăng nhập.</string>
+    <string name="auth_point_sync">Đồng bộ bộ thẻ, thẻ và tiến độ ôn tập</string>
     <string name="auth_point_photos">Ảnh ghi chú luôn ở lại trên máy, không tải lên</string>
     <string name="auth_point_sign_out">Đăng xuất bất cứ lúc nào, thẻ trên máy còn nguyên</string>
     <string name="auth_continue_google">Tiếp tục với Google</string>
@@ -337,8 +337,7 @@
     <string name="settings_ai_usage_note">Làm mới lúc 0:00 mỗi ngày. Thẻ gõ tay không giới hạn.</string>
     <string name="settings_section_sync">Đồng bộ</string>
     <string name="settings_sync_google">Đăng nhập Google</string>
-    <string name="settings_sync_google_note">Không bắt buộc · đồng bộ đám mây sắp có</string>
-    <string name="settings_badge_coming_soon">Sắp có</string>
+    <string name="settings_sync_google_note">Đồng bộ thẻ giữa các thiết bị · không tải ảnh lên</string>
     <string name="settings_section_data">Dữ liệu &amp; giới thiệu</string>
     <string name="settings_privacy_policy">Chính sách quyền riêng tư</string>
     <string name="settings_about">Giới thiệu On Tap TLD</string>
@@ -349,13 +348,34 @@
     <string name="settings_delete_all_confirm">Xoá hết</string>
     <string name="settings_delete_all_done">Đã xoá toàn bộ dữ liệu.</string>
     <!-- Cài đặt khi đã đăng nhập Google -->
-    <string name="settings_cloud_sync">Đồng bộ đám mây</string>
     <string name="settings_section_account">Tài khoản</string>
     <string name="settings_sign_out">Đăng xuất</string>
     <string name="settings_sign_out_note">Đăng xuất không xoá thẻ đang có trên máy này.</string>
     <string name="settings_sign_out_title">Đăng xuất?</string>
     <string name="settings_sign_out_message">Thẻ đang có trên máy này vẫn được giữ nguyên. Bạn có thể đăng nhập lại bất cứ lúc nào.</string>
     <string name="settings_sign_out_done">Đã đăng xuất.</string>
+    <!-- Đồng bộ đám mây (feature/sync) — hàng trạng thái trong thẻ tài khoản -->
+    <string name="settings_sync_now">Đồng bộ ngay</string>
+    <string name="settings_sync_running">Đang đồng bộ…</string>
+    <string name="settings_sync_failed">Chưa đồng bộ được</string>
+    <string name="settings_sync_never">Chưa đồng bộ</string>
+    <string name="settings_sync_done">Đã đồng bộ · %1$s</string>
+    <string name="settings_sync_just_now">vừa xong</string>
+    <plurals name="settings_sync_minutes_ago">
+        <item quantity="other">%d phút trước</item>
+    </plurals>
+    <plurals name="settings_sync_hours_ago">
+        <item quantity="other">%d giờ trước</item>
+    </plurals>
+    <plurals name="settings_sync_days_ago">
+        <item quantity="other">%d ngày trước</item>
+    </plurals>
+    <string name="settings_delete_all_message_signed_in">Mọi bộ thẻ, thẻ, ảnh ghi chú và lịch sử ôn trên máy này sẽ bị xoá, và bạn sẽ được đăng xuất. Thẻ đã đồng bộ vẫn còn trên đám mây — đăng nhập lại là tải về. Thay đổi chưa kịp đồng bộ sẽ mất.</string>
+    <string name="sync_error_not_signed_in">Hãy đăng nhập để đồng bộ.</string>
+    <string name="sync_error_not_configured">Đồng bộ chưa được bật trong bản build này.</string>
+    <string name="sync_error_network">Cần mạng để đồng bộ. Kiểm tra kết nối rồi thử lại.</string>
+    <string name="sync_error_permission">Máy chủ từ chối đồng bộ. Thử đăng xuất rồi đăng nhập lại.</string>
+    <string name="sync_error_unknown">Chưa đồng bộ được. Thử lại sau ít phút.</string>
 
     <!-- language — màn chọn ngôn ngữ. Tên ngôn ngữ luôn viết bằng chính ngôn ngữ đó. -->
     <string name="language_title">Ngôn ngữ</string>

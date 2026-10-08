@@ -11,6 +11,8 @@ import com.ledinhthi.ontaptld.feature.auth.domain.usecase.ObserveAuthUserUseCase
 import com.ledinhthi.ontaptld.feature.auth.domain.usecase.SignOutUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.settings.domain.DeleteAllLocalDataUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.ObserveSyncStatusUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncNowUseCase
 import com.ledinhthi.ontaptld.navigation.GoogleSignInRoute
 import com.ledinhthi.ontaptld.navigation.LanguageRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +36,8 @@ class SettingsViewModel @Inject constructor(
     private val deleteAllLocalData: DeleteAllLocalDataUseCase,
     observeAuthUser: ObserveAuthUserUseCase,
     private val signOut: SignOutUseCase,
+    observeSyncStatus: ObserveSyncStatusUseCase,
+    private val syncNow: SyncNowUseCase,
 ) : BaseViewModel<SettingsState>(SettingsState(), toolbox) {
 
     init {
@@ -42,6 +46,8 @@ class SettingsViewModel @Inject constructor(
         observeAiQuota().collectInto { copy(aiQuota = it) }
         // Đăng nhập xong ở màn Đăng nhập Google rồi quay lại là thẻ tài khoản hiện ngay.
         observeAuthUser().collectInto { copy(account = it) }
+        // Lượt đồng bộ do việc nền chạy (không phải do màn này bấm nút) cũng hiện lên ở đây.
+        observeSyncStatus().collectInto { copy(sync = it) }
     }
 
     /**
@@ -73,6 +79,15 @@ class SettingsViewModel @Inject constructor(
     fun onSignOutConfirmed() = launchGuarded(showLoadingOverlay = true) {
         signOut()
         navigator.showSnackBar(strings.get(R.string.settings_sign_out_done), SnackBarType.SUCCESS)
+    }
+
+    /**
+     * Nút "Đồng bộ ngay". Không cần báo "xong": hàng trạng thái trong thẻ tài khoản tự đổi sang
+     * "Đã đồng bộ · vừa xong". Lỗi (mất mạng…) do bộ xử lý lỗi chung báo.
+     */
+    fun onSyncNowClick() {
+        if (currentState.sync.isSyncing) return
+        launchGuarded { syncNow() }
     }
 
     /** Chưa có trang chính sách — tạm báo "sắp có" (Thi chốt 8/10/2026). */

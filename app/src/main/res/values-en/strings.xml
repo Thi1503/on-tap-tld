@@ -289,9 +289,9 @@
     <string name="error_ai_unavailable">The AI service is temporarily unavailable.</string>
 
     <!-- auth — Google sign-in -->
-    <string name="auth_title">Sign in with Google</string>
-    <string name="auth_subtitle">Optional — the app works fully without signing in. Syncing cards across devices is coming in a later update.</string>
-    <string name="auth_point_local">Your cards and review progress stay on this device</string>
+    <string name="auth_title">Sync your cards</string>
+    <string name="auth_subtitle">Sign in to use your cards on more than one device. Optional — the app works fully without signing in.</string>
+    <string name="auth_point_sync">Syncs your decks, cards and review progress</string>
     <string name="auth_point_photos">Note photos always stay on your device, never uploaded</string>
     <string name="auth_point_sign_out">Sign out anytime — cards on this device are kept</string>
     <string name="auth_continue_google">Continue with Google</string>
@@ -323,8 +323,7 @@
     <string name="settings_ai_usage_note">Resets at 0:00 every day. Typed cards are unlimited.</string>
     <string name="settings_section_sync">Sync</string>
     <string name="settings_sync_google">Sign in with Google</string>
-    <string name="settings_sync_google_note">Optional · cloud sync coming soon</string>
-    <string name="settings_badge_coming_soon">Coming soon</string>
+    <string name="settings_sync_google_note">Sync cards across devices · photos are never uploaded</string>
     <string name="settings_section_data">Data &amp; about</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_about">About On Tap TLD</string>
@@ -335,13 +334,37 @@
     <string name="settings_delete_all_confirm">Delete all</string>
     <string name="settings_delete_all_done">All data deleted.</string>
     <!-- Settings when signed in with Google -->
-    <string name="settings_cloud_sync">Cloud sync</string>
     <string name="settings_section_account">Account</string>
     <string name="settings_sign_out">Sign out</string>
     <string name="settings_sign_out_note">Signing out doesn\'t delete the cards on this device.</string>
     <string name="settings_sign_out_title">Sign out?</string>
     <string name="settings_sign_out_message">The cards on this device are kept. You can sign in again anytime.</string>
     <string name="settings_sign_out_done">Signed out.</string>
+    <!-- Cloud sync -->
+    <string name="settings_sync_now">Sync now</string>
+    <string name="settings_sync_running">Syncing…</string>
+    <string name="settings_sync_failed">Couldn\'t sync</string>
+    <string name="settings_sync_never">Not synced yet</string>
+    <string name="settings_sync_done">Synced · %1$s</string>
+    <string name="settings_sync_just_now">just now</string>
+    <plurals name="settings_sync_minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="settings_sync_hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="settings_sync_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <string name="settings_delete_all_message_signed_in">All decks, cards, note photos and review history on this device will be deleted, and you will be signed out. Synced cards stay in the cloud — sign in again to get them back. Changes that haven\'t synced yet will be lost.</string>
+    <string name="sync_error_not_signed_in">Sign in to sync.</string>
+    <string name="sync_error_not_configured">Sync isn\'t enabled in this build.</string>
+    <string name="sync_error_network">Syncing needs an internet connection. Check your connection and try again.</string>
+    <string name="sync_error_permission">The server refused to sync. Try signing out and back in.</string>
+    <string name="sync_error_unknown">Couldn\'t sync. Try again in a few minutes.</string>
 
     <!-- language -->
     <string name="language_title">Language</string>

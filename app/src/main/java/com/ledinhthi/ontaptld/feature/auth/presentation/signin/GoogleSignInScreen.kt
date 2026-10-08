@@ -145,7 +145,7 @@ private fun GoogleSignInContent(onBack: () -> Unit, onContinueWithGoogle: () -> 
                 contentPadding = PaddingValues(AppDimens.defaultPadding),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(PointGap)) {
-                    CheckedPoint(stringResource(R.string.auth_point_local))
+                    CheckedPoint(stringResource(R.string.auth_point_sync))
                     CheckedPoint(stringResource(R.string.auth_point_photos))
                     CheckedPoint(stringResource(R.string.auth_point_sign_out))
                 }

@@ -40,7 +40,25 @@ interface AppPreferences {
     val languageTag: Flow<String?>
     suspend fun setLanguageTag(tag: String)
 
-    // ---- Sprint 2 ----
+    // ---- Đồng bộ đám mây (feature/sync) ----
+
+    /** Lần đồng bộ thành công gần nhất; 0 = chưa đồng bộ lần nào. */
     val lastSyncAtMillis: Flow<Long>
     suspend fun setLastSyncAt(millis: Long)
+
+    /** uid của tài khoản mà dữ liệu trên máy này đang đồng bộ cùng; null = chưa từng đồng bộ. */
+    suspend fun getSyncOwnerUid(): String?
+
+    /**
+     * "Mốc kéo" của một collection: lần kéo sau chỉ hỏi đám mây những bản ghi được ghi lên SAU
+     * mốc này. Tính bằng nano giây theo giờ MÁY CHỦ (không phải giờ của máy này); 0 = kéo tất cả.
+     */
+    suspend fun getSyncCursor(collection: String): Long
+    suspend fun setSyncCursor(collection: String, cursor: Long)
+
+    /** Bắt đầu đồng bộ với tài khoản [uid]: ghi chủ mới, quên mốc kéo và giờ đồng bộ của tài khoản cũ. */
+    suspend fun startSyncFor(uid: String)
+
+    /** Quên hết trạng thái đồng bộ (sau khi xoá toàn bộ dữ liệu trên máy). */
+    suspend fun clearSyncState()
 }

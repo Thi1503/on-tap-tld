@@ -110,6 +110,13 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.kotlinx.coroutines.play.services)
+    // Đồng bộ bộ thẻ / thẻ / ghi chú (chỉ phần chữ) lên đám mây của người đã đăng nhập
+    implementation(libs.firebase.firestore)
+    // Firestore kéo theo cả thư viện Guava, và Guava thay gói nhỏ `listenablefuture` (thứ CameraX
+    // dùng cho `ProcessCameraProvider.getInstance`) bằng một bản rỗng. Guava lại chỉ có mặt lúc
+    // chạy, nên lúc biên dịch màn chụp ảnh không còn thấy lớp `ListenableFuture`. Khai thẳng
+    // Guava ở đây để lớp đó thấy được lúc biên dịch; APK không nặng thêm vì Guava đã có sẵn.
+    implementation(libs.guava)
 
     // Camera: CameraX (khung ngắm + chụp) và ExifInterface (ảnh bị xoay thì dựng lại cho thẳng)
     implementation(libs.androidx.camera.camera2)
