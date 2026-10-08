@@ -22,6 +22,8 @@ timber = "5.0.1"
 desugar = "2.1.5"
 firebaseBom = "34.3.0"
 googleServices = "4.4.3"
+camerax = "1.5.3"                 # bước 4: chụp ghi chú
+exifinterface = "1.4.2"           # đọc hướng xoay của ảnh chụp / ảnh chọn từ thư viện
 # test
 turbine = "1.2.1"
 mockk = "1.14.2"
@@ -67,6 +69,12 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
+
+# Camera (bước 4)
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 # Misc
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }

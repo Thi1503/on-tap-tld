@@ -170,6 +170,28 @@
     <string name="review_empty_message">Bạn đã ôn hết thẻ đến hạn hôm nay. Quay lại vào ngày mai nhé.</string>
     <string name="review_error_title">Không tải được thẻ cần ôn</string>
 
+    <!-- capture — feature/capture: luồng chụp ghi chú → kiểm tra văn bản → duyệt thẻ AI -->
+    <string name="capture_title">Chụp ghi chú</string>
+    <!-- %1$d = bước hiện tại, %2$d = tổng số bước -->
+    <string name="capture_step">Bước %1$d/%2$d</string>
+    <string name="capture_crop_hint">Kéo 4 góc để chọn vùng chữ cần nhận dạng</string>
+    <string name="capture_gallery">Thư viện</string>
+    <string name="capture_shutter">Chụp ảnh</string>
+    <string name="capture_torch_off">Đèn tắt</string>
+    <string name="capture_torch_on">Đèn bật</string>
+    <string name="capture_retake">Chụp lại</string>
+    <string name="capture_use_photo">Dùng ảnh này</string>
+    <string name="capture_photo_description">Ảnh ghi chú vừa chọn</string>
+    <string name="capture_permission_title">Cần quyền dùng camera</string>
+    <string name="capture_permission_message">Cho phép app dùng camera để chụp ghi chú. Bạn vẫn có thể chọn ảnh có sẵn từ Thư viện.</string>
+    <string name="capture_permission_grant">Cho phép camera</string>
+    <string name="capture_permission_settings">Mở Cài đặt</string>
+    <string name="capture_error_camera">Không chụp được ảnh. Thử lại nhé.</string>
+    <string name="capture_error_image">Không mở được ảnh này. Hãy chọn ảnh khác.</string>
+    <string name="capture_error_save">Không lưu được ảnh. Kiểm tra dung lượng trống của máy.</string>
+    <string name="ocr_review_title">Kiểm tra văn bản</string>
+    <string name="ocr_review_cropped_image">Ảnh đã cắt</string>
+
     <!-- create_deck — bottom sheet tạo bộ thẻ -->
     <string name="create_deck_title">Tạo bộ thẻ mới</string>
     <string name="create_deck_name_label">Tên bộ thẻ</string>

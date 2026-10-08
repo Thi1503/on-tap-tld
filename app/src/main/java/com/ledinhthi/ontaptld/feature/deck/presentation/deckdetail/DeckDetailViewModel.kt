@@ -11,6 +11,7 @@ import com.ledinhthi.ontaptld.feature.deck.domain.usecase.DeleteDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.DeleteFlashcardUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveDeckUseCase
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.ObserveFlashcardsUseCase
+import com.ledinhthi.ontaptld.navigation.CaptureRoute
 import com.ledinhthi.ontaptld.navigation.DeckDetailRoute
 import com.ledinhthi.ontaptld.navigation.ManualCardRoute
 import com.ledinhthi.ontaptld.navigation.ReviewRoute
@@ -100,9 +101,6 @@ class DeckDetailViewModel @Inject constructor(
     /** "Ôn N thẻ": chỉ ôn các thẻ đến hạn của bộ này. */
     fun onReviewClick() = navigator.to(ReviewRoute(deckId))
 
-    // Chụp ghi chú thuộc bước 4 của docs/KE_HOACH_PHAT_TRIEN.md.
-    fun onCaptureClick() = showComingSoon()
-
-    private fun showComingSoon() =
-        navigator.showSnackBar(strings.get(R.string.common_coming_soon), SnackBarType.INFO)
+    /** "Chụp ảnh": mở luồng tạo thẻ bằng AI với bộ thẻ này được chọn sẵn làm nơi lưu. */
+    fun onCaptureClick() = navigator.to(CaptureRoute(deckId))
 }
