@@ -26,6 +26,9 @@ object DatabaseModule {
     fun provideSyncQueueDao(db: AppDatabase) = db.syncQueueDao()
 
     @Provides
+    fun provideSyncDao(db: AppDatabase) = db.syncDao()
+
+    @Provides
     fun provideReviewLogDao(db: AppDatabase) = db.reviewLogDao()
 
     @Provides

@@ -27,6 +27,9 @@ camerax = "1.5.3"                 # bước 4: chụp ghi chú
 exifinterface = "1.4.2"           # đọc hướng xoay của ảnh chụp / ảnh chọn từ thư viện
 work = "2.11.0"                   # bước 5: hẹn giờ nhắc ôn hằng ngày
 mlkitTextRecognition = "16.0.1"  # nhận dạng chữ Latin (đủ cho tiếng Việt có dấu)
+credentials = "1.5.0"             # bước 6: Credential Manager — hộp chọn tài khoản Google của hệ thống
+googleid = "1.1.1"                # đọc "ID token" Google mà Credential Manager trả về
+guava = "32.1.3-android"          # đúng bản Firestore đã kéo theo — xem ghi chú ở app/build.gradle.kts
 # test
 turbine = "1.2.1"
 mockk = "1.14.2"
@@ -74,6 +77,16 @@ firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.r
 firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }  # Firebase AI Logic: gọi Gemini
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }  # tài khoản người dùng
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }  # đồng bộ đám mây
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+
+# Đăng nhập Google (bước 6): Credential Manager hỏi người dùng chọn tài khoản, Firebase Auth nhận kết quả
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+# `.await()` cho các lệnh Firebase kiểu Task (chờ kết quả trong coroutine thay vì gắn listener)
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
 
 # Camera (bước 4)
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }

@@ -6,9 +6,6 @@ import kotlinx.serialization.Serializable
 data object SplashRoute
 
 @Serializable
-data object LoginRoute // feature/auth — chưa đăng ký trong AppNavHost; dành cho đăng nhập Google (bước 6)
-
-@Serializable
 data object HomeRoute
 
 @Serializable
@@ -54,3 +51,7 @@ data object SettingsRoute
 /** Chọn ngôn ngữ giao diện — mở từ màn Cài đặt. */
 @Serializable
 data object LanguageRoute
+
+/** Đăng nhập Google (tuỳ chọn) — mở từ màn Cài đặt. */
+@Serializable
+data object GoogleSignInRoute

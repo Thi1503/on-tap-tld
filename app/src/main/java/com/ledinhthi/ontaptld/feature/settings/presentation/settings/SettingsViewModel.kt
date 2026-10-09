@@ -7,8 +7,13 @@ import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
 import com.ledinhthi.ontaptld.core.presentation.mvi.BaseViewModel
 import com.ledinhthi.ontaptld.core.presentation.mvi.ViewModelToolbox
 import com.ledinhthi.ontaptld.core.presentation.navigation.SnackBarType
+import com.ledinhthi.ontaptld.feature.auth.domain.usecase.ObserveAuthUserUseCase
+import com.ledinhthi.ontaptld.feature.auth.domain.usecase.SignOutUseCase
 import com.ledinhthi.ontaptld.feature.capture.domain.usecase.ObserveAiQuotaUseCase
 import com.ledinhthi.ontaptld.feature.settings.domain.DeleteAllLocalDataUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.ObserveSyncStatusUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncNowUseCase
+import com.ledinhthi.ontaptld.navigation.GoogleSignInRoute
 import com.ledinhthi.ontaptld.navigation.LanguageRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -29,12 +34,20 @@ class SettingsViewModel @Inject constructor(
     private val prefs: AppPreferences,
     observeAiQuota: ObserveAiQuotaUseCase,
     private val deleteAllLocalData: DeleteAllLocalDataUseCase,
+    observeAuthUser: ObserveAuthUserUseCase,
+    private val signOut: SignOutUseCase,
+    observeSyncStatus: ObserveSyncStatusUseCase,
+    private val syncNow: SyncNowUseCase,
 ) : BaseViewModel<SettingsState>(SettingsState(), toolbox) {
 
     init {
         prefs.themeMode.collectInto { copy(themeMode = it) }
         prefs.reminder.collectInto { copy(reminder = it) }
         observeAiQuota().collectInto { copy(aiQuota = it) }
+        // Đăng nhập xong ở màn Đăng nhập Google rồi quay lại là thẻ tài khoản hiện ngay.
+        observeAuthUser().collectInto { copy(account = it) }
+        // Lượt đồng bộ do việc nền chạy (không phải do màn này bấm nút) cũng hiện lên ở đây.
+        observeSyncStatus().collectInto { copy(sync = it) }
     }
 
     /**
@@ -56,6 +69,26 @@ class SettingsViewModel @Inject constructor(
     fun onReminderTimePicked(hour: Int, minute: Int) = launchGuarded { prefs.setReminderTime(hour, minute) }
 
     fun onLanguageClick() = navigator.to(LanguageRoute)
+
+    fun onGoogleSignInClick() = navigator.to(GoogleSignInRoute)
+
+    /**
+     * Gọi SAU khi người dùng đã xác nhận trong hộp thoại hỏi lại. Không phải tự xoá `account`
+     * khỏi state: đăng xuất xong thì dòng dữ liệu "ai đang đăng nhập" phát `null`.
+     */
+    fun onSignOutConfirmed() = launchGuarded(showLoadingOverlay = true) {
+        signOut()
+        navigator.showSnackBar(strings.get(R.string.settings_sign_out_done), SnackBarType.SUCCESS)
+    }
+
+    /**
+     * Nút "Đồng bộ ngay". Không cần báo "xong": hàng trạng thái trong thẻ tài khoản tự đổi sang
+     * "Đã đồng bộ · vừa xong". Lỗi (mất mạng…) do bộ xử lý lỗi chung báo.
+     */
+    fun onSyncNowClick() {
+        if (currentState.sync.isSyncing) return
+        launchGuarded { syncNow() }
+    }
 
     /** Chưa có trang chính sách — tạm báo "sắp có" (Thi chốt 8/10/2026). */
     fun onPrivacyPolicyClick() =

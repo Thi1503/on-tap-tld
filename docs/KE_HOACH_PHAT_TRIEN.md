@@ -104,7 +104,12 @@ Splash xong ngày 8/10/2026, đã vào `dev` qua pull request #9 (`feat/splash`)
 > Home, Ôn tập và Widget phải dùng chung mốc này để con số khớp nhau.
 >
 > **Dữ liệu mẫu để chụp màn hình / demo:** `androidTest/.../tools/DemoDataSeeder.kt` nạp 4 bộ thẻ
-> giống bản design vào bản debug (chỉ chạy khi gọi tường minh, không ghi đè dữ liệu đang có).
+> (tên và màu như bản design) vào bản debug — chỉ chạy khi gọi tường minh, không ghi đè dữ liệu
+> đang có. Từ 9/10/2026 (nhánh `feat/sync`) bộ này được viết lại cho gọn và có nội dung thật: 37
+> thẻ, 11 thẻ cần ôn hôm nay (thẻ mới + thẻ đã ôn nay tới hạn), còn lại là thẻ đã thuộc hẹn 1–23
+> ngày sau. Bộ "Sinh học 12" có 6 thẻ AI rút từ một ghi chú kèm ảnh do công cụ tự vẽ, nên đoạn
+> trích ở mặt đáp án và màn "Xem cả ảnh" chạy được mà không cần chụp ảnh hay tốn lượt AI. (Bản
+> cũ nạp 316 thẻ cho khớp con số của design, phần lớn là "câu hỏi N / câu trả lời mẫu N".)
 
 **Thi**
 - [ ] Chạy thử trên máy, so với design, báo chỗ lệch
@@ -340,8 +345,8 @@ Hai việc dọn dẹp cuối của bước 4 xong tối 8/10/2026, đã vào `d
 ### Bước 5 — Cài đặt, nhắc ôn, widget
 
 Màn Cài đặt + màn Ngôn ngữ xong tối 8/10/2026, đã vào `dev` qua pull request #23 (nhánh
-`feat/settings`). Thông báo nhắc ôn hằng ngày code xong cùng tối trên nhánh `feat/reminder`
-(chưa commit), đã chạy thử trên emulator — chờ Thi xem và merge. Widget để sau khi nộp.
+`feat/settings`). Thông báo nhắc ôn hằng ngày xong cùng tối, đã vào `dev` qua pull request #24
+(nhánh `feat/reminder`). Widget để sau khi nộp.
 
 **Claude**
 - [x] Cài đặt: giao diện (theo máy / sáng / tối), nhắc ôn + giờ nhắc, lượt AI hôm nay, xoá dữ liệu trên máy, giới thiệu, chọn ngôn ngữ
@@ -422,11 +427,113 @@ Màn Cài đặt + màn Ngôn ngữ xong tối 8/10/2026, đã vào `dev` qua pu
 ### Bước 6 — Tài khoản và đồng bộ *(cần bước 0, phần Auth + Firestore)*
 
 **Claude**
-- [ ] Đăng nhập Google tuỳ chọn, vào từ Cài đặt
-- [ ] Đồng bộ hai chiều Local ⇄ Firestore (push qua `sync_queue`, pull theo `updatedAt`, Last-Write-Wins)
-- [ ] Gán `userId` cho dữ liệu cũ khi đăng nhập lần đầu
-- [ ] Cài đặt khi đã đăng nhập: trạng thái đồng bộ, đăng xuất
+- [x] Đăng nhập Google tuỳ chọn, vào từ Cài đặt
+- [x] Đồng bộ hai chiều Local ⇄ Firestore (push qua `sync_queue`, pull theo `updatedAt`, Last-Write-Wins)
+- [x] Gán `userId` cho dữ liệu cũ khi đăng nhập lần đầu
+- [x] Cài đặt khi đã đăng nhập: thẻ tài khoản, đăng xuất (trạng thái đồng bộ để cùng phần đồng bộ)
 - [ ] Xoá tài khoản (xác nhận bằng cách nhập "XÓA", đăng nhập lại nếu cần)
+
+> **Màn Đăng nhập Google — cách hoạt động (Thi chốt 9/10/2026) và những chỗ khác design (nhánh
+> `feat/google-sign-in`):**
+> - Trước khi nộp chỉ làm ĐĂNG NHẬP; đồng bộ Firestore và xoá tài khoản để sau. Vì vậy lời trên
+>   màn được viết lại cho đúng thực tế (artboard `LoginGoogle` hứa "đồng bộ", "dùng trên nhiều
+>   thiết bị", "xoá tài khoản bất cứ lúc nào"): tiêu đề "Đăng nhập bằng Google", ba ý "thẻ vẫn lưu
+>   trên máy này / ảnh không tải lên / đăng xuất bất cứ lúc nào", và dòng cuối "chỉ dùng tên và
+>   địa chỉ email" thay cho câu đồng ý với Chính sách quyền riêng tư (trang đó chưa có). Bố cục,
+>   kích thước, màu giữ đúng artboard. Khi làm đồng bộ thì đổi lời lại theo design.
+> - Mở từ dòng "Đăng nhập Google" ở màn Cài đặt (route `GoogleSignInRoute`). Nút ←, Back và "Để
+>   sau" đều về Cài đặt.
+> - "Tiếp tục với Google" mở hộp chọn tài khoản của hệ thống (Credential Manager, kiểu "Sign in
+>   with Google"); app không thấy mật khẩu, chỉ nhận một ID token rồi đưa cho Firebase Auth. Nút
+>   dùng logo "G" bốn màu chuẩn (`ic_google_logo.xml`) thay chữ "G" tạm của design.
+> - Đóng hộp chọn tài khoản: ở lại màn, không báo gì. Đăng nhập xong: báo "Đã đăng nhập bằng
+>   <email>" rồi về Cài đặt. Lỗi (mất mạng, máy chưa có tài khoản Google, lỗi khác): báo bằng
+>   thông báo ngắn, ở lại màn.
+> - Firebase tự nhớ phiên đăng nhập; mở lại app vẫn còn đăng nhập. Đăng nhập KHÔNG đụng tới dữ
+>   liệu trên máy (chưa gán `userId` — việc đó thuộc phần đồng bộ).
+> - Bản build không có `google-services.json` vẫn biên dịch được: web client ID được tìm theo tên
+>   lúc chạy, thiếu thì bấm nút sẽ báo "Đăng nhập Google chưa được bật trong bản build này."
+> - Màn email / mật khẩu cũ (`feature/auth/presentation/login`) và các chuỗi `login_*` đã xoá.
+>   README còn nhắc `LoginScreen` / `LoginRoute` làm ví dụ — sửa khi viết lại README.
+> - Đã kiểm chứng trên emulator (Pixel 8a): màn sáng / tối, bấm nút ra hộp chọn tài khoản, đóng
+>   hộp thì im lặng, "Để sau" về Cài đặt; Thi tự chọn tài khoản và đăng nhập thật thành công
+>   (9/10/2026, tài khoản hiện trong Firebase Console → Authentication). CHƯA kiểm chứng: các
+>   nhánh lỗi (mới qua unit test).
+>
+> **Cài đặt khi đã đăng nhập — cách hoạt động (Thi chốt 9/10/2026) và những chỗ khác design:**
+> - KHÔNG dựng lại màn theo artboard `SettingsAccount` (artboard gom Giao diện / Ngôn ngữ / Nhắc
+>   ôn thành một danh sách gọn). Giữ bố cục Cài đặt hiện có, chỉ đổi hai chỗ khi đã đăng nhập:
+>   (1) ở mục "Đồng bộ", thẻ tài khoản thế chỗ dòng "Đăng nhập Google"; (2) thêm mục "Tài
+>   khoản" ở cuối màn với dòng "Đăng xuất" và câu "Đăng xuất không xoá thẻ đang có trên máy này."
+> - Thẻ tài khoản: ô tròn mang chữ cái đầu của tên (không tải ảnh đại diện Google), tên, email.
+>   Tài khoản không có tên thì email lên làm dòng chính. Hàng dưới của design ("Đã đồng bộ · 2
+>   phút trước" + "Đồng bộ ngay") tạm thay bằng "Đồng bộ đám mây · Sắp có" cho tới khi làm đồng bộ.
+> - Dòng "Xoá tài khoản" và "Thống kê ôn tập" của artboard CHƯA hiện (chưa làm).
+> - "Đăng xuất" hỏi lại ("Đăng xuất?" — Huỷ / Đăng xuất). Xác nhận thì đăng xuất khỏi Firebase,
+>   báo Credential Manager quên tài khoản vừa dùng (lần sau được chọn lại tài khoản), báo "Đã
+>   đăng xuất." và ở lại Cài đặt; dữ liệu trên máy giữ nguyên.
+> - Màn Cài đặt nghe "ai đang đăng nhập" (`ObserveAuthUserUseCase`), nên đăng nhập / đăng xuất
+>   xong là giao diện đổi ngay, và cài lại app (không xoá dữ liệu) vẫn còn đăng nhập.
+> - Đã kiểm chứng trên emulator: sau khi Thi đăng nhập, thẻ tài khoản hiện đúng tên + email,
+>   sáng và tối; cài đè bản mới vẫn còn đăng nhập; bấm "Đăng xuất" ra hộp hỏi lại, Huỷ thì giữ
+>   nguyên. CHƯA kiểm chứng: bấm "Đăng xuất" thật rồi đăng nhập lại (Thi tự bấm; mới qua unit test).
+>
+> **Đồng bộ Firestore — cách hoạt động (Thi chốt 9/10/2026, nhánh `feat/sync`) và những chỗ
+> khác / thêm so với `docs_tld.md` Mục 8.5:**
+> - Thi đổi quyết định ngày 9/10/2026: làm đồng bộ TRƯỚC khi viết README (trước đó để sau khi
+>   nộp). Xoá tài khoản vẫn để sau.
+> - Đồng bộ ba thứ: bộ thẻ, thẻ (kể cả tiến độ SM-2), và phần CHỮ của ghi chú. Ảnh ghi chú và
+>   lịch sử ôn (`review_logs`) không lên đám mây — trên máy thứ hai, thẻ AI không có ảnh nguồn
+>   ("Xem cả ảnh" báo không còn ảnh) và màn Thống kê sau này chỉ tính lượt ôn của máy đó.
+> - **Hàng đợi `sync_queue` (Thi chọn làm đúng đặc tả):** mỗi lần repository ghi xuống database
+>   (tạo / sửa / xoá bộ thẻ, thẻ, ghi chú) thì `SyncQueueRecorder` ghi một lệnh. Mỗi dòng dữ liệu
+>   chỉ có MỘT lệnh chờ (lệnh lấy id của dòng làm khoá, ghi mới là đè cũ). Loại lệnh suy từ dòng:
+>   đã xoá → DELETE; vừa tạo hoặc lệnh đang chờ vẫn là CREATE → CREATE; còn lại → UPDATE. Lệnh
+>   không chép nội dung — lúc đẩy mới đọc dòng ra, nên thứ lên đám mây luôn là bản mới nhất. Lệnh
+>   được ghi cả khi chưa đăng nhập. Không đổi schema Room (vẫn v3).
+> - Thay đổi gián tiếp (xoá bộ thẻ kéo theo thẻ + ghi chú, dọn ghi chú mồ côi) được ghi lệnh bằng
+>   một lượt "quét": mọi dòng `synced = 0` mà chưa có lệnh. Lượt quét này cũng chạy đầu mỗi lần
+>   đồng bộ, làm lưới an toàn nếu app bị tắt giữa lúc ghi.
+> - **Một lượt đồng bộ** (`SyncRepositoryImpl`): nhận dữ liệu về tài khoản → KÉO về → ĐẨY lên →
+>   ghi giờ đồng bộ. Kéo trước, đẩy sau (đặc tả ghi đẩy trước): nếu đẩy trước, một bản sửa cũ
+>   đang chờ trên máy sẽ đè lên bản mới hơn của máy khác.
+> - **Kéo về:** Last-Write-Wins theo `updatedAt` cho MỌI dòng — bản trên đám mây mới hơn thì đè
+>   bản trên máy (kể cả khi bản trên máy đang chờ đẩy; lệnh chờ đó bị bỏ), ngược lại giữ bản trên
+>   máy. Đặc tả ghi "dòng chưa đồng bộ thì luôn giữ bản trên máy"; đã đổi cho đúng nghĩa "bản
+>   sửa sau thắng". Bản ghi đã xoá ở máy khác thì máy này xoá theo.
+> - **Mốc kéo dùng giờ MÁY CHỦ, không dùng `updatedAt`:** mỗi bản ghi trên Firestore có thêm
+>   trường `syncedAt` (giờ máy chủ lúc ghi); lần kéo sau chỉ hỏi `syncedAt` lớn hơn mốc lần
+>   trước. Nếu dùng `updatedAt` (giờ của từng máy) như đặc tả thì thay đổi của một máy mất mạng
+>   lâu sẽ không bao giờ được máy khác kéo về.
+> - **Đẩy lên:** từng lô 200 lệnh, cũ trước. Mất mạng / bị từ chối quyền → dừng lượt, hàng đợi
+>   còn nguyên. Lỗi lạ → đẩy lại từng lệnh, lệnh hỏng tăng `retryCount` và bị bỏ qua sau 5 lần.
+>   Dòng bị sửa đúng lúc đang đẩy thì không bị đánh dấu "đã đồng bộ" nhầm.
+> - **Khi nào chạy (Thi chọn "tự động đầy đủ"):** lúc đăng nhập, lúc mở app, 3 giây sau mỗi thay
+>   đổi trên máy (WorkManager, chỉ chạy khi có mạng; chấm liền nhiều thẻ thì gộp thành một lượt;
+>   mất mạng thì tự thử lại với khoảng chờ dài dần, tối đa 5 lần), và nút "Đồng bộ ngay".
+> - **Lần đầu đồng bộ với một tài khoản** (Mục 8.6): mọi dữ liệu đang có trên máy được xếp vào
+>   hàng đợi và bộ thẻ được gán `userId`. Đăng nhập tài khoản KHÁC trên cùng máy: dữ liệu trên
+>   máy đi theo tài khoản mới (được đẩy lên tài khoản đó) — Claude tự chốt, vì đăng xuất không
+>   xoá thẻ nên ai đăng nhập sau cũng thấy chúng.
+> - **"Xoá toàn bộ dữ liệu trên máy" khi đã đăng nhập (Thi chọn):** xoá sạch máy rồi ĐĂNG XUẤT;
+>   bản trên đám mây còn nguyên, đăng nhập lại là tải về. Hộp hỏi lại nói rõ điều này và cảnh báo
+>   thay đổi chưa kịp đồng bộ sẽ mất.
+> - **Giao diện:** hàng dưới thẻ tài khoản ở Cài đặt thành "Đã đồng bộ · vừa xong / N phút trước"
+>   + nút "Đồng bộ ngay" (đúng artboard `SettingsAccount`), thêm ba trạng thái design không vẽ:
+>   "Đang đồng bộ…" (vòng xoay), "Chưa đồng bộ được" (dấu cảnh báo cam), "Chưa đồng bộ". Lỗi khi
+>   bấm nút báo bằng thông báo ngắn. Lời màn Đăng nhập Google trở về bản design ("Đồng bộ thẻ của
+>   bạn", "Đăng nhập để dùng trên nhiều thiết bị…", "Đồng bộ bộ thẻ, thẻ và tiến độ ôn tập"),
+>   trừ ý thứ ba (vẫn là "Đăng xuất bất cứ lúc nào…" vì chưa có xoá tài khoản) và dòng cuối.
+> - Thêm thư viện `firebase-firestore`, và khai thẳng Guava (Firestore kéo Guava vào làm màn
+>   chụp ảnh không còn thấy lớp `ListenableFuture` lúc biên dịch — xem `app/build.gradle.kts`).
+> - Mỗi lượt đồng bộ ghi một dòng log: lọc "Đồng bộ xong" trong Logcat để thấy đã kéo / đẩy bao
+>   nhiêu bản ghi.
+> - Đã kiểm chứng trên emulator với Firestore thật (9/10/2026): tạo bộ "Zz" + 1 thẻ → tự đẩy lên;
+>   lượt sau kéo về đúng 2 bản ghi đó; xoá bộ "Zz" → việc xoá tự đẩy lên (2 bản ghi); "Đồng bộ
+>   ngay" khi bật chế độ máy bay → báo "Cần mạng để đồng bộ…" và hiện "Chưa đồng bộ được"; có
+>   mạng lại → đồng bộ được. Phần SQL qua `SyncDaoTest` (14 test, database trong bộ nhớ).
+>   CHƯA kiểm chứng: kéo dữ liệu về một máy TRỐNG (xoá toàn bộ dữ liệu → đăng nhập lại, hoặc máy
+>   thứ hai), hai máy cùng sửa một thẻ, đổi tài khoản, lỗi quyền — mới qua unit test.
 
 **Thi**
 - [ ] Đặt Firestore Security Rules ([`docs_tld.md`](docs_tld.md) Mục 7.2)
@@ -510,8 +617,25 @@ thẻ AI + lưu thẻ (#15), màn lỗi AI + màn hết lượt (#17), xem ảnh
 Hai việc dọn dẹp cuối (#22) cũng vậy — bước 4 xong.
 
 Đang làm **bước 5 — Cài đặt, nhắc ôn, widget**. Màn Cài đặt + màn Ngôn ngữ (nhánh
-`feat/settings`) đã vào `dev` (#23). Thông báo nhắc ôn hằng ngày (nhánh `feat/reminder`) đã code
-xong, chờ Thi xem và merge. Artboard: xem bảng ở Mục 6.3.
+`feat/settings`) đã vào `dev` (#23). Thông báo nhắc ôn hằng ngày (nhánh `feat/reminder`) đã vào
+`dev` (#24). Artboard: xem bảng ở Mục 6.3.
+
+**Bước 6:** đăng nhập Google + Cài đặt khi đã đăng nhập đã vào `dev` (pull request #26, nhánh
+`feat/google-sign-in`). Đồng bộ Firestore (Thi đổi ý ngày 9/10/2026: làm trước khi viết README)
+đã code xong trên nhánh `feat/sync`, chưa commit — chờ Thi thử kéo dữ liệu về máy trống rồi
+commit / tạo pull request. Xoá tài khoản vẫn để sau khi nộp. 4 bộ thẻ mẫu ĐÃ nạp lên emulator
+Pixel 8a ngày 9/10/2026 (và đã tự đồng bộ lên đám mây của tài khoản đang đăng nhập: 42 bản ghi).
+README viết lại ngày 9/10/2026 trên nhánh `docs/readme` (chưa commit): giới thiệu app, link video
+demo (https://www.youtube.com/watch?v=6vQqLnVYt8c), 6 ảnh màn hình trong `docs/screenshots/`,
+tính năng, công nghệ, kiến trúc, cách chạy, test, giới hạn hiện tại. README cũ ("cho dev mới")
+chuyển thành `docs/HUONG_DAN_DEV_MOI.md`, đã sửa link và các ví dụ còn nhắc màn Login email.
+CÒN TREO: repo chưa có LICENSE (chờ Thi chọn MIT hay "All rights reserved"), và App Check giữ
+Enforce hay tạm tắt lúc nộp.
+
+**Emulator đổi sang Pixel 8a API 37.1 (9/10/2026):** dữ liệu trắng, chưa có bộ thẻ nào, chưa có
+ảnh `ontap_demo_note.jpg`, đã thêm một tài khoản Google. Ngôn ngữ riêng của app đã đặt `vi`.
+Debug token App Check của máy ảo này là token mới — phải đăng ký trên Firebase Console thì "Tạo
+thẻ bằng AI" mới chạy (đăng nhập Google không cần, vì Auth không Enforce App Check).
 
 **Thi chốt tối 8/10/2026 — để SAU khi nộp:** widget (Glance), và việc soát giao diện trên máy
 nhỏ / tablet / xoay ngang / cỡ chữ lớn. Việc còn lại trước khi nộp, theo thứ tự: đăng nhập
@@ -574,13 +698,16 @@ thái / bàn phím của hệ thống, và các nút thuộc bước chưa làm 
 - Cài và chụp: `adb install -r app/build/outputs/apk/debug/app-debug.apk`, mở app, rồi
   `adb exec-out screencap -p > anh.png`.
 - Dữ liệu mẫu giống design: chạy `DemoDataSeeder` (lệnh ghi ở đầu file
-  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Từ lần emulator bị xoá trắng ngày
-  8/10/2026, 4 bộ thẻ mẫu CHƯA được nạp lại.
+  `app/src/androidTest/.../tools/DemoDataSeeder.kt`). Chỉ nạp được khi máy chưa có bộ thẻ nào.
+  Đang đăng nhập thì lần mở app kế tiếp tự đẩy bộ dữ liệu này lên đám mây (ảnh ghi chú thì không).
 - Chạy riêng một lớp test có emulator mà KHÔNG gỡ app (vd `MigrationTest` sau khi đổi schema):
   `./gradlew :app:assembleDebugAndroidTest`, `adb install -r -t <…androidTest.apk>`, rồi
   `adb shell am instrument -w -e class com.ledinhthi.ontaptld.core.data.local.db.MigrationTest
   com.ledinhthi.ontaptld.test/androidx.test.runner.AndroidJUnitRunner`. Cùng cách đó cho
-  `com.ledinhthi.ontaptld.feature.deck.NoteCleanupDaoTest` (SQL dọn ghi chú).
+  `com.ledinhthi.ontaptld.feature.deck.NoteCleanupDaoTest` (SQL dọn ghi chú) và
+  `com.ledinhthi.ontaptld.core.sync.SyncDaoTest` (SQL đồng bộ).
+- Xem một lượt đồng bộ đã làm gì: `adb logcat -d | grep "Đồng bộ xong"`. Việc nền đồng bộ chạy
+  khoảng 3 giây sau mỗi thay đổi; lỗi của nó có tag `SyncWorker`.
 - Giả lập "app bị hệ thống tắt dưới nền": bấm Home (`adb shell input keyevent 3`), rồi
   `adb shell run-as com.ledinhthi.ontaptld kill <pid>` (pid lấy bằng `adb shell pidof …`), rồi mở
   lại app. `am kill` không tắt được process trên emulator này.

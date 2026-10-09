@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.text.format.DateFormat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -30,8 +31,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,6 +46,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -53,13 +57,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -71,7 +78,6 @@ import com.ledinhthi.ontaptld.BuildConfig
 import com.ledinhthi.ontaptld.R
 import com.ledinhthi.ontaptld.core.data.local.prefs.ReminderSettings
 import com.ledinhthi.ontaptld.core.data.local.prefs.ThemeMode
-import com.ledinhthi.ontaptld.core.presentation.components.AppBadge
 import com.ledinhthi.ontaptld.core.presentation.components.AppCard
 import com.ledinhthi.ontaptld.core.presentation.components.AppSwitch
 import com.ledinhthi.ontaptld.core.presentation.components.AppTextButton
@@ -81,10 +87,15 @@ import com.ledinhthi.ontaptld.core.presentation.components.LoadingOverlay
 import com.ledinhthi.ontaptld.core.presentation.theme.AppDimens
 import com.ledinhthi.ontaptld.core.presentation.theme.OnTapTldTheme
 import com.ledinhthi.ontaptld.core.presentation.theme.appColors
+import com.ledinhthi.ontaptld.feature.auth.domain.model.AuthUser
 import com.ledinhthi.ontaptld.feature.capture.domain.model.AiQuota
 import com.ledinhthi.ontaptld.feature.reminder.data.AndroidReminderNotifier
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncAge
+import com.ledinhthi.ontaptld.feature.sync.domain.SyncStatus
+import com.ledinhthi.ontaptld.feature.sync.domain.syncAgeOf
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 // Số đo lấy từ bản design (Settings.dc.html).
 private val RowPadding = 14.dp
@@ -92,6 +103,8 @@ private val RowHeight = 56.dp
 private val CompactRowHeight = 52.dp
 private val ThemeOptionHeight = 44.dp
 private val QuotaBarHeight = 8.dp
+private val AvatarSize = 48.dp // SettingsAccount.dc.html
+private val SyncBadgeSize = 22.dp
 
 /**
  * Màn Cài đặt (route `SettingsRoute`), mở từ nút góc phải trên Home. Cùng khuôn Screen → Content
@@ -102,6 +115,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     var askDeleteAll by rememberSaveable { mutableStateOf(false) }
+    var askSignOut by rememberSaveable { mutableStateOf(false) }
 
     // Bật nhắc ôn = phải gửi được thông báo. Từ Android 13 app phải XIN quyền này lúc chạy.
     val context = LocalContext.current
@@ -132,8 +146,24 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onLanguageClick = viewModel::onLanguageClick,
             onReminderToggle = onReminderToggle,
             onReminderTimeClick = { showTimePicker = true },
+            onGoogleSignInClick = viewModel::onGoogleSignInClick,
+            onSyncNowClick = viewModel::onSyncNowClick,
             onPrivacyPolicyClick = viewModel::onPrivacyPolicyClick,
             onDeleteAllClick = { askDeleteAll = true },
+            onSignOutClick = { askSignOut = true },
+        )
+    }
+
+    if (askSignOut) {
+        ConfirmDialog(
+            title = stringResource(R.string.settings_sign_out_title),
+            message = stringResource(R.string.settings_sign_out_message),
+            confirmText = stringResource(R.string.settings_sign_out),
+            onConfirm = {
+                askSignOut = false
+                viewModel.onSignOutConfirmed()
+            },
+            onDismiss = { askSignOut = false },
         )
     }
 
@@ -164,7 +194,15 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     if (askDeleteAll) {
         ConfirmDialog(
             title = stringResource(R.string.settings_delete_all_title),
-            message = stringResource(R.string.settings_delete_all_message),
+            // Đang đăng nhập thì xoá xong sẽ bị đăng xuất (xem DeleteAllLocalDataUseCase) — phải
+            // nói trước cho người dùng biết.
+            message = stringResource(
+                if (state.account == null) {
+                    R.string.settings_delete_all_message
+                } else {
+                    R.string.settings_delete_all_message_signed_in
+                },
+            ),
             confirmText = stringResource(R.string.settings_delete_all_confirm),
             destructive = true,
             onConfirm = {
@@ -195,8 +233,11 @@ private fun SettingsContent(
     onLanguageClick: () -> Unit,
     onReminderToggle: (Boolean) -> Unit,
     onReminderTimeClick: () -> Unit,
+    onGoogleSignInClick: () -> Unit,
+    onSyncNowClick: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     onDeleteAllClick: () -> Unit,
+    onSignOutClick: () -> Unit,
 ) {
     val colors = appColors()
     Column(Modifier.fillMaxSize().background(colors.scaffoldBackground)) {
@@ -242,8 +283,15 @@ private fun SettingsContent(
                 AiUsageCard(used = state.aiUsed, quota = state.aiQuota)
             }
 
+            // Chưa đăng nhập: dòng mời đăng nhập. Đã đăng nhập: thẻ tài khoản thế vào đúng chỗ đó.
+            // `val account = …` chép ra biến riêng để Kotlin biết chắc nó không null trong nhánh else.
+            val account = state.account
             SettingsSection(stringResource(R.string.settings_section_sync)) {
-                GoogleSignInCard()
+                if (account == null) {
+                    GoogleSignInCard(onClick = onGoogleSignInClick)
+                } else {
+                    AccountCard(account = account, sync = state.sync, onSyncNow = onSyncNowClick)
+                }
             }
 
             SettingsSection(stringResource(R.string.settings_section_data)) {
@@ -267,6 +315,21 @@ private fun SettingsContent(
                     }
                     RowDivider()
                     DeleteAllRow(onClick = onDeleteAllClick)
+                }
+            }
+
+            // Mục cuối, chỉ có khi đã đăng nhập (artboard SettingsAccount). Dòng "Xoá tài khoản"
+            // của design chưa làm nên chưa hiện.
+            if (account != null) {
+                SettingsSection(stringResource(R.string.settings_section_account)) {
+                    SettingsCard {
+                        SettingsRow(title = stringResource(R.string.settings_sign_out), onClick = onSignOutClick)
+                    }
+                    Text(
+                        text = stringResource(R.string.settings_sign_out_note),
+                        style = MaterialTheme.typography.bodySmall.copy(lineHeight = 18.sp),
+                        color = colors.textSecondary,
+                    )
                 }
             }
         }
@@ -549,12 +612,13 @@ private fun AiUsageCard(used: Int, quota: AiQuota?) {
     }
 }
 
-/** Đăng nhập Google làm ở bước 6 — hiện tại chỉ là dòng giới thiệu kèm nhãn "Sắp có". */
+/** Dòng mời đăng nhập Google (tuỳ chọn): bấm vào mở màn Đăng nhập Google. */
 @Composable
-private fun GoogleSignInCard() {
+private fun GoogleSignInCard(onClick: () -> Unit) {
     val colors = appColors()
     AppCard(
         modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
         contentPadding = PaddingValues(horizontal = RowPadding, vertical = AppDimens.paddingSmall),
     ) {
         Row(
@@ -569,7 +633,141 @@ private fun GoogleSignInCard() {
                     color = colors.textSecondary,
                 )
             }
-            AppBadge(text = stringResource(R.string.settings_badge_coming_soon))
+            Chevron()
+        }
+    }
+}
+
+/**
+ * Thẻ tài khoản khi đã đăng nhập (artboard SettingsAccount): ô tròn mang chữ cái đầu, tên và
+ * email; hàng dưới là tình trạng đồng bộ và nút "Đồng bộ ngay".
+ */
+@Composable
+private fun AccountCard(account: AuthUser, sync: SyncStatus, onSyncNow: () -> Unit) {
+    val colors = appColors()
+    // Tài khoản không có tên thì email lên làm dòng chính, và không lặp lại ở dòng phụ.
+    val title = account.displayName ?: account.email ?: stringResource(R.string.settings_sync_google)
+    val subtitle = account.email.takeIf { account.displayName != null }
+    AppCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(RowPadding)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(AppDimens.paddingSmall),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(AvatarSize)
+                    .background(colors.primarySoft, CircleShape)
+                    // Chữ cái này chỉ để trang trí; trình đọc màn hình đọc tên và email là đủ.
+                    .clearAndSetSemantics { },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = title.trim().take(1).uppercase(Locale.getDefault()),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = colors.primaryStrong,
+                )
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+        HorizontalDivider(Modifier.padding(top = RowPadding, bottom = AppDimens.paddingVerySmall), color = colors.divider)
+        SyncStatusRow(sync = sync, onSyncNow = onSyncNow)
+    }
+}
+
+/** Hàng dưới của thẻ tài khoản: tình trạng đồng bộ ở bên trái, nút "Đồng bộ ngay" ở bên phải. */
+@Composable
+private fun SyncStatusRow(sync: SyncStatus, onSyncNow: () -> Unit) {
+    val colors = appColors()
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(AppDimens.paddingVerySmall),
+    ) {
+        // Ô nhỏ bên trái: vòng xoay khi đang chạy, dấu tích khi đã xong, dấu cảnh báo khi lỗi.
+        Box(Modifier.size(SyncBadgeSize), contentAlignment = Alignment.Center) {
+            when {
+                sync.isSyncing -> CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = colors.primary,
+                    strokeWidth = 2.dp,
+                )
+
+                sync.lastFailed -> SyncBadge(R.drawable.ic_warning, colors.statusOrangeBg, colors.statusOrangeText)
+                sync.lastSyncedAtMillis != null ->
+                    SyncBadge(R.drawable.ic_check, colors.statusGreenBg, colors.statusGreenText)
+
+                else -> SyncBadge(R.drawable.ic_cloud_off, colors.neutralSoft, colors.textSecondary)
+            }
+        }
+        Text(
+            text = syncStatusText(sync),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.textPrimary,
+        )
+        AppTextButton(
+            text = stringResource(R.string.settings_sync_now),
+            onClick = onSyncNow,
+            enabled = !sync.isSyncing,
+        )
+    }
+}
+
+@Composable
+private fun SyncBadge(@DrawableRes icon: Int, background: Color, tint: Color) {
+    Box(Modifier.size(SyncBadgeSize).background(background, CircleShape), contentAlignment = Alignment.Center) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null, // dòng chữ bên cạnh đã nói tình trạng
+            modifier = Modifier.size(13.dp),
+            tint = tint,
+        )
+    }
+}
+
+/** "Đang đồng bộ…", "Chưa đồng bộ được", "Đã đồng bộ · 5 phút trước" hoặc "Chưa đồng bộ". */
+@Composable
+private fun syncStatusText(sync: SyncStatus): String {
+    val syncedAt = sync.lastSyncedAtMillis
+    return when {
+        sync.isSyncing -> stringResource(R.string.settings_sync_running)
+        sync.lastFailed -> stringResource(R.string.settings_sync_failed)
+        syncedAt == null -> stringResource(R.string.settings_sync_never)
+        else -> {
+            // Chữ "N phút trước" phải tự đổi theo thời gian dù không có gì khác trên màn thay
+            // đổi. `produceState` chạy một coroutine nhỏ gắn với chỗ này của màn: cứ nửa phút
+            // nó ghi lại giờ hiện tại, và Compose vẽ lại dòng chữ. `syncedAt` làm khoá: vừa đồng
+            // bộ xong thì đồng hồ được đặt lại ngay.
+            val now by produceState(initialValue = System.currentTimeMillis(), syncedAt) {
+                value = System.currentTimeMillis()
+                while (true) {
+                    delay(30_000)
+                    value = System.currentTimeMillis()
+                }
+            }
+            val ago = when (val age = syncAgeOf(now, syncedAt)) {
+                SyncAge.JustNow -> stringResource(R.string.settings_sync_just_now)
+                is SyncAge.Minutes -> pluralStringResource(R.plurals.settings_sync_minutes_ago, age.count, age.count)
+                is SyncAge.Hours -> pluralStringResource(R.plurals.settings_sync_hours_ago, age.count, age.count)
+                is SyncAge.Days -> pluralStringResource(R.plurals.settings_sync_days_ago, age.count, age.count)
+            }
+            stringResource(R.string.settings_sync_done, ago)
         }
     }
 }
@@ -619,8 +817,11 @@ private fun PreviewHost(state: SettingsState, themeMode: ThemeMode = ThemeMode.L
             onLanguageClick = {},
             onReminderToggle = {},
             onReminderTimeClick = {},
+            onGoogleSignInClick = {},
+            onSyncNowClick = {},
             onPrivacyPolicyClick = {},
             onDeleteAllClick = {},
+            onSignOutClick = {},
         )
     }
 }
@@ -632,6 +833,12 @@ private fun SettingsPreview() = PreviewHost(previewState)
 @Preview(name = "Cài đặt — Dark", widthDp = 390, heightDp = 844)
 @Composable
 private fun SettingsDarkPreview() = PreviewHost(previewState.copy(themeMode = ThemeMode.DARK), ThemeMode.DARK)
+
+@Preview(name = "Cài đặt — đã đăng nhập", widthDp = 390, heightDp = 1000)
+@Composable
+private fun SettingsSignedInPreview() = PreviewHost(
+    previewState.copy(account = AuthUser(uid = "u1", displayName = "Nguyễn Minh Anh", email = "minhanh@example.com")),
+)
 
 @Preview(name = "Cài đặt — tắt nhắc, hết lượt AI", widthDp = 390, heightDp = 844)
 @Composable

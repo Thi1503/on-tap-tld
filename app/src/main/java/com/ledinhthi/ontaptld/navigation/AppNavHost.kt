@@ -33,6 +33,7 @@ import com.ledinhthi.ontaptld.core.presentation.navigation.AppDialog
 import com.ledinhthi.ontaptld.core.presentation.navigation.AppNavigator
 import com.ledinhthi.ontaptld.core.presentation.navigation.NavIntent
 import com.ledinhthi.ontaptld.core.presentation.theme.DarkAppExtendedColors
+import com.ledinhthi.ontaptld.feature.auth.presentation.signin.GoogleSignInScreen
 import com.ledinhthi.ontaptld.feature.capture.presentation.aicards.AiCardsScreen
 import com.ledinhthi.ontaptld.feature.capture.presentation.capture.CaptureScreen
 import com.ledinhthi.ontaptld.feature.capture.presentation.ocrreview.OcrReviewScreen
@@ -116,13 +117,12 @@ fun AppNavHost(navigator: AppNavigator) {
         ) {
             NavHost(navController = navController, startDestination = SplashRoute) {
                 composable<SplashRoute> { SplashScreen() }
-                // Màn Login email/mật khẩu cũ đã gỡ khỏi luồng — đăng nhập Google (tuỳ chọn, từ
-                // Cài đặt) sẽ thay vào ở bước 6 của docs/KE_HOACH_PHAT_TRIEN.md.
                 composable<HomeRoute> { DeckListScreen() }
                 composable<DeckDetailRoute> { DeckDetailScreen() }
                 composable<ManualCardRoute> { ManualCardScreen() }
                 composable<SettingsRoute> { SettingsScreen() }
                 composable<LanguageRoute> { LanguageScreen() }
+                composable<GoogleSignInRoute> { GoogleSignInScreen() }
                 composable<ReviewRoute> { ReviewScreen() }
                 composable<SourceImageRoute> { SourceImageScreen() }
                 composable<CaptureRoute> { CaptureScreen() }

@@ -4,6 +4,7 @@ import android.app.Application
 import com.google.firebase.FirebaseApp
 import com.ledinhthi.ontaptld.feature.deck.domain.usecase.CleanUpOrphanNotesUseCase
 import com.ledinhthi.ontaptld.feature.reminder.domain.KeepReminderScheduledUseCase
+import com.ledinhthi.ontaptld.feature.sync.domain.KeepSyncedUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +23,9 @@ class OnTapTldApp : Application() {
 
     @Inject
     lateinit var keepReminderScheduled: KeepReminderScheduledUseCase
+
+    @Inject
+    lateinit var keepSynced: KeepSyncedUseCase
 
     /**
      * Phạm vi coroutine sống suốt đời app, cho việc nền không thuộc về màn nào. `SupervisorJob`:
@@ -46,6 +50,8 @@ class OnTapTldApp : Application() {
         // App Check BẮT BUỘC trước lần gọi AI đầu tiên (docs_tld NFR). Provider khác nhau theo
         // build type nên tách source set, để bản `release` không kéo theo `firebase-appcheck-debug`.
         AppCheckInstaller.install()
+        // Đồng bộ đám mây: có người đăng nhập (kể cả mở app lên đã đăng nhập sẵn) là hẹn một lượt.
+        appScope.launch { keepSynced() }
     }
 
     /** Dọn ảnh ghi chú không còn dùng. Chỉ là việc dọn dẹp: hỏng thì ghi log, lần mở app sau thử lại. */

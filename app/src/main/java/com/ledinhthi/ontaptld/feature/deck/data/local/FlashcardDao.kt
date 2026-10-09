@@ -31,7 +31,7 @@ interface FlashcardDao : BaseDao<FlashcardEntity> {
     )
     fun observeDeckStats(dueBefore: Long): Flow<List<DeckCardStatsRow>>
 
-    @Query("UPDATE flashcards SET isDeleted = 1, updatedAt = :now WHERE id = :id")
+    @Query("UPDATE flashcards SET isDeleted = 1, synced = 0, updatedAt = :now WHERE id = :id")
     suspend fun softDelete(id: String, now: Long)
 
     @Query("SELECT COUNT(*) FROM flashcards WHERE noteId = :noteId AND isDeleted = 0")
@@ -40,7 +40,7 @@ interface FlashcardDao : BaseDao<FlashcardEntity> {
     @Query("SELECT imagePath FROM notes WHERE id = :noteId AND isDeleted = 0")
     suspend fun noteImagePath(noteId: String): String?
 
-    @Query("UPDATE notes SET isDeleted = 1, updatedAt = :now WHERE id = :noteId")
+    @Query("UPDATE notes SET isDeleted = 1, synced = 0, updatedAt = :now WHERE id = :noteId")
     suspend fun softDeleteNote(noteId: String, now: Long)
 
     /**
