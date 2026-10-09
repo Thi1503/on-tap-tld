@@ -1,542 +1,252 @@
-# On Tap TLD — README cho dev mới
+# On Tap TLD
 
-Chào mừng bạn đến với dự án **On Tap TLD** — app Android học từ vựng/kiến thức bằng flashcard,
-có thể tạo thẻ **thủ công** (gõ tay) hoặc **tự động** (chụp ảnh → OCR → AI sinh thẻ), rồi ôn tập
-theo thuật toán lặp lại ngắt quãng SM-2 (giống Anki).
+App flashcard cho Android: **chụp trang ghi chú, AI gợi ý thẻ ôn tập, rồi ôn theo lịch lặp lại
+ngắt quãng (SM-2)**. Viết bằng Kotlin và Jetpack Compose, theo Clean Architecture + MVVM.
 
-File này viết cho người **chưa rành Kotlin/Jetpack Compose** — mục tiêu là đọc xong, bạn tự mở
-được code, hiểu 1 màn hình chạy như thế nào từ lúc bấm nút tới lúc lưu vào database, và biết thêm
-1 màn hình mới đúng khuôn của dự án mà không phá kiến trúc.
+App chạy được ngay không cần tài khoản và không cần mạng: mọi thứ lưu trên máy. Mạng chỉ cần cho
+hai việc tuỳ chọn — nhờ AI soạn thẻ, và đồng bộ lên đám mây sau khi đăng nhập Google.
 
-> Đây **không phải** tài liệu nghiệp vụ hay tài liệu kiến trúc đầy đủ. Khi đã quen code, đọc thêm:
-> - [`docs/docs_tld.md`](docs/docs_tld.md) — đặc tả nghiệp vụ, deadline, phạm vi sản phẩm.
-> - [`docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md`](docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md) —
-    tài liệu kiến trúc đầy đủ (chi tiết hơn README này rất nhiều).
+**▶ Video demo:** https://www.youtube.com/watch?v=6vQqLnVYt8c
 
 ---
 
-## Mục lục
+## Giao diện
 
-1. [Cần cài gì để mở dự án](#1-cần-cài-gì-để-mở-dự-án)
-2. [10 khái niệm Kotlin/Compose cần biết trước](#2-10-khái-niệm-kotlincompose-cần-biết-trước)
-3. [Bức tranh kiến trúc tổng quan](#3-bức-tranh-kiến-trúc-tổng-quan)
-4. [Cấu trúc thư mục](#4-cấu-trúc-thư-mục)
-5. [Đi theo 1 luồng thật từ đầu tới cuối](#5-đi-theo-1-luồng-thật-từ-đầu-tới-cuối)
-6. [Màn hình hiển thị 3 trạng thái Loading/Error/Empty](#6-màn-hình-hiển-thị-3-trạng-thái-loadingerrorempty)
-7. [Điều hướng (chuyển màn hình) hoạt động thế nào](#7-điều-hướng-chuyển-màn-hình-hoạt-động-thế-nào)
-8. [Muốn thêm 1 màn hình mới thì làm sao](#8-muốn-thêm-1-màn-hình-mới-thì-làm-sao)
-9. [5 luật KHÔNG ĐƯỢC phá](#9-5-luật-không-được-phá)
-10. [Chạy & test dự án](#10-chạy--test-dự-án)
-11. [Lỗi hay gặp khi mới học Compose](#11-lỗi-hay-gặp-khi-mới-học-compose)
-12. [Trạng thái hiện tại của dự án](#12-trạng-thái-hiện-tại-của-dự-án)
-13. [Thêm ảnh & đa ngôn ngữ — đối chiếu với Flutter](#13-thêm-ảnh--đa-ngôn-ngữ--đối-chiếu-với-flutter)
-14. [Bảng thuật ngữ tra nhanh](#14-bảng-thuật-ngữ-tra-nhanh)
-
----
-
-## 1. Cần cài gì để mở dự án
-
-- **Android Studio** bản mới (Ladybug trở lên) — đã có sẵn Kotlin, Gradle, emulator quản lý trong
-  đó.
-- JDK 17 (Android Studio tự mang theo, không cần cài riêng).
-- Mở thư mục gốc `OnTapTLD/` bằng Android Studio → chờ Gradle sync xong (lần đầu khá lâu, cần mạng).
-- Bấm nút ▶ **Run** (chọn 1 emulator, ví dụ Pixel 7a) — hoặc dùng terminal:
-
-```bash
-./gradlew :app:installDebug
-```
-
-Không cần cấu hình API key/backend gì để chạy — app **offline-first**, chạy hoàn toàn bằng
-database local (Room). Riêng AI sinh thẻ và đồng bộ thì cần Firebase (xem ngay dưới).
-
-### Firebase (tuỳ chọn khi chỉ muốn chạy thử)
-
-File `app/google-services.json` **không được commit** (nằm trong `.gitignore`), nên repo mới clone
-về sẽ không có nó. Build vẫn chạy bình thường: `app/build.gradle.kts` chỉ apply plugin
-`google-services` khi thấy file, và `OnTapTldApp` tự bỏ qua Firebase nếu không có cấu hình —
-khi đó mọi phần offline (bộ thẻ, thẻ thủ công, ôn tập) vẫn dùng được, chỉ AI/đồng bộ là không.
-
-Muốn bật Firebase trên máy mình:
-
-1. Xin file `google-services.json` từ người giữ dự án (hoặc tải từ Firebase Console → Project
-   settings → Your apps, project `on-tap-tld`), đặt vào thư mục `app/`.
-2. Chạy bản debug một lần, mở Logcat lọc theo tag `DebugAppCheckProvider`, chép debug token được
-   in ra.
-3. Dán token vào Firebase Console → App Check → Apps → menu ⋮ → **Manage debug tokens**. App Check
-   đang bật Enforce cho AI Logic, nên thiếu bước này mọi lần gọi AI từ máy dev đều bị từ chối.
-4. Máy mới cũng cần đăng ký SHA-1/SHA-256 của debug keystore (`./gradlew signingReport`) trong
-   Project settings thì đăng nhập Google mới chạy.
+<table>
+  <tr>
+    <td><img src="docs/screenshots/home.png" width="240" alt="Màn Home: số thẻ cần ôn hôm nay và danh sách bộ thẻ"></td>
+    <td><img src="docs/screenshots/deck_detail.png" width="240" alt="Chi tiết bộ thẻ: thống kê, lọc theo nguồn, danh sách thẻ"></td>
+    <td><img src="docs/screenshots/review_question.png" width="240" alt="Ôn tập: mặt câu hỏi"></td>
+  </tr>
+  <tr>
+    <td align="center">Home</td>
+    <td align="center">Chi tiết bộ thẻ</td>
+    <td align="center">Ôn tập — câu hỏi</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/review_answer.png" width="240" alt="Ôn tập: mặt đáp án kèm đoạn trích ghi chú và bốn mức chấm"></td>
+    <td><img src="docs/screenshots/source_image.png" width="240" alt="Ảnh ghi chú gốc, dòng của thẻ được tô sáng"></td>
+    <td><img src="docs/screenshots/settings_sync.png" width="240" alt="Cài đặt: thẻ tài khoản và trạng thái đồng bộ"></td>
+  </tr>
+  <tr>
+    <td align="center">Ôn tập — đáp án</td>
+    <td align="center">Ảnh nguồn của thẻ AI</td>
+    <td align="center">Tài khoản và đồng bộ</td>
+  </tr>
+</table>
 
 ---
 
-## 2. 10 khái niệm Kotlin/Compose cần biết trước
+## Tính năng
 
-Không cần học hết Kotlin mới đọc được code này. Biết 10 điều dưới đây là đủ bắt đầu.
+**Tạo thẻ**
+- Chụp ghi chú bằng camera (CameraX) hoặc chọn ảnh từ thư viện, kéo bốn góc để cắt vùng chữ.
+- Nhận dạng chữ ngay trên máy bằng ML Kit, không cần mạng; sửa được văn bản trước khi gửi cho AI.
+- Gemini (qua Firebase AI Logic) đề xuất tối đa 10 thẻ. Người dùng duyệt lại — bỏ, sửa, thêm — rồi
+  mới lưu. Mỗi máy được 10 lượt AI một ngày; lượt chỉ bị trừ khi AI thật sự trả về thẻ.
+- Gõ thẻ thủ công, lưu xong ở lại màn để nhập liền nhiều thẻ.
 
-**Kotlin cơ bản**
+**Ôn tập**
+- Lịch ôn theo thuật toán SM-2 với bốn mức chấm: Quên, Khó, Dễ, Rất dễ.
+- Thẻ lật bằng hoạt ảnh; mặt đáp án của thẻ AI trích lại đúng dòng ghi chú mà thẻ được rút ra, và
+  mở được ảnh gốc với vùng đó được tô sáng (chụm hai ngón để phóng to).
+- Cuối phiên: lịch ôn sắp tới, và ôn lại ngay các thẻ vừa quên.
+- Thông báo nhắc ôn hằng ngày vào giờ tự chọn, chỉ gửi khi còn thẻ đến hạn.
 
-1. **`val` vs `var`** — `val` là gán 1 lần rồi không đổi được (giống `final`), `var` là biến đổi
-   được.
-   Codebase này ưu tiên `val` gần như tuyệt đối.
-2. **`data class`** — 1 class chỉ để giữ dữ liệu, Kotlin tự sinh `equals`, `toString`, và hàm
-   `copy()` để tạo bản sao đã sửa vài field. Ví dụ dùng liên tục trong dự án:
-   ```kotlin
-   data class DeckListState(val decks: List<Deck> = emptyList())
-   val newState = oldState.copy(decks = newDecks) // giữ nguyên field khác, chỉ đổi decks
-   ```
-3. **`?` (nullable) và `?.` / `?:`** — 1 kiểu có thể có `?` sau nó nghĩa là "có thể null" (vd
-   `String?`). `x?.foo()` = "nếu x không null thì gọi foo()". `x ?: y` = "nếu x null thì dùng y".
-4. **Hàm mở rộng & lambda `{ }`** — cặp ngoặc nhọn `{ ... }` sau tên hàm là 1 khối code truyền vào
-   như tham số (giống callback). `list.map { it.name }` nghĩa là "với mỗi phần tử, lấy `name`".
-5. **`suspend fun` + coroutine** — hàm đánh dấu `suspend` là hàm **chạy bất đồng bộ** (vd đọc
-   database, gọi mạng) nhưng viết THẲNG như code tuần tự, không lồng callback địa ngục. Bạn chỉ
-   cần biết: hàm `suspend` phải được gọi từ 1 coroutine khác (`viewModelScope.launch { ... }`) —
-   dự án đã bọc sẵn việc này trong `launchGuarded { }`, bạn thường không tự viết `launch` tay.
+**Quản lý**
+- Bộ thẻ có màu nhận diện; lọc thẻ theo nguồn (thủ công / AI); vuốt để sửa hoặc xoá.
+- Xoá bộ thẻ hay xoá thẻ thì ghi chú và file ảnh không còn dùng cũng được dọn theo.
 
-**Jetpack Compose cơ bản**
+**Tài khoản và đồng bộ** (tuỳ chọn)
+- Đăng nhập Google bằng Credential Manager + Firebase Auth.
+- Đồng bộ hai chiều với Cloud Firestore: bộ thẻ, thẻ, tiến độ ôn và phần chữ của ghi chú. Ảnh
+  ghi chú luôn ở lại trên máy.
 
-6. **`@Composable` function = 1 khối UI** — thay vì viết file XML layout, Compose để bạn viết UI
-   bằng hàm Kotlin bình thường, đánh dấu `@Composable`. Gọi hàm khác có `@Composable` bên trong =
-   "nhúng" UI con vào UI cha. Ví dụ `Text("Xin chào")` chính là 1 lời gọi hàm.
-7. **State + Recomposition** — Compose tự vẽ lại (gọi là "recompose") 1 phần UI khi dữ liệu nó
-   đọc thay đổi. Trong dự án, dữ liệu đó là `StateFlow` của ViewModel, đọc bằng
-   `collectAsStateWithLifecycle()`. Bạn **không tự sửa** biến UI trực tiếp — luôn gọi hàm trên
-   ViewModel để đổi state, UI sẽ tự vẽ lại.
-8. **`Modifier`** — tham số `modifier: Modifier` gần như component nào cũng có, dùng để chỉnh
-   padding/size/click/scroll... Ví dụ `Modifier.fillMaxWidth().padding(16.dp)`.
-9. **`Flow` / `StateFlow`** — hiểu đơn giản là "1 dòng nước dữ liệu chảy theo thời gian", bạn
-   `collect` (hứng nước) để nhận giá trị mới mỗi khi có. `StateFlow` là `Flow` luôn có sẵn 1 giá
-   trị hiện tại (khác `Flow` thường phải chờ mới có).
-10. **Hilt (Dependency Injection)** — thay vì tự `MyRepository()` ở khắp nơi, bạn khai
-    `@Inject constructor(...)` trên class, Hilt tự tạo và "bơm" instance đúng chỗ cần (constructor
-    của ViewModel, Repository...). Bạn chỉ cần biết: thấy `@Inject constructor` hay
-    `@HiltViewModel` nghĩa là **không tự new object đó**, cứ khai báo nó làm tham số là có.
+**Giao diện**
+- Sáng / tối / theo máy; tiếng Việt và tiếng Anh, đổi ngay trong app.
+- Mọi màn danh sách có đủ trạng thái đang tải, rỗng và lỗi.
 
 ---
 
-## 3. Bức tranh kiến trúc tổng quan
+## Công nghệ
 
-Dự án theo **Clean Architecture + MVVM**, tách thành 4 lớp, luôn đi 1 chiều:
+| Phần | Dùng gì |
+| --- | --- |
+| Ngôn ngữ, giao diện | Kotlin 2.2, Jetpack Compose (Material 3), Navigation Compose (route kiểu an toàn) |
+| Kiến trúc | Clean Architecture + MVVM, luồng dữ liệu một chiều bằng `StateFlow` |
+| Dependency injection | Hilt |
+| Lưu trên máy | Room (schema v3, có migration và test migration), DataStore |
+| Việc nền | WorkManager — nhắc ôn hằng ngày, đồng bộ khi có mạng |
+| Camera và nhận dạng chữ | CameraX, ML Kit Text Recognition (mô hình gói kèm app) |
+| AI | Gemini qua Firebase AI Logic, bảo vệ bằng Firebase App Check |
+| Tài khoản và đám mây | Credential Manager, Firebase Auth, Cloud Firestore |
+| Test | JUnit 4, MockK, Turbine, kotlinx-coroutines-test, Room testing |
 
-```
-Người dùng bấm nút
-        │
-        ▼
-┌───────────────────┐   Compose Screen: chỉ vẽ UI + gọi hàm trên ViewModel khi có sự kiện
-│   presentation/    │   (Screen.kt, State.kt, ViewModel.kt)
-└─────────┬──────────┘
-          │ gọi UseCase
-          ▼
-┌───────────────────┐   1 UseCase = 1 hành động nghiệp vụ (vd "tạo thẻ", "xoá deck")
-│      domain/       │   KHÔNG import Android/Compose/Room/Hilt gì hết — code Kotlin thuần
-└─────────┬──────────┘
-          │ gọi qua interface Repository
-          ▼
-┌───────────────────┐   Repository thật (Impl) đọc/ghi Room, map Entity ⇄ Model
-│       data/        │   (DeckDao, FlashcardEntity, DeckRepositoryImpl...)
-└─────────┬──────────┘
-          ▼
-      Room (SQLite)
-```
-
-Vì sao tách vậy: đổi UI không đụng vào logic nghiệp vụ, đổi database không đụng vào ViewModel, và
-lớp `domain/` test được mà không cần khởi động cả Android (test rất nhanh, không cần emulator).
-
-**Chiều dữ liệu đọc thì ngược lại** — không phải "gọi rồi trả 1 lần", mà Room phát ra 1 `Flow`,
-chảy ngược lên UI, UI tự vẽ lại mỗi khi dữ liệu đổi:
-
-```
-Room table → DAO Flow<...> → Repository.observeX() → UseCase → ViewModel.setState → UI tự vẽ lại
-```
-
-Đây là lý do khi bạn thêm 1 deck mới, màn danh sách deck **tự động** hiện thêm dòng mới mà
-`DeckListScreen` không cần code gì để "refresh" — nó chỉ đang lắng nghe Room suốt.
+`minSdk` 24 (Android 7.0), `targetSdk` 36.
 
 ---
 
-## 4. Cấu trúc thư mục
+## Kiến trúc
+
+Mỗi tính năng là một thư mục trong `feature/`, tự có đủ ba lớp. Lớp trong không biết gì về lớp
+ngoài: `domain` là Kotlin thuần nên test được mà không cần Android.
+
+```
+presentation   Compose Screen  ──sự kiện──▶  ViewModel  ──StateFlow──▶  Screen vẽ lại
+     │
+     ▼ gọi
+domain         UseCase (một hành động nghiệp vụ)  ·  model  ·  interface Repository
+     ▲
+     │ hiện thực
+data           RepositoryImpl  ·  Room DAO  ·  Firestore  ·  ML Kit  ·  Gemini
+```
 
 ```
 app/src/main/java/com/ledinhthi/ontaptld/
-├── core/                      # Code DÙNG CHUNG cho mọi feature
-│   ├── domain/                #   UseCase base class, Clock/IdGenerator (bọc thời gian & UUID)
-│   ├── data/local/db/         #   AppDatabase (Room), BaseDao, wrapLocal (bắt lỗi Room)
-│   ├── data/local/prefs/      #   DataStore (lưu setting nhỏ, kiểu SharedPreferences mới)
-│   ├── presentation/mvi/      #   BaseViewModel, UiState/UiStatus — MỌI ViewModel kế thừa cái này
-│   ├── presentation/navigation# AppNavigator — cách ViewModel chuyển màn mà không cầm NavController
-│   ├── presentation/components# LoadingOverlay, ScreenStateHost — UI dùng lại ở nhiều màn
-│   ├── presentation/theme/    #   Màu sắc, font, khoảng cách (Color.kt, Dimens.kt, Type.kt...)
-│   ├── exception/             #   Cây lỗi AppException + nơi quyết định lỗi nào hiện dialog/snackbar
-│   └── di/                    #   Khai báo Hilt (chỗ Hilt biết cách tạo DAO, Repository...)
-│
-├── feature/                   # Mỗi tính năng lớn = 1 thư mục, tự có đủ 4 lớp domain/data/presentation
-│   ├── deck/                  #   Deck & Flashcard CRUD — feature "mẫu" đầy đủ nhất, đọc cái này trước
-│   ├── review/                #   Ôn tập theo SM-2
-│   ├── auth/presentation/login/ # Màn đăng nhập (UI xong, chưa nối backend thật — xem Mục 12)
-│   ├── settings/, splash/     #   Nhỏ/placeholder
-│
-├── navigation/                # AppDestinations (khai tên các màn), AppNavHost (màn nào ứng route nào)
-├── OnTapTldApp.kt             # Điểm khởi động app (bật Hilt + Timber log)
-└── MainActivity.kt            # Duy nhất 1 Activity — mọi màn hình đều là Composable bên trong nó
+├── core/         nền dùng chung: BaseViewModel, điều hướng, theme, component, Room, xử lý lỗi,
+│                 gọi AI, hàng đợi đồng bộ
+├── feature/
+│   ├── deck/     bộ thẻ, thẻ, ghi chú
+│   ├── review/   ôn tập, SM-2, xem ảnh nguồn
+│   ├── capture/  chụp ảnh → nhận dạng chữ → AI đề xuất thẻ
+│   ├── auth/     đăng nhập Google
+│   ├── sync/     đồng bộ với Firestore
+│   ├── reminder/ thông báo nhắc ôn
+│   └── settings/ cài đặt, ngôn ngữ
+└── navigation/   danh sách route và NavHost
 ```
 
-**Mẹo đọc code:** trong 1 feature, tên file luôn theo khuôn `XState.kt` (dữ liệu màn hình),
-`XViewModel.kt` (xử lý logic + lắng nghe sự kiện từ Screen), `XScreen.kt` (vẽ UI). Cứ mở đủ 3 file
-này là hiểu trọn 1 màn hình.
+### Vài điểm đáng xem trong code
+
+- **SM-2 là một hàm thuần** ([`Sm2Calculator`](app/src/main/java/com/ledinhthi/ontaptld/feature/review/domain/Sm2Calculator.kt)),
+  không phụ thuộc Android, có bộ test riêng.
+- **AI không cần API key trong app.** Yêu cầu đi qua Firebase AI Logic và được App Check xác nhận
+  đến từ đúng app này. AI bị buộc trả JSON theo khuôn, và lời dặn cho AI yêu cầu bỏ qua mọi "mệnh
+  lệnh" nằm lẫn trong ghi chú của người dùng
+  ([`FlashcardPrompt`](app/src/main/java/com/ledinhthi/ontaptld/core/data/ai/FlashcardPrompt.kt)).
+- **Đồng bộ offline-first.** Mỗi thay đổi trên máy để lại một lệnh trong bảng `sync_queue`; một
+  lượt đồng bộ kéo thay đổi từ đám mây về rồi mới đẩy hàng đợi lên. Hai máy cùng sửa một thẻ thì
+  bản sửa sau thắng (Last-Write-Wins theo `updatedAt`). Mốc "đã kéo tới đâu" dùng giờ của máy
+  chủ, để thay đổi của một máy mất mạng lâu vẫn được máy khác kéo về
+  ([`SyncRepositoryImpl`](app/src/main/java/com/ledinhthi/ontaptld/feature/sync/data/SyncRepositoryImpl.kt),
+  [`SyncDao`](app/src/main/java/com/ledinhthi/ontaptld/core/sync/SyncDao.kt)).
+- **Sống sót khi bị hệ thống tắt dưới nền.** Văn bản đang sửa và danh sách thẻ AI đang duyệt được
+  cất vào `SavedStateHandle`; mở lại app không phải nhận dạng lại hay gọi AI lần nữa.
+- **ViewModel không cầm `NavController` hay `Context`.** Điều hướng, hộp thoại và thông báo ngắn đi
+  qua `AppNavigator`; chuỗi hiển thị lấy qua `StringProvider` — nên ViewModel test được bằng
+  JUnit thường.
+- **Repo clone về vẫn build được dù không có Firebase.** `google-services.json` không được commit;
+  thiếu file thì plugin không được áp dụng và app tự bỏ qua các phần cần Firebase.
+
+Muốn đọc sâu hơn: [hướng dẫn cho dev mới](docs/HUONG_DAN_DEV_MOI.md) đi theo một luồng thật từ lúc
+bấm nút tới lúc ghi vào database.
 
 ---
 
-## 5. Đi theo 1 luồng thật từ đầu tới cuối
+## Chạy dự án
 
-Ví dụ dễ nhất để hiểu cả kiến trúc: màn **"Thêm thẻ thủ công"**
-(`feature/deck/presentation/manualcard/`). Người dùng gõ câu hỏi/câu trả lời, bấm "Lưu".
-
-**Bước 1 — UI phát sự kiện
-** ([ManualCardScreen.kt](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/presentation/manualcard/ManualCardScreen.kt)):
-
-```kotlin
-Button(onClick = viewModel::onSave) { Text("Lưu") }
-```
-
-`Screen` không tự lưu gì cả — nó chỉ gọi hàm `onSave()` trên ViewModel. Đây là quy tắc chung: **UI
-không bao giờ tự chứa logic**, chỉ hiển thị `state` và gọi hàm trên `viewModel`.
-
-**Bước 2 — ViewModel xử lý
-** ([ManualCardViewModel.kt](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/presentation/manualcard/ManualCardViewModel.kt)):
-
-```kotlin
-fun onSave() = launchGuarded(showLoadingOverlay = true) {
-    createManualFlashcard(
-        CreateManualFlashcardUseCase.Params(
-            deckId = args.deckId,
-            question = currentState.question,
-            answer = currentState.answer,
-        )
-    )
-    navigator.showSnackBar("Đã thêm thẻ.")
-    navigator.back()
-}
-```
-
-`launchGuarded { }` là hàm có sẵn ở `BaseViewModel` mà **mọi ViewModel đều kế thừa** — nó tự bật
-vòng xoay loading, chạy code bên trong, bắt lỗi nếu có, rồi tắt loading. Bạn không cần tự viết
-`try/catch` hay tự bật/tắt cờ loading ở từng nơi.
-
-**Bước 3 — UseCase thực hiện nghiệp vụ
-** ([CreateManualFlashcardUseCase.kt](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/domain/usecase/CreateManualFlashcardUseCase.kt)):
-
-```kotlin
-override suspend fun invoke(input: Params): Flashcard {
-    if (q.isEmpty() || a.isEmpty()) throw DeckException(DeckException.Kind.BLANK_CARD)
-    val card = Flashcard(id = ids.newId(), ..., dueDate = now, ...)
-    repository.upsert(card)
-    return card
-}
-```
-
-Đây là nơi **luật nghiệp vụ** sống (vd "không cho lưu thẻ trống") — hoàn toàn không biết Compose
-hay Room là gì, chỉ biết `FlashcardRepository` (1 interface).
-
-**Bước 4 — Repository ghi xuống Room
-** ([FlashcardRepositoryImpl.kt](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/data/repository/FlashcardRepositoryImpl.kt)):
-
-```kotlin
-override suspend fun upsert(card: Flashcard) = wrapLocal { dao.upsert(mapper.toEntity(card)) }
-```
-
-`mapper.toEntity(card)` đổi model nghiệp vụ (`Flashcard`) thành model database (`FlashcardEntity`
-— có thêm field như `synced`, `isDeleted` mà tầng trên không cần quan tâm). `dao.upsert(...)` là
-Room tự sinh code SQL `INSERT OR REPLACE` giúp bạn.
-
-**Bước 5 — UI khác tự cập nhật, không cần ai gọi:** màn `DeckDetailScreen` đang
-`observeCards(deckId)` (1 `Flow` từ Room) — ngay khi dòng mới được ghi, Room phát giá trị mới
-xuống Flow, chảy tới `setState { copy(cards = cards) }`, `collectAsStateWithLifecycle()` nhận
-state mới, Compose tự vẽ lại danh sách thẻ có thêm thẻ mới — **không có dòng code "refresh" nào
-cả**.
-
-Đọc thuộc luồng 5 bước này rồi thì mọi feature khác trong dự án (`decklist`, `deckdetail`, và
-`auth/login` vừa thêm) đều đi đúng khuôn y hệt, chỉ khác tên.
-
----
-
-## 6. Màn hình hiển thị 3 trạng thái Loading/Error/Empty
-
-Mọi màn danh sách trong app đều phải xử lý đủ 3 trạng thái: đang tải / lỗi / rỗng. Thay vì mỗi màn
-tự viết `if/else` riêng, dự án có sẵn [
-`ScreenStateHost`](app/src/main/java/com/ledinhthi/ontaptld/core/presentation/components/ScreenStateHost.kt):
-
-```kotlin
-ScreenStateHost(
-    isLoading = state.status.isLoading,
-    items = state.decks,
-    error = state.status.exceptionWrapper?.let { "Không tải được danh sách deck." },
-    onRetry = { /* ... */ },
-    emptyText = "Chưa có deck nào. Bấm + để tạo deck đầu tiên.",
-) { decks ->
-    LazyColumn { items(decks) { ... } } // chỉ code phần "có dữ liệu"
-}
-```
-
-Bạn chỉ cần lo phần UI khi **có dữ liệu** (lambda cuối) — 3 trạng thái còn lại `ScreenStateHost` lo
-sẵn. Còn khi thao tác (không phải load danh sách) cần chặn UI + hiện vòng xoay giữa màn hình (vd
-lúc bấm "Lưu"), dùng [
-`LoadingOverlay`](app/src/main/java/com/ledinhthi/ontaptld/core/presentation/components/LoadingOverlay.kt)
-bọc quanh cả `Scaffold` — xem cách `ManualCardScreen`/`LoginScreen`
-đang dùng.
-
-### 6.1 Bộ "mảnh ghép" giao diện dùng chung
-
-Khi dựng màn mới, **đừng** gọi thẳng `Button`, `Card`, `TopAppBar`… của Material và đừng tự gõ mã
-màu / cỡ chữ. Dùng các mảnh có sẵn trong `core/presentation/components/` để mọi màn giống nhau và
-khớp bản thiết kế:
-
-| Cần gì | Dùng | File |
-| --- | --- | --- |
-| Nút chính / nút phụ / nút chữ / nút icon | `PrimaryButton`, `SecondaryButton`, `AppTextButton`, `AppIconButton` | `AppButtons.kt` |
-| Khung thẻ nền trắng bo góc | `AppCard { … }` | `AppCard.kt` |
-| Nhãn nhỏ ("AI", "12 cần ôn"…) | `AppBadge`, `StatusPill` | `AppBadge.kt` |
-| Thanh tiêu đề có nút quay lại / đóng | `AppTopBar` | `AppTopBar.kt` |
-| Ô nhập có nhãn phía trên | `LabeledTextField` | `LabeledTextField.kt` |
-| Màn rỗng / lỗi / đang tải / khung giữ chỗ | `EmptyState`, `ErrorState`, `LoadingState`, `SkeletonBlock` | `StateViews.kt` |
-
-Màu lấy qua `appColors().<tên>` (vd `appColors().textSecondary`), cỡ chữ qua
-`MaterialTheme.typography.<tên>`, khoảng cách qua `AppDimens.<tên>`, icon là các file
-`res/drawable/ic_*.xml`. Màn mẫu nên đọc để bắt chước: Home —
-[`DeckListScreen.kt`](app/src/main/java/com/ledinhthi/ontaptld/feature/deck/presentation/decklist/DeckListScreen.kt)
-(đầu file có sơ đồ cách chia Screen → Content → các khối con).
-
----
-
-## 7. Điều hướng (chuyển màn hình) hoạt động thế nào
-
-Có 1 điểm dễ gây nhầm: **ViewModel không bao giờ cầm `NavController`**. Thay vào đó nó gọi
-`navigator.to(...)`, `navigator.back()`, `navigator.replaceAll(...)` — `navigator` là
-[
-`AppNavigator`](app/src/main/java/com/ledinhthi/ontaptld/core/presentation/navigation/AppNavigator.kt),
-1 interface không biết gì về Compose Navigation. Lý do: ViewModel test được mà không cần dựng cả
-màn hình Compose thật.
-
-Nơi DUY NHẤT thật sự cầm `NavController` là [
-`AppNavHost.kt`](app/src/main/java/com/ledinhthi/ontaptld/navigation/AppNavHost.kt) — nó lắng nghe
-các "lệnh" từ `navigator` rồi mới gọi `navController.navigate(...)`.
-
-Muốn thêm 1 route mới, luôn sửa đúng 2 chỗ:
-
-1. Khai tên route trong [
-   `AppDestinations.kt`](app/src/main/java/com/ledinhthi/ontaptld/navigation/AppDestinations.kt) (vd
-   `data object LoginRoute`).
-2. Đăng ký `composable<LoginRoute> { LoginScreen() }` trong `AppNavHost.kt`.
-
-> Lưu ý kỹ thuật (đã từng gây bug thật trong dự án): sự kiện điều hướng đi qua 1 `Channel`, không
-> phải biến thường — nghĩa là **gọi `navigator.to(...)` xong không có gì hiển thị ngay lập tức**,
-> nó chờ `AppNavHost` xử lý ở khung hình kế tiếp. Bình thường bạn không cần để ý điều này, chỉ cần
-> biết nếu thấy màn hình "đứng yên không chuyển" sau khi gọi navigator, đây là chỗ đầu tiên nên
-> nghi ngờ.
-
----
-
-## 8. Muốn thêm 1 màn hình mới thì làm sao
-
-Copy đúng khuôn của 1 feature nhỏ có sẵn (`manualcard` hoặc `auth/presentation/login`) là nhanh
-nhất. Các bước:
-
-1. Tạo thư mục `feature/<ten>/presentation/<man>/` với 3 file `XState.kt`, `XViewModel.kt`,
-   `XScreen.kt` (xem khuôn ở Mục 5).
-2. `XState` implement `UiState`, có `status: UiStatus = UiStatus()` + field dữ liệu riêng của màn.
-3. `XViewModel` kế thừa `BaseViewModel<XState>(XState(), toolbox)`, nhận `ViewModelToolbox` qua
-   constructor (Hilt tự bơm) — không tự tạo `AppNavigator` hay `GlobalExceptionHandler` tay.
-4. `XScreen` nhận `viewModel: XViewModel = hiltViewModel()`, đọc
-   `viewModel.uiState.collectAsStateWithLifecycle()`, KHÔNG tự giữ state nghiệp vụ bằng
-   `remember { mutableStateOf(...) }` (chỉ dùng `remember` cho state thuần UI như "dialog đang mở
-   hay đóng", state nghiệp vụ luôn nằm trong ViewModel).
-5. Nếu cần gọi database/logic mới, viết 1 `UseCase` mới trong `domain/usecase/`, KHÔNG gọi thẳng
-   `Repository` hay DAO từ ViewModel.
-6. Thêm route vào `AppDestinations.kt` + `AppNavHost.kt` như Mục 7.
-7. Build thử: `./gradlew :app:compileDebugKotlin`.
-
----
-
-## 9. 5 luật KHÔNG ĐƯỢC phá
-
-Đọc kỹ file [
-`docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md`](docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md)
-nếu muốn hiểu vì sao — ở đây chỉ liệt kê để nhớ khi code:
-
-1. **`domain/` không bao giờ `import androidx.*` / `hilt.*` / `room.*` / compose.** Nếu 1 file
-   trong `domain/usecase` hay `domain/model` cần import Compose/Room để chạy, bạn đang đặt sai
-   thư mục.
-2. **`data/` không bao giờ import từ `presentation/`.** Repository/DAO không được biết ViewModel
-   hay Screen là gì.
-3. **ViewModel không cầm `NavController`/`Context`.** Mọi điều hướng/dialog/snackbar đi qua
-   `navigator` (Mục 7).
-4. **UI (`Screen.kt`) không chứa logic nghiệp vụ**, chỉ đọc `state` và gọi hàm `viewModel.xxx()`.
-5. **Mọi thao tác có thể lỗi (đọc/ghi Room, gọi AI...) bọc trong `launchGuarded { }`**, không tự
-   viết `try/catch` rải rác trong ViewModel.
-
----
-
-## 10. Chạy & test dự án
+Cần Android Studio bản gần đây (đã kèm JDK 17) và một emulator hoặc máy thật Android 7.0 trở lên.
 
 ```bash
-# Build thử code có lỗi compile không (nhanh nhất, dùng khi vừa sửa xong)
-./gradlew :app:compileDebugKotlin
+git clone https://github.com/Thi1503/on-tap-tld.git
+```
 
-# Chạy toàn bộ unit test (test nằm ở app/src/test/)
-./gradlew :app:testDebugUnitTest
+Mở thư mục bằng Android Studio, chờ Gradle sync xong rồi bấm **Run**. Hoặc cài từ dòng lệnh:
 
-# Build + cài lên emulator/thiết bị đang mở
+```bash
 ./gradlew :app:installDebug
 ```
 
-Unit test trong dự án **không cần emulator** vì `domain/` không đụng Android — chạy trong vài giây.
-Ví dụ đáng đọc để học cách test: `Sm2CalculatorTest`, `CreateDeckUseCaseTest`.
+Không cấu hình gì thêm thì app vẫn chạy đủ phần offline: bộ thẻ, thẻ thủ công, ôn tập, nhắc ôn,
+cài đặt. Ba phần sau cần Firebase.
 
----
+### Bật AI, đăng nhập và đồng bộ
 
-## 11. Lỗi hay gặp khi mới học Compose
+`app/google-services.json` không nằm trong repo, nên bạn cần một project Firebase của riêng mình:
 
-- **Sửa 1 biến `var` thường trong Composable mà UI không cập nhật** → phải dùng
-  `remember { mutableStateOf(...) }` (cho state thuần UI) hoặc state từ ViewModel (cho state
-  nghiệp vụ), không phải biến Kotlin thường.
-- **Quên `collectAsStateWithLifecycle()`** khi đọc `StateFlow` trong Composable → UI sẽ không tự
-  vẽ lại khi state đổi.
-- **Gọi hàm nghiệp vụ trực tiếp trong `Screen.kt`** (vd gọi thẳng Repository) thay vì gọi qua
-  `viewModel.xxx()` → phá kiến trúc, khó test, và thường là dấu hiệu đặt sai lớp.
-- **Tưởng gọi `navigator.to(...)` là chuyển màn ngay lập tức** → xem lưu ý ở Mục 7.
-- **Vòng lặp vô hạn re-compose** (màn hình giật/lag) thường do tạo object mới (list, lambda) ngay
-  trong thân Composable mỗi lần vẽ lại thay vì dùng `remember`.
+1. Tạo project Firebase, thêm app Android với package `com.ledinhthi.ontaptld`, tải
+   `google-services.json` về đặt vào thư mục `app/`.
+2. **AI:** bật *AI Logic* với nhà cung cấp Gemini Developer API. Bật *App Check*; chạy bản debug
+   một lần, lấy debug token trong Logcat (lọc `DebugAppCheckProvider`) rồi thêm vào App Check →
+   Apps → Manage debug tokens.
+3. **Đăng nhập:** bật *Authentication* → Google, và thêm SHA-1 của debug keystore
+   (`./gradlew signingReport`) vào Project settings.
+4. **Đồng bộ:** tạo *Cloud Firestore* và đặt Security Rules để mỗi người chỉ đọc / ghi phần của
+   mình:
 
----
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, create, update, delete: if request.auth != null
+                                            && request.auth.uid == userId;
 
-## 12. Trạng thái hiện tại của dự án
-
-> Phần này thay đổi nhanh theo tiến độ — coi đây là ảnh chụp nhanh, không phải nguồn sự thật.
-> Muốn chắc chắn, xem `git log` hoặc hỏi người đang giữ dự án.
-
-- **Đã có đầy đủ:** base kiến trúc (Mục 3), feature `deck` (tạo/sửa/xoá deck + thẻ thủ công),
-  `Sm2Calculator` (thuật toán ôn tập, đã unit test), màn `splash`, UI màn `login`
-  (`feature/auth/presentation/login/`) — **UI xong nhưng chưa nối backend thật**, bấm "Đăng nhập"
-  hợp lệ hiện tại chỉ demo rồi vào thẳng Home.
-- **Chưa làm:** chụp ảnh + OCR + AI sinh thẻ (`feature/capture`), UI ôn tập thật, widget màn hình
-  chính, đăng nhập Google + đồng bộ Cloud thật (Sprint 2 — xem `docs/docs_tld.md` Mục 3).
-- **Firebase/AI:** đang dùng bản giả (`StubGeminiClient`) vì repo chưa có `google-services.json`.
-
----
-
-## 13. Thêm ảnh & đa ngôn ngữ — đối chiếu với Flutter
-
-Bên Flutter (TLD Tracker), ảnh khai trong `pubspec.yaml` (`assets: - assets/images/`) rồi gọi
-`Image.asset('assets/images/x.png')`; chữ đa ngôn ngữ nằm trong file `.arb` (`app_vi.arb`,
-`app_en.arb`), sinh code bằng `flutter gen-l10n`, gọi bằng `AppLocalizations.of(context).loginTitle`.
-
-Android **không cần khai báo file nào cả** — cứ để đúng tên/đúng thư mục quy ước, Android Studio
-tự quét và sinh ra class `R` (viết tắt "Resource") chứa hằng số trỏ tới từng file/từng key, lúc
-build. Bảng đối chiếu:
-
-| Flutter (TLD Tracker) | Android (dự án này) | Ghi chú |
-| --- | --- | --- |
-| `pubspec.yaml` khai `assets: - assets/images/` | Không cần khai gì — thả file đúng thư mục | Android tự quét `res/` lúc build |
-| `assets/images/logo.png` | `res/drawable/logo.png` (hoặc `.xml` nếu là vector) | Tên file **chỉ chữ thường, số, `_`** — không dấu cách/hoa/gạch ngang |
-| `Image.asset('assets/images/logo.png')` | `painterResource(R.drawable.logo)` trong Compose | `R.drawable.<tên file bỏ đuôi>` |
-| `app_vi.arb` / `app_en.arb` (JSON key-value) | `res/values/strings.xml` (mặc định) + `res/values-en/strings.xml` | Thư mục `values-<mã ngôn ngữ>` = 1 bản dịch |
-| `flutter gen-l10n` sinh class | AGP tự sinh class `R` — **không cần lệnh gen riêng**, chỉ cần build |
-| `AppLocalizations.of(context).loginTitle` | `stringResource(R.string.login_title)` (trong `@Composable`) |
-| Placeholder `{name}` trong `.arb` | Placeholder `%1$s`, `%2$d`... trong `strings.xml`, truyền qua `stringResource(id, arg)` |
-
-### 13.1 Cách thêm 1 ảnh mới
-
-1. Xuất ảnh từ Figma. Nếu Figma cho xuất **SVG** → ưu tiên chọn SVG (Android vẽ lại bằng vector,
-   nét luôn sắc dù màn hình to nhỏ, 1 file dùng cho mọi độ phân giải — không như PNG phải xuất
-   nhiều size). Nếu chỉ có PNG (ảnh chụp/minh hoạ phức tạp) thì dùng PNG/WebP bình thường.
-2. Trong Android Studio: chuột phải `app/res` → `New` → `Vector Asset` (nếu có SVG, chọn "Local
-   file" và trỏ tới file SVG — Studio tự convert sang `.xml`) hoặc kéo thả file PNG/WebP thẳng vào
-   thư mục `app/src/main/res/drawable/`.
-3. Đặt tên file theo quy ước: chữ thường + `_`, có tiền tố theo loại để dễ tìm — dự án này đang
-   dùng `ic_launcher_foreground.xml` (icon) làm ví dụ; nên theo mẫu `ic_<tên>` cho icon,
-   `img_<tên>` cho ảnh minh hoạ.
-4. Dùng trong Compose:
-   ```kotlin
-   Image(
-       painter = painterResource(R.drawable.img_ten_anh),
-       contentDescription = null, // hoặc mô tả cho accessibility nếu ảnh có ý nghĩa (không phải trang trí)
-   )
-   ```
-5. Nếu bắt buộc dùng PNG/JPG (không có vector) và cần nét đẹp trên mọi máy, xuất thêm các bản độ
-   phân giải khác nhau, bỏ vào `drawable-mdpi/`, `drawable-hdpi/`, `drawable-xhdpi/`,
-   `drawable-xxhdpi/`, `drawable-xxxhdpi/` — CÙNG 1 tên file, khác thư mục. Android tự chọn đúng
-   bản theo mật độ điểm ảnh của máy. Nếu chỉ có 1 bản, để thẳng vào `drawable/` không phân
-   density cũng chạy được, chỉ là ảnh có thể hơi mờ/nặng trên máy màn hình rất nét.
-
-> `app/src/main/assets/` (khác `res/`) cũng tồn tại nhưng KHÔNG dùng cho ảnh hiển thị UI — đó là
-> nơi để file thô đọc bằng đường dẫn tay (font, JSON mẫu, model AI...), không đi qua `R` nên không
-> tự động theo density/theme. Ảnh UI luôn ưu tiên `res/drawable/`.
-
-### 13.2 Cách thêm 1 chuỗi chữ (localkey) / 1 ngôn ngữ mới
-
-Ví dụ thật đã làm trong dự án — màn Login vừa đổi từ chuỗi cứng (`Text("Đăng nhập")`) sang key:
-
-**`res/values/strings.xml`** (ngôn ngữ mặc định — ở đây là tiếng Việt):
-```xml
-<string name="login_title">Đăng nhập</string>
-<string name="login_subtitle">Đăng nhập để tiếp tục học cùng %1$s</string>
+      match /{collection}/{docId} {
+        allow read, write: if request.auth != null
+                             && request.auth.uid == userId;
+      }
+    }
+  }
+}
 ```
 
-**`res/values-en/strings.xml`** (bản dịch tiếng Anh — chỉ cần khai key nào muốn dịch, key nào
-thiếu Android tự lấy lại bản mặc định):
-```xml
-<string name="login_title">Sign in</string>
-<string name="login_subtitle">Sign in to keep learning with %1$s</string>
-```
+### Dữ liệu mẫu
 
-**Dùng trong Compose** ([LoginScreen.kt](app/src/main/java/com/ledinhthi/ontaptld/feature/auth/presentation/login/LoginScreen.kt)):
-```kotlin
-Text(text = stringResource(R.string.login_title))
-Text(text = stringResource(R.string.login_subtitle, stringResource(R.string.app_name)))
-```
+Để có sẵn 4 bộ thẻ, 37 thẻ (kèm một ghi chú AI có ảnh) cho việc xem thử — chỉ nạp được khi máy
+chưa có bộ thẻ nào:
 
-Muốn thêm 1 ngôn ngữ mới (vd tiếng Nhật): tạo thư mục `res/values-ja/strings.xml`, copy hết key từ
-`res/values/strings.xml` sang rồi dịch giá trị — KHÔNG đổi tên `name`. Android tự chọn đúng file
-theo ngôn ngữ máy đang đặt (Cài đặt hệ thống → Ngôn ngữ), không cần code gì thêm.
-
-**Tự kiểm tra không cần đổi ngôn ngữ máy thật:** trên emulator có thể đổi ngôn ngữ hệ thống bằng
-lệnh (dùng để test bản dịch em vừa thêm cho màn Login, đã tự chạy thử và chụp lại — kết quả đúng):
 ```bash
-adb shell settings put system system_locales en-US
-adb shell am force-stop com.ledinhthi.ontaptld && adb shell am start -n com.ledinhthi.ontaptld/.MainActivity
+./gradlew :app:assembleDebug :app:assembleDebugAndroidTest
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r -t app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb shell am instrument -w -e seedDemo true -e class com.ledinhthi.ontaptld.tools.DemoDataSeeder com.ledinhthi.ontaptld.test/androidx.test.runner.AndroidJUnitRunner
 ```
-
-**Lưu ý quan trọng — không phải chỗ nào cũng đổi sang `stringResource` được ngay:** `stringResource()`
-chỉ gọi được trong hàm `@Composable` (tức trong `Screen.kt`). Các message tạo ra ở tầng
-`ViewModel`/`domain` (vd lỗi validate trong `LoginViewModel`, message trong
-`GlobalExceptionHandler`) **không có `Context`** nên chưa thể gọi thẳng — đây là lý do dự án vẫn
-để literal tiếng Việt ở tầng đó (xem comment trong `GlobalExceptionHandler.kt`). Theo đúng kế hoạch
-đã ghi ở [`docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md`](docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md#6-exception-layer--exceptionhandler),
-việc này để dành khi làm đa ngôn ngữ thật (Sprint 2): tạo 1 interface `StringProvider` (bọc
-`context.getString(id, ...)`) rồi truyền qua constructor ViewModel — lúc đó `domain`/`ViewModel`
-vẫn không cần biết Compose/Android là gì, chỉ gọi qua interface.
 
 ---
 
-## 14. Bảng thuật ngữ tra nhanh
+## Test
 
-| Thuật ngữ                        | Nghĩa ngắn gọn                                                                                 |
-|----------------------------------|------------------------------------------------------------------------------------------------|
-| Composable (`@Composable`)       | 1 hàm Kotlin vẽ ra 1 phần UI, thay cho file XML layout cũ                                      |
-| Recomposition                    | Compose tự "vẽ lại" 1 phần UI khi dữ liệu nó phụ thuộc thay đổi                                |
-| `remember`                       | Giữ 1 giá trị sống qua các lần vẽ lại (không bị tạo mới mỗi lần)                               |
-| `Modifier`                       | Tham số chỉnh kích thước/khoảng cách/hành vi của 1 component Compose                           |
-| Coroutine                        | Cách viết code chạy nền/bất đồng bộ mà đọc như code tuần tự bình thường                        |
-| `suspend fun`                    | Hàm chỉ gọi được từ 1 coroutine, dùng cho việc "chờ" (đọc DB, gọi mạng...)                     |
-| `Flow` / `StateFlow`             | 1 luồng dữ liệu phát ra nhiều giá trị theo thời gian, UI lắng nghe (collect)                   |
-| ViewModel                        | Nơi giữ state của 1 màn hình + xử lý logic khi người dùng thao tác, sống sót qua xoay màn hình |
-| MVVM / MVI                       | Cách tổ chức code: View (UI) ⇄ ViewModel (state + logic) ⇄ Model (dữ liệu)                     |
-| UseCase                          | 1 class = 1 hành động nghiệp vụ duy nhất (vd "tạo thẻ", "xoá deck")                            |
-| Repository                       | Lớp trung gian che giấu nguồn dữ liệu thật (Room/API) khỏi tầng nghiệp vụ                      |
-| Room                             | Thư viện của Google giúp thao tác SQLite bằng Kotlin thay vì viết SQL tay hoàn toàn            |
-| DAO                              | "Data Access Object" — interface khai các câu lệnh SQL, Room tự sinh code chạy                 |
-| Entity (Room)                    | 1 `data class` ánh xạ trực tiếp 1 bảng trong database                                          |
-| Hilt / DI (Dependency Injection) | Thư viện tự tạo & "bơm" các object cần dùng, bạn không tự `new` tay                            |
-| `@Inject constructor`            | Đánh dấu Hilt biết cách tự tạo instance của class này                                          |
-| `@HiltViewModel`                 | Đánh dấu 1 ViewModel để Hilt tự tạo, dùng cùng `hiltViewModel()` trong Compose                 |
-| Navigation Compose               | Thư viện điều hướng giữa các Composable (giống chuyển Activity/Fragment ngày xưa)              |
-| Clean Architecture               | Cách tách code thành lớp domain/data/presentation, lớp trong không phụ thuộc lớp ngoài         |
+```bash
+./gradlew :app:testDebugUnitTest
+```
+
+220 unit test chạy trên JVM, không cần emulator: thuật toán SM-2, use case, ViewModel của từng
+màn, lời dặn cho AI, luật đồng bộ và bộ máy đồng bộ.
+
+Test cần emulator (database Room thật): migration schema v1 → v3, SQL dọn ghi chú, xoá toàn bộ
+dữ liệu, và SQL của hàng đợi đồng bộ.
+
+```bash
+./gradlew :app:connectedDebugAndroidTest
+```
+
+Lệnh trên gỡ app khỏi máy khi chạy xong. Cách chạy riêng một lớp test mà giữ nguyên app:
+[kế hoạch phát triển, Mục 6.4](docs/KE_HOACH_PHAT_TRIEN.md).
+
+---
+
+## Giới hạn hiện tại
+
+- Chưa có: widget màn hình chính, màn thống kê, onboarding, xoá tài khoản, trang chính sách quyền
+  riêng tư.
+- Đồng bộ không gồm ảnh ghi chú và lịch sử ôn; máy khác chỉ thấy thay đổi ở lần đồng bộ kế tiếp
+  của nó (mở app, sửa thẻ hoặc bấm "Đồng bộ ngay"), không cập nhật tức thời.
+- Giao diện mới được soát trên điện thoại màn dọc; chưa soát tablet, xoay ngang và cỡ chữ lớn.
+- Chưa cấu hình ký phát hành: mới chạy bản debug.
+
+---
+
+## Tài liệu
+
+- [Hướng dẫn cho dev mới](docs/HUONG_DAN_DEV_MOI.md) — đọc và sửa code theo đúng khuôn của dự án.
+- [Kế hoạch phát triển](docs/KE_HOACH_PHAT_TRIEN.md) — tiến độ, quyết định đã chốt, những chỗ
+  làm khác bản thiết kế và lý do.
+- [Đặc tả nghiệp vụ](docs/docs_tld.md) và
+  [tài liệu kiến trúc](docs/ANDROID_CLEAN_ARCHITECTURE_MVVM_BASE.md).
+
+---
+
+## Tác giả
+
+Lê Đình Thi — [github.com/Thi1503](https://github.com/Thi1503)

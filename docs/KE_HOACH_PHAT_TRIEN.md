@@ -625,7 +625,12 @@ Hai việc dọn dẹp cuối (#22) cũng vậy — bước 4 xong.
 đã code xong trên nhánh `feat/sync`, chưa commit — chờ Thi thử kéo dữ liệu về máy trống rồi
 commit / tạo pull request. Xoá tài khoản vẫn để sau khi nộp. 4 bộ thẻ mẫu ĐÃ nạp lên emulator
 Pixel 8a ngày 9/10/2026 (và đã tự đồng bộ lên đám mây của tài khoản đang đăng nhập: 42 bản ghi).
-Việc kế tiếp: viết README.
+README viết lại ngày 9/10/2026 trên nhánh `docs/readme` (chưa commit): giới thiệu app, link video
+demo (https://www.youtube.com/watch?v=6vQqLnVYt8c), 6 ảnh màn hình trong `docs/screenshots/`,
+tính năng, công nghệ, kiến trúc, cách chạy, test, giới hạn hiện tại. README cũ ("cho dev mới")
+chuyển thành `docs/HUONG_DAN_DEV_MOI.md`, đã sửa link và các ví dụ còn nhắc màn Login email.
+CÒN TREO: repo chưa có LICENSE (chờ Thi chọn MIT hay "All rights reserved"), và App Check giữ
+Enforce hay tạm tắt lúc nộp.
 
 **Emulator đổi sang Pixel 8a API 37.1 (9/10/2026):** dữ liệu trắng, chưa có bộ thẻ nào, chưa có
 ảnh `ontap_demo_note.jpg`, đã thêm một tài khoản Google. Ngôn ngữ riêng của app đã đặt `vi`.
